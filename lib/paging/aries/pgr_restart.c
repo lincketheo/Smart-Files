@@ -13,7 +13,7 @@
 /// limitations under the License.
 
 #include "aries.h"
-#include "intf/logging.h"
+#include "tlclib/intf/logging.h"
 #include "paging/pager.h"
 
 ////////////////////////////////////////////////////////////

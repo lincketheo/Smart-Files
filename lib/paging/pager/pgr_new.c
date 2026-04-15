@@ -12,8 +12,8 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "core/error.h"
-#include "core/random.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/core/random.h"
 #include "paging/pager.h"
 #include "paging/pager/page_fixture.h"
 #include "paging/pager/page_h.h"

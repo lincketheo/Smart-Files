@@ -15,8 +15,8 @@
 // numstore
 #include "paging/pages/page.h"
 
-#include "core/error.h"
-#include "core/random.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/core/random.h"
 #include "numstore/errors.h"
 #include "paging/pages/data_list.h"
 #include "paging/pages/fsm_page.h"

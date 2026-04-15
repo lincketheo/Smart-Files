@@ -12,13 +12,13 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "core/alloc.h"
-#include "core/chunk_alloc.h"
-#include "core/macros.h"
-#include "core/random.h"
-#include "intf/logging.h"
-#include "intf/os/memory.h"
-#include "intf/os/threading.h"
+#include "tlclib/memory/alloc.h"
+#include "tlclib/memory/chunk_alloc.h"
+#include "tlclib/core/macros.h"
+#include "tlclib/core/random.h"
+#include "tlclib/intf/logging.h"
+#include "tlclib/intf/os/memory.h"
+#include "tlclib/intf/os/threading.h"
 #include "numstore/errors.h"
 #include "paging/dpgt/dirty_page_table.h"
 #include "paging/txns/txn_table.h"

@@ -14,10 +14,10 @@
 
 #include "paging/lockt/lt_lock.h"
 
-#include "core/assert.h"
-#include "core/hashing.h"
-#include "core/random.h"
-#include "core/string.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/core/hashing.h"
+#include "tlclib/core/random.h"
+#include "tlclib/ds/string.h"
 
 #include <string.h>
 

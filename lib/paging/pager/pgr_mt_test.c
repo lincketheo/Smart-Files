@@ -12,7 +12,7 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "intf/os/threading.h"
+#include "tlclib/intf/os/threading.h"
 #include "numstore/errors.h"
 
 #ifndef NTEST

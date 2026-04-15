@@ -12,7 +12,7 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "core/stream.h"
+#include "tlclib/ds/stream.h"
 #include "numstore/algorithms_internal/node_updates.h"
 #include "numstore/algorithms_internal/rope/algorithms.h"
 #include "paging/pager.h"

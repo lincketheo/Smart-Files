@@ -14,10 +14,10 @@
 
 #pragma once
 
-#include "core/assert.h"
-#include "core/bytes.h"
-#include "core/checksums.h"
-#include "core/signatures.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/memory/bytes.h"
+#include "tlclib/core/checksums.h"
+#include "tlclib/dev/signatures.h"
 #include "numstore/compile_config.h"
 
 #include <string.h>

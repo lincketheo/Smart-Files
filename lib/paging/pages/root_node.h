@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "core/string.h"
+#include "tlclib/ds/string.h"
 #include "paging/pages/page.h"
 
 /*

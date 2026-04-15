@@ -13,8 +13,8 @@
 /// limitations under the License.
 
 #include "aries.h"
-#include "core/assert.h"
-#include "core/error.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/dev/error.h"
 #include "paging/pager.h"
 #include "paging/pages/fsm_page.h"
 

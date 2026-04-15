@@ -14,8 +14,8 @@
 
 #include "paging/pages/var_hash_page.h"
 
-#include "core/error.h"
-#include "intf/logging.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/intf/logging.h"
 
 DEFINE_DBG_ASSERT (page, vh_page, d, { ASSERT (d); })
 

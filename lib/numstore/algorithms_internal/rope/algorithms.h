@@ -16,8 +16,8 @@
 
 #include "numstore/algorithms_internal/algorithms.h"
 
-#include "core/chunk_alloc.h"
-#include "core/stream.h"
+#include "tlclib/memory/chunk_alloc.h"
+#include "tlclib/ds/stream.h"
 #include "numstore/algorithms_internal/node_updates.h"
 #include "paging/pager/page_h.h"
 

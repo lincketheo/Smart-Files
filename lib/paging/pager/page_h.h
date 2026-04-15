@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "core/spx_latch.h"
+#include "tlclib/concurrency/spx_latch.h"
 #include "paging/pages/page.h"
 #include "paging/pages/page_delegate.h"
 

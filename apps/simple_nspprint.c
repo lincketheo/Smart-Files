@@ -12,8 +12,8 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "core/math.h"
-#include "intf/logging.h"
+#include "tlclib/core/math.h"
+#include "tlclib/intf/logging.h"
 #include "paging/os_pager/file_pager.h"
 #include "paging/pager.h"
 #include "paging/pages/page.h"

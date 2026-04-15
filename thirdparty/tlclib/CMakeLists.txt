@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.18)
 
-file(STRINGS "${CMAKE_SOURCE_DIR}/version.txt" TLCLIB_VERSION LIMIT_COUNT 1)
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" TLCLIB_VERSION LIMIT_COUNT 1)
 
 project(tlclib
     VERSION     "${TLCLIB_VERSION}"
@@ -17,21 +17,22 @@ include(cmake/CompileConfig.cmake)
 include(cmake/Options.cmake)
 include(cmake/CompilerFlags.cmake)
 include(cmake/Sanitizers.cmake)
-include(cmake/Packaging.cmake)
-
 add_subdirectory(src)
 
-# Build the Test Binary
-add_executable(test test.c)
-target_link_libraries(test PRIVATE tlclib)
-target_include_directories(test PUBLIC include)
+# Only build the test binary and package when tlclib is the top-level project
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+    include(cmake/Packaging.cmake)
 
-# Link against pthread
-if(NOT WIN32)
-    target_link_libraries(test PRIVATE pthread)
+    add_executable(tlclib_test test.c)
+    target_link_libraries(tlclib_test PRIVATE tlclib)
+    target_include_directories(tlclib_test PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
+
+    if(NOT WIN32)
+        target_link_libraries(tlclib_test PRIVATE pthread)
+    endif()
+
+    install(TARGETS tlclib_test
+        RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+        COMPONENT runtime
+    )
 endif()
-
-install(TARGETS test
-    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
-    COMPONENT runtime
-)

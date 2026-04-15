@@ -12,10 +12,10 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "core/dbl_buffer.h"
-#include "core/string.h"
-#include "intf/logging.h"
-#include "intf/os/time.h"
+#include "tlclib/ds/dbl_buffer.h"
+#include "tlclib/ds/string.h"
+#include "tlclib/intf/logging.h"
+#include "tlclib/intf/os/time.h"
 #include "numstore/stdtypes.h"
 #include "test/testing.h"
 

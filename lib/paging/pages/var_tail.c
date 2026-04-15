@@ -14,9 +14,9 @@
 
 #include "paging/pages/var_tail.h"
 
-#include "core/assert.h"
-#include "core/random.h"
-#include "intf/logging.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/core/random.h"
+#include "tlclib/intf/logging.h"
 #include "paging/pages/page.h"
 #include "test/testing.h"
 

@@ -25,8 +25,8 @@ endif ()
 
 # The main library
 add_library(tlclib STATIC ${TLCLIB_SOURCES})
-target_include_directories(tlclib 
-  PUBLIC "${CMAKE_SOURCE_DIR}/include"
+target_include_directories(tlclib
+  PUBLIC "${PROJECT_SOURCE_DIR}/include"
   PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
@@ -56,7 +56,7 @@ install(TARGETS tlclib
         COMPONENT development
 )
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/"
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/include/"
         DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
         COMPONENT development
         FILES_MATCHING PATTERN "*.h"
@@ -64,8 +64,8 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/include/"
 
 install(
         FILES
-        "${CMAKE_SOURCE_DIR}/README.md"
-        "${CMAKE_SOURCE_DIR}/LICENSE.md"
+        "${PROJECT_SOURCE_DIR}/README.md"
+        "${PROJECT_SOURCE_DIR}/LICENSE.md"
         DESTINATION "${CMAKE_INSTALL_DOCDIR}"
         COMPONENT runtime
         OPTIONAL

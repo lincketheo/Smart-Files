@@ -14,10 +14,10 @@
 
 #pragma once
 
-#include "core/gr_lock.h"
-#include "core/hash_table.h"
-#include "core/latch.h"
-#include "core/slab_alloc.h"
+#include "tlclib/concurrency/gr_lock.h"
+#include "tlclib/ds/hash_table.h"
+#include "tlclib/concurrency/latch.h"
+#include "tlclib/memory/slab_alloc.h"
 #include "paging/lockt/lt_lock.h"
 
 /*

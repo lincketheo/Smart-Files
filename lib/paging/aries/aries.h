@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "core/slab_alloc.h"
+#include "tlclib/memory/slab_alloc.h"
 #include "paging/dpgt/dirty_page_table.h"
 #include "paging/pager.h"
 #include "paging/txns/txn_table.h"

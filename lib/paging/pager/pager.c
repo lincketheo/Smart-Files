@@ -14,7 +14,7 @@
 
 #include "paging/pager.h"
 
-#include "intf/logging.h"
+#include "tlclib/intf/logging.h"
 #include "paging/pager/page_fixture.h"
 #include "test/testing.h"
 

@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "core/hashing.h"
-#include "core/string.h"
+#include "tlclib/core/hashing.h"
+#include "tlclib/ds/string.h"
 #include "paging/pages/page.h"
 
 /*

@@ -14,16 +14,16 @@
 
 #include "paging/dpgt/dirty_page_table.h"
 
-#include "core/assert.h"
-#include "core/deserializer.h"
-#include "core/error.h"
-#include "core/hash_table.h"
-#include "core/latch.h"
-#include "core/random.h"
-#include "core/serializer.h"
-#include "core/slab_alloc.h"
-#include "intf/logging.h"
-#include "intf/os/memory.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/memory/deserializer.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/ds/hash_table.h"
+#include "tlclib/concurrency/latch.h"
+#include "tlclib/core/random.h"
+#include "tlclib/memory/serializer.h"
+#include "tlclib/memory/slab_alloc.h"
+#include "tlclib/intf/logging.h"
+#include "tlclib/intf/os/memory.h"
 
 /*
  * Dirty page table entry.

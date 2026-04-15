@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "core/error.h"
-#include "core/slab_alloc.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/memory/slab_alloc.h"
 
 struct dpg_table
 {

@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "core/cbuffer.h"
-#include "core/latch.h"
+#include "tlclib/ds/cbuffer.h"
+#include "tlclib/concurrency/latch.h"
 #include "numstore/compile_config.h"
 
 struct wal_ostream
