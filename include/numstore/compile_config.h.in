@@ -1,0 +1,78 @@
+/// Copyright 2026 Theo Lincke
+///
+/// Licensed under the Apache License, Version 2.0 (the "License");
+/// you may not use this file except in compliance with the License.
+/// You may obtain a copy of the License at
+///
+///     http://www.apache.org/licenses/LICENSE-2.0
+///
+/// Unless required by applicable law or agreed to in writing, software
+/// distributed under the License is distributed on an "AS IS" BASIS,
+/// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+/// See the License for the specific language governing permissions and
+/// limitations under the License.
+
+#pragma once
+
+////////////////////////////////////////////////////////////
+// VERSION
+
+#define NS_VERSION_MAJOR @NS_VERSION_MAJOR@
+#define NS_VERSION_MINOR @NS_VERSION_MINOR@
+#define NS_VERSION_PATCH @NS_VERSION_PATCH@
+#define NS_VERSION_STRING "@NS_VERSION_STRING@"
+
+////////////////////////////////////////////////////////////
+// TUNING
+
+#define PAGE_SIZE       ((p_size)@NS_PAGE_SIZE@)
+#define MEMORY_PAGE_LEN ((u32)@NS_MEMORY_PAGE_LEN@)
+#define MAX_VSTR        @NS_MAX_VSTR@
+#define MAX_TSTR        @NS_MAX_TSTR@
+#define WAL_BUFFER_CAP  @NS_WAL_BUFFER_CAP@
+
+////////////////////////////////////////////////////////////
+// PLATFORM
+
+#define NS_PLATFORM_LINUX   @NS_PLATFORM_LINUX@
+#define NS_PLATFORM_MACOS   @NS_PLATFORM_MACOS@
+#define NS_PLATFORM_WINDOWS @NS_PLATFORM_WINDOWS@
+#define NS_PLATFORM_NAME    "@NS_PLATFORM_NAME@"
+#define NS_PLATFORM_VERSION "@NS_PLATFORM_VERSION@"
+
+////////////////////////////////////////////////////////////
+// ARCHITECTURE
+
+#define NS_ARCH_X86_64  @NS_ARCH_X86_64@
+#define NS_ARCH_ARM64   @NS_ARCH_ARM64@
+#define NS_ARCH_32BIT   @NS_ARCH_32BIT@
+#define NS_ARCH_NAME    "@NS_ARCH_NAME@"
+#define NS_POINTER_SIZE @NS_POINTER_SIZE@
+#define NS_POINTER_BITS @NS_POINTER_BITS@
+
+////////////////////////////////////////////////////////////
+// ENDIANNESS
+
+#define NS_LITTLE_ENDIAN @NS_LITTLE_ENDIAN@
+#define NS_BIG_ENDIAN    @NS_BIG_ENDIAN@
+
+////////////////////////////////////////////////////////////
+// COMPILER
+
+#define NS_COMPILER_GCC     @NS_COMPILER_GCC@
+#define NS_COMPILER_CLANG   @NS_COMPILER_CLANG@
+#define NS_COMPILER_MSVC    @NS_COMPILER_MSVC@
+#define NS_COMPILER_ID      "@NS_COMPILER_ID@"
+#define NS_COMPILER_VERSION "@NS_COMPILER_VERSION@"
+
+////////////////////////////////////////////////////////////
+// CPU
+
+#define NS_CPU_COUNT @NS_CPU_COUNT@
+
+////////////////////////////////////////////////////////////
+// BUILD
+
+#define NS_BUILD_DEBUG   @NS_BUILD_DEBUG@
+#define NS_BUILD_RELEASE @NS_BUILD_RELEASE@
+
