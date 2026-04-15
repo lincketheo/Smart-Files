@@ -299,10 +299,11 @@ TEST (TT_UNIT, pgr_open_basic)
 {
   error e = error_create ();
   test_fail_if (pgr_delete_single_file ("testdb", &e));
+  test_fail_if (i_rm_rf ("testdb", &e));
   test_fail_if (i_mkdir ("testdb", &e));
 
   i_file fp = { 0 };
-  i_open_rw (&fp, "testdb/db", &e);
+  i_open_rw (&fp, "testdb.db", &e);
 
   // File is shorter than page size
   test_fail_if (i_truncate (&fp, PAGE_SIZE - 1, &e));

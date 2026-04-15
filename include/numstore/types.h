@@ -16,161 +16,26 @@
 
 #include "numstore/stdtypes.h"
 
+/// A resolved, internal stride descriptor for tree operations
 struct stride
 {
-  b_size start;
-  b_size stride;
-  b_size nelems;
+  b_size start;  ///< Byte offset at which to begin
+  b_size stride; ///< Bytes to advance between successive elements
+  b_size nelems; ///< Number of elements to access
 };
 
+/// A user-facing stride descriptor using signed, Python-style slice semantics
 struct user_stride
 {
-  sb_size start;
-  sb_size step;
-  sb_size stop;
-  int present;
+  sb_size start; ///< Start index (negative values index from the end)
+  sb_size step;  ///< Step between elements (negative not yet supported)
+  sb_size stop;  ///< Exclusive stop index (negative values index from the end)
+  int present;   ///< Non-zero if this stride was explicitly provided by the user
 };
 
+/// A length-prefixed, non-owning string view
 struct string
 {
-  u32 len;
-  const char *data;
-};
-
-struct type
-{
-  enum type_t
-  {
-    T_PRIM = 0,
-    T_STRUCT = 1,
-    T_UNION = 2,
-    T_ENUM = 3,
-    T_SARRAY = 4,
-  } type;
-
-  union
-  {
-    enum prim_t
-    {
-      U8 = 0,
-      U16 = 1,
-      U32 = 2,
-      U64 = 3,
-      I8 = 4,
-      I16 = 5,
-      I32 = 6,
-      I64 = 7,
-      F16 = 8,
-      F32 = 9,
-      F64 = 10,
-      F128 = 11,
-      CF32 = 12,
-      CF64 = 13,
-      CF128 = 14,
-      CF256 = 15,
-      CI16 = 16,
-      CI32 = 17,
-      CI64 = 18,
-      CI128 = 19,
-      CU16 = 20,
-      CU32 = 21,
-      CU64 = 22,
-      CU128 = 23,
-    } p;
-
-    struct struct_t
-    {
-      u16 len;
-      struct string *keys;
-      struct type **types;
-    } st;
-
-    struct union_t
-    {
-      u16 len;
-      struct string *keys;
-      struct type **types;
-    } un;
-
-    struct enum_t
-    {
-      u16 len;
-      struct string *keys;
-    } en;
-
-    struct sarray_t
-    {
-      u16 rank;
-      u32 *dims;
-      struct type *t;
-    } sa;
-  };
-};
-
-void type_free (struct type *t);
-
-struct variable
-{
-  struct string vname;
-  struct type *dtype;
-  pgno var_root;
-  pgno rpt_root;
-  b_size nbytes;
-};
-
-void variable_free (struct variable *v);
-
-enum ta_type
-{
-  TA_TAKE,
-  TA_SELECT,
-  TA_RANGE,
-};
-
-struct type_accessor
-{
-  enum ta_type type;
-
-  union
-  {
-    struct select_ta
-    {
-      struct string key;
-      struct type_accessor *sub_ta;
-    } select;
-
-    struct range_ta
-    {
-      struct user_stride *dim_accessors;
-      u32 dlen;
-      struct type_accessor *sub_ta;
-    } range;
-  };
-};
-
-enum type_ref_t
-{
-  TR_TAKE,
-  TR_STRUCT,
-};
-
-struct type_ref
-{
-  enum type_ref_t type;
-
-  union
-  {
-    struct take_tr
-    {
-      struct string vname;
-      struct type_accessor ta;
-    } tk;
-
-    struct struct_tr
-    {
-      u16 len;
-      struct string *keys;
-      struct type_ref *types;
-    } st;
-  };
+  u32 len;          ///< Number of bytes in data (not necessarily null-terminated)
+  const char *data; ///< Pointer to the string bytes
 };

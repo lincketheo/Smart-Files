@@ -26,7 +26,6 @@ ns_write (
     const b_size nelem,
     error *e)
 {
-
   struct txn auto_txn;
   struct stream input;
   struct stream_ibuf_ctx ctx;

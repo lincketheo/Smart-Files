@@ -19,20 +19,6 @@
 ////////////////////////////////////////////////////////////
 // REDO (FIGURE 11)
 
-/*
- * ARIES redo phase.
- *
- * Scans the WAL forward from redo_lsn (the minimum RecLSN in the DPT) to
- * EOF, replaying every UPDATE and CLR record via pgr_apply_redo().  Records
- * for other types (BEGIN, COMMIT, END, CKPT_BEGIN) are skipped; CKPT_END
- * records have their ATT/DPT copies freed since they were already consumed by
- * the analysis phase.
- *
- * Redo is intentionally repeating history: it applies every update whose
- * effect may not have reached disk, including updates from transactions that
- * will subsequently be rolled back in the undo phase.  This restores the
- * exact pre-crash state so that undo produces correct before-images.
- */
 err_t
 pgr_restart_redo (struct pager *p, struct aries_ctx *ctx, error *e)
 {

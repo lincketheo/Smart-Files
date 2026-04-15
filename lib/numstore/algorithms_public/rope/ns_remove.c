@@ -26,7 +26,6 @@ ns_remove (
     const b_size nelem,
     error *e)
 {
-
   struct txn auto_txn;
   struct stream _output;
   struct stream_obuf_ctx ctx;

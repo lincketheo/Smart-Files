@@ -19,9 +19,11 @@
 #include "paging/pages/fsm_page.h"
 
 static err_t
-pgr_apply_physical_undo_update (struct pager *p,
-                                struct wal_rec_hdr_read *log_rec,
-                                const struct aries_ctx *ctx, error *e)
+pgr_apply_physical_undo_update (
+    struct pager *p,
+    struct wal_rec_hdr_read *log_rec,
+    const struct aries_ctx *ctx,
+    error *e)
 {
   struct txn *tx;
   const txid tid = log_rec->update.tid;
@@ -29,47 +31,57 @@ pgr_apply_physical_undo_update (struct pager *p,
 
   page_h ph = page_h_create ();
 
-  if (pgr_get_writable (&ph, NULL, PG_PERMISSIVE, log_rec->update.phys.pg, p,
-                        e))
+  // Fetch the physical page number from disk
+  if (pgr_get_writable (&ph, NULL, PG_PERMISSIVE, log_rec->update.phys.pg, p, e))
     {
       goto failed;
     }
 
-  // Copy the undo data to the page
+  // Copy the undo data to that page
   memcpy (page_h_w (&ph)->raw, log_rec->update.phys.undo, PAGE_SIZE);
 
-  // Append an undo log
+  // Get the transaction for this tid
+  // It should be in the table - from earlier
   txnt_get_expect (&tx, ctx->txt, tid);
-  const slsn l = oswal_append_clr_log (p->ww,
-                                       (struct wal_clr_write){
-                                           .type = WCLR_PHYSICAL,
-                                           .tid = tid,
-                                           .prev = tx->data.last_lsn,
-                                           .undo_next = prev,
-                                           .phys = {
-                                               .pg = log_rec->update.phys.pg,
-                                               .redo = log_rec->update.phys.undo,
-                                           },
-                                       },
-                                       e);
+
+  // Append a clr log
+  const slsn l = oswal_append_clr_log (
+      p->ww,
+      (struct wal_clr_write){
+          .type = WCLR_PHYSICAL,
+          .tid = tid,
+          .prev = tx->data.last_lsn,
+          .undo_next = prev,
+          .phys = {
+              .pg = log_rec->update.phys.pg,
+              .redo = log_rec->update.phys.undo,
+          },
+      },
+      e);
   if (l < 0)
     {
       goto failed;
     }
 
+  // Flush up to that lsn
   if (oswal_flush_to (p->ww, l, e))
     {
       goto failed;
     }
 
+  // Set the page lsn
   page_set_page_lsn (page_h_w (&ph), l);
+
+  // Update the last lsn of the transaction
   txn_update_last (tx, l);
 
+  // Release this page
   if (pgr_release (p, &ph, PG_PERMISSIVE, e))
     {
       goto failed;
     }
 
+  // Update undo next page
   txn_update_undo_next (tx, prev);
 
   return SUCCESS;
@@ -80,8 +92,11 @@ failed:
 }
 
 static err_t
-pgr_apply_fsm_undo_update (struct pager *p, const struct wal_rec_hdr_read *log_rec,
-                           const struct aries_ctx *ctx, error *e)
+pgr_apply_fsm_undo_update (
+    struct pager *p,
+    const struct wal_rec_hdr_read *log_rec,
+    const struct aries_ctx *ctx,
+    error *e)
 {
   struct txn *tx;
   const txid tid = log_rec->update.tid;
@@ -143,8 +158,11 @@ pgr_apply_file_extend_undo_update (struct pager *p,
 }
 
 err_t
-pgr_apply_undo_update (struct pager *p, struct wal_rec_hdr_read *log_rec,
-                       struct aries_ctx *ctx, error *e)
+pgr_apply_undo_update (
+    struct pager *p,
+    struct wal_rec_hdr_read *log_rec,
+    struct aries_ctx *ctx,
+    error *e)
 {
   ASSERT (log_rec->type == WL_UPDATE);
   switch (log_rec->update.type)

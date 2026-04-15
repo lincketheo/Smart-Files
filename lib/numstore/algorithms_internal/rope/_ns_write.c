@@ -33,9 +33,13 @@ enum write_state
  * limit (max_bwrite).  Skip-window bytes do not count toward max_bwrite.
  */
 static t_size
-_ns_write_next_amount (const page *curp, const t_size lidx, const b_size bnext,
-                       const b_size max_bwrite, const b_size total_bwrite,
-                       const enum write_state state)
+_ns_write_next_amount (
+    const page *curp,
+    const t_size lidx,
+    const b_size bnext,
+    const b_size max_bwrite,
+    const b_size total_bwrite,
+    const enum write_state state)
 {
   // Available in the current page
   p_size next_amount = dl_used (curp) - lidx;
@@ -141,8 +145,7 @@ _ns_write_forward (const struct _ns_write_params params, error *e)
 
               if (npg != PGNO_NULL)
                 {
-                  WRAP (pgr_get_writable (&next, params.tx, PG_DATA_LIST, npg,
-                                          params.db->p, e));
+                  WRAP (pgr_get_writable (&next, params.tx, PG_DATA_LIST, npg, params.db->p, e));
                 }
 
               // Reached EOF
@@ -160,7 +163,13 @@ _ns_write_forward (const struct _ns_write_params params, error *e)
               curp = page_h_w (&cur);
 
               next_amount = _ns_write_next_amount (
-                  curp, lidx, bnext, max_bwrite, total_bwrite, state);
+                  curp,
+                  lidx,
+                  bnext,
+                  max_bwrite,
+                  total_bwrite,
+                  state);
+
               ASSERT (next_amount > 0);
             }
 
@@ -178,8 +187,12 @@ _ns_write_forward (const struct _ns_write_params params, error *e)
               {
                 // Pull bytes from caller's source stream and
                 // stamp them into the page
-                const sp_size write = stream_bread ((u8 *)dl_get_data (curp) + lidx,
-                                                    1, next_amount, params.src, e);
+                const sp_size write = stream_bread (
+                    (u8 *)dl_get_data (curp) + lidx,
+                    1,
+                    next_amount,
+                    params.src,
+                    e);
 
                 if (write < 0)
                   {

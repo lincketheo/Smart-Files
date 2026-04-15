@@ -60,12 +60,9 @@ _ns_seek (struct _ns_seek_params *a, error *e)
             // Stack overflow
             if (a->sp == 20)
               {
-                error_causef (e, ERR_RPTREE_PAGE_STACK_OVERFLOW,
-                              "page "
-                              "stack "
-                              "overflow "
-                              "(depth "
-                              "20)");
+                error_causef (
+                    e, ERR_RPTREE_PAGE_STACK_OVERFLOW,
+                    "page stack overflow (depth 20)");
                 goto failed;
               }
 
@@ -77,8 +74,7 @@ _ns_seek (struct _ns_seek_params *a, error *e)
 
             // Fetch that next page
             const pgno npg = in_get_leaf (page_h_ro (&a->pg), a->lidx);
-            if (pgr_get (&next, PG_DATA_LIST | PG_INNER_NODE, npg, a->db->p,
-                         e))
+            if (pgr_get (&next, PG_DATA_LIST | PG_INNER_NODE, npg, a->db->p, e))
               {
                 goto failed;
               }

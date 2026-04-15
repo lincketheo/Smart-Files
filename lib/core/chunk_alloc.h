@@ -18,46 +18,67 @@
 #include "core/lalloc.h"
 #include "core/latch.h"
 
+/// A single chunk of memory in a chunk allocator chain
 struct chunk
 {
-  struct lalloc alloc;
-  struct chunk *next;
-  u8 data[];
+  struct lalloc alloc; ///< Base allocator interface for this chunk
+  struct chunk *next;  ///< Next chunk in the linked list, or NULL if tail
+  u8 data[];           ///< Flexible array of chunk-owned bytes
 };
 
+/// Configuration settings for a chunk allocator
 struct chunk_alloc_settings
 {
-  u32 max_alloc_size;      // Maximum single allocation (0 = unlimited)
-  u32 max_total_size;      // Maximum total memory (0 = unlimited)
-  float target_chunk_mult; // Fraction of the requested size to allocate
-                           // each chunk (> 1)
-  u32 min_chunk_size;      // Minimum chunk size
-  u32 max_chunk_size;      // Maximum chunk size (0 = unlimited)
-  u32 max_chunks;          // Maximum number of chunks (0 = unlimited)
+  u32 max_alloc_size;      ///< Maximum size of a single allocation in bytes (0 = unlimited)
+  u32 max_total_size;      ///< Maximum total memory across all chunks in bytes (0 = unlimited)
+  float target_chunk_mult; ///< Multiplier applied to the requested size when sizing a new chunk (must be > 1)
+  u32 min_chunk_size;      ///< Minimum size of a newly allocated chunk in bytes
+  u32 max_chunk_size;      ///< Maximum size of a newly allocated chunk in bytes (0 = unlimited)
+  u32 max_chunks;          ///< Maximum number of chunks that may be allocated (0 = unlimited)
 };
 
+/// A chunk-based arena allocator
 struct chunk_alloc
 {
-  latch latch;
-  struct chunk_alloc_settings settings;
-  struct chunk *head;
-  u32 num_chunks;
-  u32 total_allocated;
-  u32 total_used;
+  latch latch;                          ///< Synchronization latch guarding this allocator
+  struct chunk_alloc_settings settings; ///< Configuration settings
+  struct chunk *head;                   ///< Head of the chunk linked list
+  u32 num_chunks;                       ///< Current number of allocated chunks
+  u32 total_allocated;                  ///< Total bytes allocated across all chunks
+  u32 total_used;                       ///< Total bytes currently in use
 };
 
-void chunk_alloc_create (struct chunk_alloc *dest,
-                         struct chunk_alloc_settings settings);
-void chunk_alloc_create_default (struct chunk_alloc *dest);
-void chunk_alloc_free_all (
-    struct chunk_alloc *ca); // Free's everything and starts from 0
-void chunk_alloc_reset_all (
-    struct chunk_alloc *ca); // Doesn't free anything - keeps chunks around
+/// Initializes a chunk allocator with the given settings
+void chunk_alloc_create (
+    struct chunk_alloc *dest,              ///< Allocator to initialize
+    struct chunk_alloc_settings settings); ///< Settings to apply
 
-// Main Methods
-void *chunk_malloc (struct chunk_alloc *ca, u32 req, u32 size, error *e);
-void *chunk_calloc (struct chunk_alloc *ca, u32 req, u32 size, error *e);
+/// Initializes a chunk allocator with default settings
+void chunk_alloc_create_default (struct chunk_alloc *dest); ///< Allocator to initialize
 
-// Utils
-void *chunk_alloc_move_mem (struct chunk_alloc *ca, const void *ptr, u32 size,
-                            error *e);
+/// Frees all chunks and resets the allocator to its initial state
+void chunk_alloc_free_all (struct chunk_alloc *ca); ///< Target allocator
+
+/// Resets all chunk usage counters without freeing any memory, keeping chunks available for reuse
+void chunk_alloc_reset_all (struct chunk_alloc *ca); ///< Target allocator
+
+/// Allocates uninitialized memory from the chunk allocator
+void *chunk_malloc (
+    struct chunk_alloc *ca, ///< Target allocator
+    u32 req,                ///< Requested alignment in bytes
+    u32 size,               ///< Number of bytes to allocate
+    error *e);              ///< The error object
+
+/// Allocates zero-initialized memory from the chunk allocator
+void *chunk_calloc (
+    struct chunk_alloc *ca, ///< Target allocator
+    u32 req,                ///< Requested alignment in bytes
+    u32 size,               ///< Number of bytes to allocate
+    error *e);              ///< The error object
+
+/// Copies memory from an external pointer into the chunk allocator and returns a pointer to the copy
+void *chunk_alloc_move_mem (
+    struct chunk_alloc *ca, ///< Target allocator
+    const void *ptr,        ///< Source data to copy
+    u32 size,               ///< Number of bytes to copy
+    error *e);              ///< The error object
