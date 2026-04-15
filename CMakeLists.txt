@@ -20,6 +20,7 @@ include(cmake/Sanitizers.cmake)
 include(cmake/Packaging.cmake)
 
 add_subdirectory(lib)
+add_subdirectory(apps)
 add_subdirectory(samples)
 
 # macOS leak check helper 
