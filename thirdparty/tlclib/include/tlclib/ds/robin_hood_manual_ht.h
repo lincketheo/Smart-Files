@@ -18,6 +18,8 @@
 #include "tlclib/ds/ht_models.h"
 #include "tlclib/intf/os.h"
 
+#include <string.h>
+
 #ifndef VTYPE
 #define VTYPE int
 #endif
@@ -62,7 +64,7 @@ HT_INIT (HASH_TABLE_T *dest, HENWRAP_T *arr, u32 nelem)
   ASSERT (dest);
   ASSERT (arr);
 
-  memset (arr, 0, nelem * sizeof *arr);
+  memset(arr, 0, nelem * sizeof *arr);
   dest->elems = arr;
   dest->cap = nelem;
 }

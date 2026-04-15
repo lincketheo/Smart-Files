@@ -12,10 +12,8 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "numstore/errors.h"
-#include "numstore/numstore_core.h"
-#include "numstore/numstore_rope.h"
-#include "numstore/stdtypes.h"
+#include "numstore.h"
+#include "tlclib_dev.h"
 
 int
 main (void)

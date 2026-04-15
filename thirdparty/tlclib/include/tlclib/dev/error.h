@@ -37,8 +37,6 @@
 
 #pragma once
 
-#include "stdtypes.h"
-
 #include <stdio.h>
 
 typedef int err_t;

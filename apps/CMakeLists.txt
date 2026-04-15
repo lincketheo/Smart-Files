@@ -8,7 +8,7 @@ foreach(APP_SRC ${NS_APP_SOURCES})
     target_include_directories(${APP_NAME}
         PUBLIC  "${CMAKE_SOURCE_DIR}/include"
         PUBLIC  "${CMAKE_SOURCE_DIR}/thirdparty/tlclib/include"
-        PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
+        PRIVATE "${CMAKE_SOURCE_DIR}/lib"
     )
     install(TARGETS ${APP_NAME}
         RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
