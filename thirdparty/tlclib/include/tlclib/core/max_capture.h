@@ -15,13 +15,4 @@
 #pragma once
 
 #include "tlclib/dev/signatures.h"
-#include "tlclib/numstore/types.h"
 
-HEADER_FUNC void
-update_max_txid (txid *cur, const stxid candidate)
-{
-  if (candidate >= 0 && candidate > (stxid)*cur)
-    {
-      *cur = candidate;
-    }
-}

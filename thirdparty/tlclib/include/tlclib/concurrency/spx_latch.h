@@ -15,7 +15,6 @@
 #pragma once
 
 #include "tlclib/intf/os.h"
-#include "tlclib/numstore/types.h"
 
 #include <stdatomic.h>
 

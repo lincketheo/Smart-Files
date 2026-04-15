@@ -154,8 +154,6 @@ i_poll (i_pollfd *fds, const u32 nfds, const int timeout_ms, error *e)
   return ret;
 }
 
-#include <netinet/in.h>
-
 u32
 i_htonl (u32 host)
 {

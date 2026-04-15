@@ -1,11 +1,11 @@
 /// Copyright 2026 Theo Lincke
-///
+/// 
 /// Licensed under the Apache License, Version 2.0 (the "License");
 /// you may not use this file except in compliance with the License.
 /// You may obtain a copy of the License at
-///
+/// 
 ///     http://www.apache.org/licenses/LICENSE-2.0
-///
+/// 
 /// Unless required by applicable law or agreed to in writing, software
 /// distributed under the License is distributed on an "AS IS" BASIS,
 /// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,8 +16,7 @@
 #include "tlclib/ds/string.h"
 #include "tlclib/intf/logging.h"
 #include "tlclib/intf/os/time.h"
-#include "numstore/stdtypes.h"
-#include "test/testing.h"
+#include "tlclib_dev.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,8 +29,6 @@
 ////////////////////////////////////////////////////////////
 /// SUITES
 
-TEST_SUITE (core, 128);
-TEST_SUITE (intf, 16);
 TEST_SUITE (numstore, 128);
 TEST_SUITE (paging, 128);
 
@@ -48,19 +45,12 @@ struct suite
 ////////////////////////////////////////////////////////////
 /// CLI
 
-struct cli_flag
-{
-  const char *name;
-  int value;
-};
-
 struct test_cli
 {
   char *filters[CLI_MAX_FILTERS];
   int flen;
   char *suites[CLI_MAX_SUITES];
   int slen;
-  int flags;
   bool help_printed;
 };
 
@@ -68,9 +58,6 @@ static void
 test_print_help (const char *prog)
 {
   fprintf (stderr, "Usage: %s [TYPE] [--suite NAME]... [filter...]\n", prog);
-  fprintf (stderr, "\nTest Types:\n");
-  fprintf (stderr, "  UNIT             Run unit tests (default)\n");
-  fprintf (stderr, "  HEAVY            Run heavy/long-running tests\n");
   fprintf (stderr, "\nSuites:\n");
   fprintf (stderr, "  --suite NAME     Run only tests in NAME (repeatable)\n");
   fprintf (stderr, "  Available:       core, intf, numstore, paging\n");
@@ -90,12 +77,10 @@ static int
 test_parse_cli_params (
     char **argv,
     const int argc,
-    struct test_cli *p,
-    const struct cli_flag *flag_map)
+    struct test_cli *p)
 {
   p->flen = 0;
   p->slen = 0;
-  p->flags = 0;
   p->help_printed = false;
 
   for (int i = 1; i < argc; i++)
@@ -127,18 +112,6 @@ test_parse_cli_params (
         }
 
       bool matched = false;
-      if (flag_map)
-        {
-          for (const struct cli_flag *e = flag_map; e->name; e++)
-            {
-              if (streq (arg, e->name))
-                {
-                  p->flags |= e->value;
-                  matched = true;
-                  break;
-                }
-            }
-        }
 
       if (!matched)
         {
@@ -160,9 +133,6 @@ test_parse_cli_params (
 static bool
 should_run (const test *t, const char *suite_name, const struct test_cli *p)
 {
-  if (!(p->flags & t->tt))
-    return false;
-
   if (p->slen > 0)
     {
       bool matched = false;
@@ -195,176 +165,17 @@ should_run (const test *t, const char *suite_name, const struct test_cli *p)
 ////////////////////////////////////////////////////////////
 /// MAIN
 
-static const struct cli_flag test_flags[] = {
-  { "UNIT", TT_UNIT },
-  { "HEAVY", TT_HEAVY },
-  { NULL, 0 }
-};
-
 int
 main (const int argc, char **argv)
 {
   struct test_cli p;
-  if (test_parse_cli_params (argv, argc, &p, test_flags))
+  if (test_parse_cli_params (argv, argc, &p)){
     return -1;
+}
 
-  if (p.help_printed)
+  if (p.help_printed){
     return 0;
-
-  if (p.flags == 0)
-    {
-      p.flags = TT_UNIT;
-    }
-
-  // --------------------------------------------------------
-  // core
-  // --------------------------------------------------------
-
-  // block_array.c
-  REGISTER (core, block_insert_read);
-  REGISTER (core, block_insert_remove_read);
-  REGISTER (core, block_insert_write_read);
-  REGISTER (core, block_random);
-  // cbuffer.c
-  REGISTER (core, cbuffer_isempty);
-  REGISTER (core, cbuffer_len);
-  REGISTER (core, cbuffer_avail);
-  REGISTER (core, cbuffer_get_next_data_bytes);
-  REGISTER (core, cbuffer_get_nbytes);
-  REGISTER (core, cbuffer_fakewrite);
-  REGISTER (core, cbuffer_fakeread);
-  REGISTER (core, cbuffer_read);
-  REGISTER (core, cbuffer_copy);
-  REGISTER (core, cbuffer_write);
-  REGISTER (core, cbuffer_cbuffer_move);
-  REGISTER (core, cbuffer_cbuffer_copy);
-  REGISTER (core, cbuffer_get_no_check);
-  REGISTER (core, cbuffer_get);
-  REGISTER (core, cbuffer_peek_back);
-  REGISTER (core, cbuffer_peek_front);
-  REGISTER (core, cbuffer_push_back);
-  REGISTER (core, cbuffer_push_front);
-  REGISTER (core, cbuffer_pop_back);
-  REGISTER (core, cbuffer_pop_front);
-  // checksums.c
-  REGISTER (core, checksum_execute_simple);
-  REGISTER (core, checksum_execute_deterministic);
-  REGISTER (core, checksum_execute_incremental);
-  // dbl_buffer.c
-  REGISTER (core, dblb_create_basic);
-  REGISTER (core, dblb_append_single);
-  REGISTER (core, dblb_append_multiple);
-  REGISTER (core, dblb_append_triggers_realloc);
-  REGISTER (core, dblb_append_alloc_basic);
-  REGISTER (core, dblb_append_alloc_sequential);
-  REGISTER (core, dblb_append_alloc_triggers_realloc);
-  REGISTER (core, dblb_different_element_sizes);
-  REGISTER (core, dblb_struct_elements);
-  REGISTER (core, dblb_free_resets);
-  REGISTER (core, dblb_large_append);
-  // ext_array.c
-  REGISTER (core, ext_array_insert_read);
-  REGISTER (core, ext_array_write);
-  REGISTER (core, ext_array_remove);
-  REGISTER (core, ext_array_random);
-  // filenames.c
-  REGISTER (core, file_basename);
-  // gr_lock.c
-  REGISTER (core, gr_lock_basic);
-  REGISTER (core, gr_lock_multiple_holders);
-  REGISTER (core, gr_lock_is_is_compatible);
-  REGISTER (core, gr_lock_is_ix_compatible);
-  REGISTER (core, gr_lock_is_s_compatible);
-  REGISTER (core, gr_lock_is_six_compatible);
-  REGISTER (core, gr_lock_is_x_blocks);
-  REGISTER (core, gr_lock_ix_ix_compatible);
-  REGISTER (core, gr_lock_ix_s_blocks);
-  REGISTER (core, gr_lock_s_compatible);
-  REGISTER (core, gr_lock_x_blocks);
-  REGISTER (core, gr_lockix_is_compatible);
-  REGISTER (core, gr_lockix_ix_blocks);
-  REGISTER (core, gr_lockix_s_blocks);
-  REGISTER (core, gr_lock_sx_blocks);
-  REGISTER (core, gr_lock_concurrent_readers);
-  REGISTER (core, gr_lock_data_race_protection);
-  // hash_table.c
-  REGISTER (core, htable);
-  // hashing.c
-  REGISTER (core, fnv1a_hash_empty);
-  REGISTER (core, fnv1a_hash_single_char);
-  REGISTER (core, fnv1a_hash_known_value);
-  REGISTER (core, fnv1a_hash_deterministic);
-  // lalloc.c
-  REGISTER (core, lalloc_edge_cases);
-  // latch.c
-  REGISTER (core, latch);
-  // llist.c
-  REGISTER (core, llist);
-  // numbers.c
-  REGISTER (core, parse_i32_expect);
-  REGISTER (core, parse_f32_expect);
-  REGISTER (core, py_mod_f32);
-  REGISTER (core, py_mod_i32);
-  // random.c
-  REGISTER (core, randu32);
-  REGISTER (core, randu32r);
-  REGISTER (core, randi32r);
-  REGISTER (core, randu64r);
-  REGISTER (core, randi64r);
-  // slab_alloc.c
-  REGISTER (core, slab_alloc_simple);
-  REGISTER (core, slab_alloc_cap_one);
-  REGISTER (core, slab_alloc_no_duplicates);
-  REGISTER (core, slab_alloc_free_all_realloc);
-  REGISTER (core, slab_alloc_interleaved_patterns);
-  REGISTER (core, slab_alloc_free_head_slab);
-  REGISTER (core, slab_alloc_free_middle_slab);
-  REGISTER (core, slab_alloc_minimum_size);
-  REGISTER (core, slab_alloc_stress_random);
-  // stride.c
-  REGISTER (core, stride_resolve);
-  // string.c
-  REGISTER (core, strings_all_unique);
-  REGISTER (core, string_contains);
-  // core_extra_tests.c
-  REGISTER (core, f16_to_f32_normals_and_specials);
-  REGISTER (core, f16_to_f32_nan_is_nan);
-  REGISTER (core, f16_to_f32_smallest_subnormal_correct_value);
-  REGISTER (core, parse_i32_boundary_values);
-  REGISTER (core, parse_i64_boundary_values);
-  REGISTER (core, ext_array_capacity_doubles_on_growth);
-  REGISTER (core, ext_array_remove_all_produces_empty);
-  REGISTER (core, llist_append_maintains_fifo_order);
-  REGISTER (core, llist_find_returns_node_and_index);
-  REGISTER (core, llist_remove_from_head_middle_tail);
-  REGISTER (core, llist_remove_absent_node_is_noop);
-  REGISTER (core, checksum_known_crc32c_vector);
-  REGISTER (core, checksum_distinct_bytes_differ);
-  REGISTER (core, serializer_write_at_capacity_then_overflow);
-  REGISTER (core, serializer_incremental_write_overflow);
-  REGISTER (core, stride_constructors_resolve_correctly);
-  REGISTER (core, string_ordering_operators);
-  REGISTER (core, line_length_newline_found);
-  REGISTER (core, string_equal_cases);
-  REGISTER (core, strings_are_disjoint_cases);
-  REGISTER (core, string_plus_concatenates);
-  REGISTER (core, cbuffer_discard_all_resets_state);
-  REGISTER (core, cbuffer_read_write_wraparound);
-  REGISTER (core, cbuffer_cbuffer_move_transfers_bytes);
-  // robin_hood_ht_tests.c
-  REGISTER (core, ht_insert_idx_regression_trigger_swap);
-  REGISTER (core, robin_hood_ht);
-
-  // --------------------------------------------------------
-  // intf
-  // --------------------------------------------------------
-
-  // memory.c
-  REGISTER (intf, i_realloc_basic);
-  REGISTER (intf, i_realloc_right);
-  REGISTER (intf, i_realloc_left);
-  REGISTER (intf, i_crealloc_right);
-  REGISTER (intf, i_crealloc_left);
+  }
 
   // --------------------------------------------------------
   // numstore
@@ -508,8 +319,6 @@ main (const int argc, char **argv)
   REGISTER (paging, wal_single_entry);
 
   struct suite all_suites[] = {
-    { "core", core_tests, (u32)core_count },
-    { "intf", intf_tests, (u32)intf_count },
     { "numstore", numstore_tests, (u32)numstore_count },
     { "paging", paging_tests, (u32)paging_count },
   };

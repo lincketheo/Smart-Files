@@ -16,8 +16,8 @@
 
 #ifndef NTEST
 
-#include "assert.h"
-#include "signatures.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/dev/signatures.h"
 #include "tlclib/core/filenames.h"
 #include "tlclib/intf/logging.h"
 
