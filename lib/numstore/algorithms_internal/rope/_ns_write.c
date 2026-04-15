@@ -12,8 +12,8 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "core/error.h"
-#include "core/stream.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/ds/stream.h"
 #include "numstore/algorithms_internal/rope/algorithms.h"
 #include "paging/pager.h"
 #include "paging/pages/data_list.h"

@@ -12,7 +12,7 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "core/assert.h"
+#include "tlclib/dev/assert.h"
 #include "numstore/algorithms_internal/node_updates.h"
 #include "numstore/algorithms_internal/rope/algorithms.h"
 #include "paging/pager.h"

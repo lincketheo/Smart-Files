@@ -12,7 +12,7 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "intf/os/time.h"
+#include "tlclib/intf/os/time.h"
 #include "paging/txns/txn.h"
 #include "paging/txns/txn_table.h"
 #include "test/testing.h"

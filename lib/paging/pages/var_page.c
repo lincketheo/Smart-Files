@@ -14,11 +14,11 @@
 
 #include "paging/pages/var_page.h"
 
-#include "core/assert.h"
-#include "core/cbuffer.h"
-#include "core/error.h"
-#include "core/random.h"
-#include "intf/logging.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/ds/cbuffer.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/core/random.h"
+#include "tlclib/intf/logging.h"
 #include "numstore/types.h"
 #include "paging/pages/page.h"
 #include "test/testing.h"

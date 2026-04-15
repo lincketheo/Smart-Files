@@ -14,11 +14,11 @@
 
 #include "paging/wal/wal_istream.h"
 
-#include "core/assert.h"
-#include "core/checksums.h"
-#include "core/error.h"
-#include "core/latch.h"
-#include "intf/os/memory.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/core/checksums.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/concurrency/latch.h"
+#include "tlclib/intf/os/memory.h"
 
 DEFINE_DBG_ASSERT (struct wal_istream, wal_istream, w, { ASSERT (w); })
 

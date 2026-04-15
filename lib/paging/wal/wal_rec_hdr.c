@@ -14,10 +14,10 @@
 
 #include "paging/wal/wal_rec_hdr.h"
 
-#include "core/assert.h"
-#include "core/error.h"
-#include "core/random.h"
-#include "intf/logging.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/core/random.h"
+#include "tlclib/intf/logging.h"
 #include "paging/dpgt/dirty_page_table.h"
 #include "paging/pages/page.h"
 #include "paging/txns/txn_table.h"

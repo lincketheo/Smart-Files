@@ -14,12 +14,12 @@
 
 #include "paging/wal/wal.h"
 
-#include "core/assert.h"
-#include "core/checksums.h"
-#include "core/error.h"
-#include "core/latch.h"
-#include "intf/logging.h"
-#include "intf/os/memory.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/core/checksums.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/concurrency/latch.h"
+#include "tlclib/intf/logging.h"
+#include "tlclib/intf/os/memory.h"
 #include "numstore/errors.h"
 #include "paging/dpgt/dirty_page_table.h"
 #include "paging/txns/txn_table.h"

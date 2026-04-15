@@ -14,8 +14,8 @@
 
 #include "numstore/algorithms_internal/node_updates.h"
 
-#include "core/assert.h"
-#include "core/slab_alloc.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/memory/slab_alloc.h"
 #include "numstore/errors.h"
 #include "paging/pages/inner_node.h"
 #include "paging/pages/page.h"

@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "core/chunk_alloc.h"
+#include "tlclib/memory/chunk_alloc.h"
 #include "paging/pager/page_h.h"
 #include "paging/pages/data_list.h"
 #include "paging/pages/inner_node.h"

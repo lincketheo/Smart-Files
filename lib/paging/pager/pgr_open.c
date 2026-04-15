@@ -12,7 +12,7 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "core/assert.h"
+#include "tlclib/dev/assert.h"
 #include "paging/aries/aries.h"
 #include "paging/os_pager/file_pager.h"
 #include "paging/pager.h"

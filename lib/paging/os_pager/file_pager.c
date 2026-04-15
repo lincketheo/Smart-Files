@@ -14,10 +14,10 @@
 
 #include "paging/os_pager/file_pager.h"
 
-#include "core/assert.h"
-#include "core/error.h"
-#include "intf/os/file_system.h"
-#include "intf/os/memory.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/intf/os/file_system.h"
+#include "tlclib/intf/os/memory.h"
 #include "numstore/compile_config.h"
 #include "test/testing.h"
 

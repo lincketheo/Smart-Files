@@ -12,8 +12,8 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "core/error.h"
-#include "intf/logging.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/intf/logging.h"
 #include "paging/wal/wal.h"
 #include "paging/wal/wal_rec_hdr.h"
 

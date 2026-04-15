@@ -13,7 +13,7 @@
 /// limitations under the License.
 
 #include "aries.h"
-#include "core/max_capture.h"
+#include "tlclib/core/max_capture.h"
 #include "paging/pager.h"
 
 ////////////////////////////////////////////////////////////

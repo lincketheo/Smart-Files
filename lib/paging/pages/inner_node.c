@@ -14,17 +14,17 @@
 
 #include "paging/pages/inner_node.h"
 
-#include "core/assert.h"
-#include "core/random.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/core/random.h"
 #include "inner_node_testing.h"
-#include "intf/logging.h"
+#include "tlclib/intf/logging.h"
 #include "paging/pages/page.h"
 #include "test/testing.h"
 
 #define VTYPE int
 #define KTYPE pgno
 #define SUFFIX pgno
-#include "core/robin_hood_ht.h"
+#include "tlclib/ds/robin_hood_ht.h"
 #undef VTYPE
 #undef KTYPE
 #undef SUFFIX

@@ -19,6 +19,7 @@ include(cmake/CompilerFlags.cmake)
 include(cmake/Sanitizers.cmake)
 include(cmake/Packaging.cmake)
 
+add_subdirectory(thirdparty)
 add_subdirectory(lib)
 add_subdirectory(apps)
 add_subdirectory(samples)

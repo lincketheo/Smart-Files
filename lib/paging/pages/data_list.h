@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "core/cbuffer.h"
-#include "core/error.h"
+#include "tlclib/ds/cbuffer.h"
+#include "tlclib/dev/error.h"
 #include "paging/pages/page.h"
 
 #include <string.h>

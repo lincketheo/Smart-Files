@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "core/bytes.h"
+#include "tlclib/memory/bytes.h"
 #include "paging/pages/page.h"
 
 // OFFSETS and _Static_asserts

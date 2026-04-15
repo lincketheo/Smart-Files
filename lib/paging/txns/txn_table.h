@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "core/alloc.h"
-#include "core/dbl_buffer.h"
+#include "tlclib/memory/alloc.h"
+#include "tlclib/ds/dbl_buffer.h"
 #include "paging/txns/txn.h"
 
 /*

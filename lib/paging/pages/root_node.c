@@ -14,10 +14,10 @@
 
 #include "paging/pages/root_node.h"
 
-#include "core/hashing.h"
-#include "core/random.h"
-#include "core/string.h"
-#include "intf/logging.h"
+#include "tlclib/core/hashing.h"
+#include "tlclib/core/random.h"
+#include "tlclib/ds/string.h"
+#include "tlclib/intf/logging.h"
 #include "numstore/types.h"
 #include "paging/pages/page.h"
 #include "test/testing.h"

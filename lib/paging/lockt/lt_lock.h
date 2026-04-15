@@ -14,7 +14,7 @@
 
 #pragma once
 
-#include "core/signatures.h"
+#include "tlclib/dev/signatures.h"
 #include "numstore/stdtypes.h"
 
 struct lt_lock

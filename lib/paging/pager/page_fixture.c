@@ -14,10 +14,10 @@
 
 #include "paging/pager/page_fixture.h"
 
-#include "core/assert.h"
-#include "core/chunk_alloc.h"
-#include "core/error.h"
-#include "core/random.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/memory/chunk_alloc.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/core/random.h"
 #include "paging/pager.h"
 #include "paging/pager/page_h.h"
 #include "paging/pages/data_list.h"

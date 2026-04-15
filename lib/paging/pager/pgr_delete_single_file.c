@@ -12,8 +12,8 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "core/error.h"
-#include "intf/os/file_system.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/intf/os/file_system.h"
 #include "numstore/errors.h"
 #include "paging/pager.h"
 

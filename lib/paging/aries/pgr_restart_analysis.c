@@ -13,8 +13,8 @@
 /// limitations under the License.
 
 #include "aries.h"
-#include "core/error.h"
-#include "core/max_capture.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/core/max_capture.h"
 #include "paging/pager.h"
 #include "paging/pages/fsm_page.h"
 

@@ -16,12 +16,12 @@
 
 #include "numstore/algorithms_internal/rope/algorithms.h"
 
-#include "core/chunk_alloc.h"
-#include "core/error.h"
-#include "core/malloc_plan.h"
-#include "core/stream.h"
-#include "core/string.h"
-#include "intf/os/memory.h"
+#include "tlclib/memory/chunk_alloc.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/memory/malloc_plan.h"
+#include "tlclib/ds/stream.h"
+#include "tlclib/ds/string.h"
+#include "tlclib/intf/os/memory.h"
 #include "numstore.h"
 #include "numstore/errors.h"
 #include "numstore/types.h"

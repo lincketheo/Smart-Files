@@ -12,11 +12,11 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "core/assert.h"
-#include "core/error.h"
-#include "core/hash_table.h"
-#include "core/macros.h"
-#include "core/slab_alloc.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/ds/hash_table.h"
+#include "tlclib/core/macros.h"
+#include "tlclib/memory/slab_alloc.h"
 #include "numstore/algorithms_internal/rope/algorithms.h"
 #include "numstore/errors.h"
 #include "paging/pager/page_h.h"

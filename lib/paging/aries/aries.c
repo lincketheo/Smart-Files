@@ -14,10 +14,10 @@
 
 #include "aries.h"
 
-#include "core/assert.h"
-#include "core/dbl_buffer.h"
-#include "core/error.h"
-#include "core/slab_alloc.h"
+#include "tlclib/dev/assert.h"
+#include "tlclib/ds/dbl_buffer.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/memory/slab_alloc.h"
 #include "paging/txns/txn.h"
 #include "paging/txns/txn_table.h"
 

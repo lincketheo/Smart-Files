@@ -12,7 +12,7 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "core/math.h"
+#include "tlclib/core/math.h"
 #include "numstore/algorithms_internal/rope/algorithms.h"
 #include "paging/pager.h"
 #include "paging/pager/page_fixture.h"

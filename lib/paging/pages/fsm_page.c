@@ -14,8 +14,8 @@
 
 #include "paging/pages/fsm_page.h"
 
-#include "core/error.h"
-#include "intf/logging.h"
+#include "tlclib/dev/error.h"
+#include "tlclib/intf/logging.h"
 #include "paging/pages/page.h"
 
 void
