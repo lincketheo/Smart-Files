@@ -20,27 +20,6 @@
 ////////////////////////////////////////////////////////////
 // UNDO (Figure 12)
 
-/*
- * ARIES undo phase.
- *
- * Iterates until the ATT contains no TX_CANDIDATE_FOR_UNDO transactions.
- * Each iteration picks the transaction with the highest undo_next_lsn (to
- * process the most recent update first) and reads that log record:
- *
- *   WL_UPDATE — the update is physically undone (before-image applied) via
- *   pgr_apply_undo_update(), which writes a CLR record and advances
- *   undo_next_lsn to the update's prev_lsn.
- *
- *   WL_CLR — the CLR's undo_next field is used to skip over the section of
- *   the log that was already undone in a prior recovery or partial rollback.
- *
- *   WL_BEGIN — the transaction's entire update chain has been undone.  An
- *   END record is appended and the transaction is removed from the ATT.
- *
- * Because CLR records are written during both this phase and pgr_rollback(),
- * a second crash during undo will find the CLRs in the log and redo will
- * replay them, ensuring no update is undone twice.
- */
 err_t
 pgr_restart_undo (struct pager *p, struct aries_ctx *ctx, error *e)
 {

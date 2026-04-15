@@ -25,28 +25,6 @@
 ////////////////////////////////////////////////////////////
 // ROLLBACK (Figure 8)
 
-/*
- * Roll back a transaction to a savepoint LSN.
- *
- * Walks the transaction's update chain backwards, starting from
- * undo_next_lsn, and undoes each update until undo_next_lsn drops to or
- * below save_lsn (a full rollback uses save_lsn = 0).
- *
- * For each WL_UPDATE record, pgr_handle_rollback_update() restores the page
- * to its before-image and writes a CLR record into the WAL.  The CLR's
- * undo_next field points to the update's prev_lsn, so if the process crashes
- * during this rollback the undo phase will continue from where it left off
- * rather than re-undoing work already done.
- *
- * For WL_CLR records encountered during rollback, the chain is followed via
- * clr.undo_next (skipping over already-undone work from a prior partial
- * rollback).
- *
- * When the BEGIN record is reached (undo_nxt_lsn drops to 0), the
- * transaction is complete.  The transaction is removed from the ATT and
- * marked TX_DONE.  Encountering a COMMIT or END record is a logic error
- * since committed transactions are never rolled back.
- */
 err_t
 pgr_rollback (struct pager *p, struct txn *tx, const lsn save_lsn, error *e)
 {

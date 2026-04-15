@@ -21,52 +21,34 @@
 #include "paging/pages/page.h"
 
 /*
- * Insert one chunk of data into the R+Tree at a given byte offset.
+ * Insert data into the R+Tree at the byte offset given by params->bofst.
  *
- * Seeks to the insertion point, then streams new bytes into the data-list
- * chain while preserving the bytes that originally followed the insertion
- * point:
+ * Seeks to the target data-list page, splits it at the insertion point,
+ * streams new bytes from params->src into the page chain, re-appends the
+ * displaced tail, re-links the chain, then balances the leaf and propagates
+ * size changes up the inner-node tree via _ns_rebalance().
  *
- *   1. Seek to the data-list page containing bofst, upgrade it for writing.
- *      Read and truncate the displaced tail (bytes from lidx to end of page)
- *      into temp_buf.
- *
- *   2. Write new data from params->src page-by-page.  When a page fills up,
- *      allocate the next one, link it in, and continue.  Size changes (new
- *      pages and byte counts) are recorded in the [output] node_updates list.
- *
- *   3. Re-append temp_buf after the new data, allocating more pages if
- *      needed.
- *
- *   4. Re-link cur to the original successor page if new pages were spliced
- *      in between them.
- *
- *   5. Call _ns_balance_and_release() to finalize the leaf level and emit the
- *      tip update, then call _ns_rebalance() to propagate size changes up the
- *      inner-node stack that _ns_seek() saved.
- *
- * Insert is chunked by the caller (_ns_insert) to avoid creating inner-node
- * updates that exceed NUPD_MAX_DATA_LENGTH in a single rebalance pass.
+ * When nelem is 0, bytes are consumed from src until it is exhausted.
+ * params->root is updated in place if the root changes.
  */
-static sb_size
-_ns_insert_once (struct _ns_insert_params *params, error *e)
+sb_size
+_ns_insert (struct _ns_insert_params *params, error *e)
 {
   page_h prev = page_h_create ();
   page_h cur = page_h_create ();
   page_h next = page_h_create ();
 
-  u8 temp_buf[DL_DATA_SIZE]; // right half of the first page saved for
-                             // re-appending
-  p_size tbw = 0;            // bytes already written back from temp_buf
-  p_size tbl = 0;            // total bytes saved in temp_buf
+  u8 temp_buf[DL_DATA_SIZE];
+  p_size tbw = 0;
+  p_size tbl = 0;
 
-  struct node_updates *output = NULL;   // size changes discovered while writing the bottom level
-  struct node_updates *rb_nupd2 = NULL; // rebalance produces a second round of updates
+  struct node_updates *output = NULL;
+  struct node_updates *rb_nupd2 = NULL;
   struct three_in_pair tip_out;
   struct root_update root;
 
-  p_size lidx = 0;          // byte offset within the current page
-  b_size total_written = 0; // total bytes written from params->src
+  p_size lidx = 0;
+  b_size total_written = 0;
 
   struct _ns_seek_params seek = {
     .db = params->db,
@@ -79,7 +61,6 @@ _ns_insert_once (struct _ns_insert_params *params, error *e)
 
   if (params->root == PGNO_NULL)
     {
-      // Tree is empty: allocate the first data-list page.
       if (pgr_new (&cur, params->db->p, params->tx, PG_DATA_LIST, e))
         {
           goto failed;
@@ -103,9 +84,6 @@ _ns_insert_once (struct _ns_insert_params *params, error *e)
         }
     }
 
-  // Save the page number of the node that originally followed cur so we
-  // can re-link at the end of the write phase.  Then truncate cur at
-  // lidx and stash the displaced bytes in temp_buf.
   pgno last = dl_get_next (page_h_ro (&cur));
   tbl = dl_read_out_from (page_h_w (&cur), temp_buf, lidx);
   output = nupd_init (page_h_pgno (&cur), 0, e);
@@ -114,15 +92,12 @@ _ns_insert_once (struct _ns_insert_params *params, error *e)
       goto failed;
     }
 
-  // stream new data from params->src into the page chain.
   const b_size total_to_write = params->size * params->nelem;
 
   while (params->nelem == 0 || total_written < total_to_write)
     {
       p_size avail = dl_avail (page_h_ro (&cur));
 
-      // Current page is full — allocate a new one and
-      // advance.
       if (avail == 0)
         {
           ASSERT (lidx == DL_DATA_SIZE);
@@ -150,7 +125,7 @@ _ns_insert_once (struct _ns_insert_params *params, error *e)
           avail = dl_avail (page_h_ro (&cur));
         }
 
-      p_size next_amount = 0;
+      p_size next_amount;
       if (params->nelem == 0)
         {
           next_amount = avail;
@@ -173,12 +148,10 @@ _ns_insert_once (struct _ns_insert_params *params, error *e)
         }
 
       dl_set_used (page_h_w (&cur), dl_used (page_h_ro (&cur)) + written);
-
       lidx += (p_size)written;
       total_written += (b_size)written;
     }
 
-  // append the saved tail (temp_buf) back after the new data.
   while (tbw < tbl)
     {
       p_size written = dl_append (page_h_w (&cur), temp_buf + tbw, tbl - tbw);
@@ -186,8 +159,6 @@ _ns_insert_once (struct _ns_insert_params *params, error *e)
       lidx += written;
       tbw += written;
 
-      // Advance to a new page only when the current one is
-      // full AND there is still more temp data to write.
       if (lidx == DL_DATA_SIZE && tbw < tbl)
         {
           ASSERT (lidx == DL_DATA_SIZE);
@@ -215,14 +186,9 @@ _ns_insert_once (struct _ns_insert_params *params, error *e)
         }
     }
 
-  // Re-link cur to `last` only when new pages were actually inserted
-  // between them (i.e. last is non-null and is no longer the direct
-  // successor of cur).
-  // */
   if (last != PGNO_NULL && last != dl_get_next (page_h_ro (&cur)))
     {
-      if (pgr_get_writable (&next, params->tx, PG_DATA_LIST, last,
-                            params->db->p, e))
+      if (pgr_get_writable (&next, params->tx, PG_DATA_LIST, last, params->db->p, e))
         {
           goto failed;
         }
@@ -230,7 +196,6 @@ _ns_insert_once (struct _ns_insert_params *params, error *e)
       dlgt_link (page_h_w (&cur), page_h_w (&next));
     }
 
-  // balance cur and propagate size changes up the tree.
   struct _ns_balance_and_release_params bparams = {
     .db = params->db,
     .tx = params->tx,
@@ -251,7 +216,6 @@ _ns_insert_once (struct _ns_insert_params *params, error *e)
       goto failed;
     }
 
-  // Rebalance
   struct _ns_rebalance_params rebalance = {
     .db = params->db,
     .tx = params->tx,
@@ -263,7 +227,6 @@ _ns_insert_once (struct _ns_insert_params *params, error *e)
     .layer_root = root,
   };
 
-  // Transferred ownership to rebalance params
   output = NULL;
   rb_nupd2 = NULL;
 
@@ -306,88 +269,5 @@ failed:
       pgr_cancel_if_exists (params->db->p, &seek.pstack[i].pg);
     }
 
-  return error_trace (e);
-}
-
-/*
- * Insert data into the R+Tree, chunking large inserts to bound rebalancing.
- *
- * Rebalancing must propagate size deltas up every level of the inner-node
- * tree.  A single inner node holds at most IN_MAX_KEYS children; if a single
- * insert touches far more bytes than fit in one node, the rebalance algorithm
- * would need to issue far more updates than the node_updates buffer supports.
- *
- * To avoid this, the insert is broken into chunks of at most
- * NUPD_MAX_DATA_LENGTH bytes.  Each chunk is inserted independently via
- * _ns_insert_once(), updating the root pointer after each call so that the
- * next chunk starts from the correct (possibly modified) root.
- *
- * When nelem is 0 the stream is read until exhausted, also chunked.
- */
-sb_size
-_ns_insert (struct _ns_insert_params *params, error *e)
-{
-  b_size total_written = 0;
-
-  if (params->nelem > 0)
-    {
-      const b_size elem_size = (b_size)params->size;
-      const b_size elems_per_chunk = MAX (1, NUPD_MAX_DATA_LENGTH / elem_size);
-      b_size elems_remaining = (b_size)params->nelem;
-
-      while (elems_remaining > 0)
-        {
-          const b_size chunk_elems = MIN (elems_remaining, elems_per_chunk);
-
-          struct _ns_insert_params chunk_params = *params;
-          chunk_params.nelem = (p_size)chunk_elems;
-          chunk_params.bofst = params->bofst + total_written;
-
-          const sb_size written = _ns_insert_once (&chunk_params, e);
-          if (written < 0)
-            {
-              goto failed;
-            }
-
-          params->root = chunk_params.root;
-          total_written += (b_size)written;
-          elems_remaining -= chunk_elems;
-        }
-    }
-  else
-    {
-      while (!stream_isdone (params->src))
-        {
-          struct stream_limit_ctx lctx;
-          struct stream limited;
-          stream_limit_init (&limited, &lctx, params->src,
-                             NUPD_MAX_DATA_LENGTH);
-
-          struct _ns_insert_params chunk_params = *params;
-          chunk_params.src = &limited;
-          chunk_params.nelem = 0;
-          chunk_params.bofst = params->bofst + total_written;
-
-          const sb_size written = _ns_insert_once (&chunk_params, e);
-          if (written < 0)
-            {
-              goto failed;
-            }
-
-          params->root = chunk_params.root;
-          total_written += (b_size)written;
-
-          // If the limit wasn't reached the
-          // underlying stream is exhausted.
-          if ((b_size)written < NUPD_MAX_DATA_LENGTH)
-            {
-              break;
-            }
-        }
-    }
-
-  return (sb_size)total_written;
-
-failed:
   return error_trace (e);
 }

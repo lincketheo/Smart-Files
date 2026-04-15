@@ -21,6 +21,9 @@
 #include "paging/pages/page.h"
 #include "test/testing.h"
 
+#define MAX_INNER_NODES_PER_NUPD 6
+#define NUPD_LENGTH (MAX_INNER_NODES_PER_NUPD * IN_MAX_KEYS)
+
 struct in_pair_slab
 {
   struct in_pair_slab *next;
