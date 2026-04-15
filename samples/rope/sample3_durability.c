@@ -1,29 +1,18 @@
 /// Copyright 2026 Theo Lincke
-/// 
+///
 /// Licensed under the Apache License, Version 2.0 (the "License");
 /// you may not use this file except in compliance with the License.
 /// You may obtain a copy of the License at
-/// 
+///
 ///     http://www.apache.org/licenses/LICENSE-2.0
-/// 
+///
 /// Unless required by applicable law or agreed to in writing, software
 /// distributed under the License is distributed on an "AS IS" BASIS,
 /// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-// Concept: ns_insert() splices data into the stream at an arbitrary offset.
-//
-// An insert at offset k shifts everything at [k, end) to the right to make
-// room — no gaps, no tombstones. The stream grows by exactly the number of
-// elements inserted. Commits, crashes before commit, and explicit rollbacks
-// are all demonstrated below.
-//
-// Run this sample once from a directory that does not already contain an
-// "insert_demo" subdirectory. Delete that subdirectory to run again.
-
 #include "numstore.h"
-#include "numstore/errors.h"
 
 #include <stdio.h>
 
