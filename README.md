@@ -17,6 +17,7 @@ git clone https://gitlab.com/lincketheo/numstore.git
 cmake --preset release
 cd build/release
 make
+./samples/sample1_simple
 sudo make install
 ```
 
