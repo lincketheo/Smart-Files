@@ -1,0 +1,220 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "warnings": {
+        "uninitialized": true
+      }
+    },
+    {
+      "name": "debug",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_NDEBUG": "OFF",
+        "ENABLE_NTEST": "OFF",
+        "ENABLE_NLOG": "OFF",
+        "ENABLE_GPROF": "OFF",
+        "ENABLE_PORTABLE": "OFF",
+        "ENABLE_STRIP": "OFF",
+        "ENABLE_ASAN": "ON"
+      }
+    },
+    {
+      "name": "debug-no-asan",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_NDEBUG": "OFF",
+        "ENABLE_NTEST": "OFF",
+        "ENABLE_NLOG": "OFF",
+        "ENABLE_GPROF": "OFF",
+        "ENABLE_PORTABLE": "OFF",
+        "ENABLE_STRIP": "OFF",
+        "ENABLE_ASAN": "OFF"
+      }
+    },
+    {
+      "name": "debug-ntests",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_NDEBUG": "OFF",
+        "ENABLE_NTEST": "ON",
+        "ENABLE_NLOG": "OFF",
+        "ENABLE_GPROF": "OFF",
+        "ENABLE_PORTABLE": "OFF",
+        "ENABLE_STRIP": "OFF",
+        "ENABLE_ASAN": "ON"
+      }
+    },
+    {
+      "name": "debug-ntests-no-asan",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_NDEBUG": "OFF",
+        "ENABLE_NTEST": "ON",
+        "ENABLE_NLOG": "OFF",
+        "ENABLE_GPROF": "OFF",
+        "ENABLE_PORTABLE": "OFF",
+        "ENABLE_STRIP": "OFF",
+        "ENABLE_ASAN": "OFF"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "ENABLE_NDEBUG": "ON",
+        "ENABLE_NTEST": "ON",
+        "ENABLE_NLOG": "ON",
+        "ENABLE_GPROF": "OFF",
+        "ENABLE_PORTABLE": "OFF",
+        "ENABLE_STRIP": "OFF",
+        "ENABLE_ASAN": "OFF"
+      }
+    },
+    {
+      "name": "release-tests",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "ENABLE_NDEBUG": "ON",
+        "ENABLE_NTEST": "OFF",
+        "ENABLE_NLOG": "ON",
+        "ENABLE_GPROF": "OFF",
+        "ENABLE_PORTABLE": "OFF",
+        "ENABLE_STRIP": "OFF",
+        "ENABLE_ASAN": "OFF"
+      }
+    },
+    {
+      "name": "package-release",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "ENABLE_NDEBUG": "ON",
+        "ENABLE_NTEST": "ON",
+        "ENABLE_NLOG": "ON",
+        "ENABLE_GPROF": "OFF",
+        "ENABLE_PORTABLE": "ON",
+        "ENABLE_STRIP": "ON",
+        "ENABLE_ASAN": "OFF",
+        "CMAKE_INSTALL_PREFIX": "/usr"
+      }
+    },
+    {
+      "name": "windows-debug",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_NDEBUG": "OFF",
+        "ENABLE_NTEST": "OFF",
+        "ENABLE_NLOG": "OFF",
+        "ENABLE_GPROF": "OFF",
+        "ENABLE_PORTABLE": "OFF",
+        "ENABLE_STRIP": "OFF",
+        "ENABLE_ASAN": "OFF"
+      }
+    },
+    {
+      "name": "windows-release",
+      "inherits": "base",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "ENABLE_NDEBUG": "ON",
+        "ENABLE_NTEST": "ON",
+        "ENABLE_NLOG": "ON",
+        "ENABLE_GPROF": "OFF",
+        "ENABLE_PORTABLE": "OFF",
+        "ENABLE_STRIP": "OFF",
+        "ENABLE_ASAN": "OFF"
+      }
+    },
+    {
+      "name": "windows-mingw-base",
+      "hidden": true,
+      "inherits": "base",
+      "toolchainFile": "${sourceDir}/cmake/toolchain-mingw64.cmake",
+      "cacheVariables": {
+        "ENABLE_GPROF": "OFF",
+        "ENABLE_PORTABLE": "OFF",
+        "ENABLE_STRIP": "OFF",
+        "ENABLE_ASAN": "OFF"
+      }
+    },
+    {
+      "name": "windows-mingw-debug",
+      "inherits": "windows-mingw-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_NDEBUG": "OFF",
+        "ENABLE_NTEST": "OFF",
+        "ENABLE_NLOG": "OFF"
+      }
+    },
+    {
+      "name": "windows-mingw-release",
+      "inherits": "windows-mingw-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "ENABLE_NDEBUG": "ON",
+        "ENABLE_NTEST": "ON",
+        "ENABLE_NLOG": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "debug-no-asan",
+      "configurePreset": "debug-no-asan"
+    },
+    {
+      "name": "debug-ntests",
+      "configurePreset": "debug-ntests"
+    },
+    {
+      "name": "debug-ntests-no-asan",
+      "configurePreset": "debug-ntests-no-asan"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release"
+    },
+    {
+      "name": "release-tests",
+      "configurePreset": "release-tests"
+    },
+    {
+      "name": "package-release",
+      "configurePreset": "package-release"
+    },
+    {
+      "name": "windows-debug",
+      "configurePreset": "windows-debug"
+    },
+    {
+      "name": "windows-release",
+      "configurePreset": "windows-release"
+    },
+    {
+      "name": "windows-mingw-debug",
+      "configurePreset": "windows-mingw-debug"
+    },
+    {
+      "name": "windows-mingw-release",
+      "configurePreset": "windows-mingw-release"
+    }
+  ]
+}
