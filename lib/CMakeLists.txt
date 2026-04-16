@@ -3,10 +3,10 @@ file(GLOB_RECURSE NS_SOURCES  CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.c
 
 # The main library
 add_library(numstore STATIC ${NS_SOURCES})
-target_link_libraries(numstore PUBLIC tlclib)
+target_link_libraries(numstore PUBLIC c_specx)
 target_include_directories(numstore
     PUBLIC  "${CMAKE_SOURCE_DIR}/include"
-    PUBLIC  "${CMAKE_SOURCE_DIR}/thirdparty/tlclib/include"
+    PUBLIC  "${CMAKE_SOURCE_DIR}/thirdparty/c_specx/include"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 

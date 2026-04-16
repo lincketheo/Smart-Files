@@ -15,7 +15,7 @@
 #pragma once
 
 #include "numstore.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 struct dpg_table
 {

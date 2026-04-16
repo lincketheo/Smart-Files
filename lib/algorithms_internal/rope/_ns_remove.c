@@ -18,7 +18,7 @@
 #include "pager/page_h.h"
 #include "pages/data_list.h"
 #include "pages/page.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 /*
  * Remove elements from the R+Tree with an optional stride.

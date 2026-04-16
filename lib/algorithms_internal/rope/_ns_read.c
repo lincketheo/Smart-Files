@@ -15,7 +15,7 @@
 #include "algorithms_internal/rope/algorithms.h"
 #include "pager.h"
 #include "pages/data_list.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 enum read_state
 {

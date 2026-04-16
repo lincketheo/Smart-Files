@@ -13,7 +13,7 @@
 /// limitations under the License.
 
 #include "numstore.h"
-#include "tlclib_dev.h"
+#include "c_specx_dev.h"
 
 #include <string.h>
 

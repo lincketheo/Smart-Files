@@ -16,12 +16,12 @@
 
 #include "inner_node_testing.h"
 #include "pages/page.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 #define VTYPE int
 #define KTYPE pgno
 #define SUFFIX pgno
-#include "tlclib/ds/robin_hood_ht.h"
+#include "c_specx/ds/robin_hood_ht.h"
 #undef VTYPE
 #undef KTYPE
 #undef SUFFIX

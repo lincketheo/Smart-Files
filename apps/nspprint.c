@@ -15,8 +15,8 @@
 #include "numstore.h"
 #include "pager.h"
 #include "pages/page.h"
-#include "tlclib/core/math.h"
-#include "tlclib/intf/logging.h"
+#include "c_specx/core/math.h"
+#include "c_specx/intf/logging.h"
 
 #include <stdio.h>
 #include <stdlib.h>

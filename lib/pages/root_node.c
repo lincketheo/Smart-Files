@@ -16,7 +16,7 @@
 
 #include "numstore.h"
 #include "pages/page.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 // numstore
 DEFINE_DBG_ASSERT (page, rn_page, d, { ASSERT (d); })

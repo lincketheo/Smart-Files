@@ -16,7 +16,7 @@
 
 // numstore
 #include "pages/page.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 ////////////////////////////////////////////////////////////
 /////// VAR PAGE TAIL

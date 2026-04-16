@@ -12,11 +12,11 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "tlclib/ds/dbl_buffer.h"
-#include "tlclib/ds/string.h"
-#include "tlclib/intf/logging.h"
-#include "tlclib/intf/os/time.h"
-#include "tlclib_dev.h"
+#include "c_specx/ds/dbl_buffer.h"
+#include "c_specx/ds/string.h"
+#include "c_specx/intf/logging.h"
+#include "c_specx/intf/os/time.h"
+#include "c_specx_dev.h"
 
 #include <stdio.h>
 #include <stdlib.h>

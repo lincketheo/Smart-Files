@@ -22,8 +22,8 @@
 #include "pages/var_hash_page.h"
 #include "pages/var_page.h"
 #include "pages/var_tail.h"
-#include "tlclib.h"
-#include "tlclib_dev.h"
+#include "c_specx.h"
+#include "c_specx_dev.h"
 
 ////////////////////////////////////////////////////////////
 // INITIALIZATION

@@ -15,7 +15,7 @@
 #include "aries.h"
 #include "errors.h"
 #include "pager.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 ////////////////////////////////////////////////////////////
 // REDO (FIGURE 11)

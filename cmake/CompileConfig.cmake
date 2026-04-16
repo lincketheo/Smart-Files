@@ -1,4 +1,4 @@
-# This file has all the in code constants to define and auto generates include/numstore/compile_config
+# This file has all the in code constants to define and auto generates compile_config
 
 # Application specific constants
 set(NS_PAGE_SIZE        4096    CACHE STRING "Page size")
@@ -106,15 +106,7 @@ set(NS_VERSION_STRING "${PROJECT_VERSION}")
 
 # Generate 
 configure_file(
-    "${CMAKE_SOURCE_DIR}/include/numstore/compile_config.h.in"
-    "${CMAKE_BINARY_DIR}/include/numstore/compile_config.h"
+    "${CMAKE_SOURCE_DIR}/lib/compile_config.h.in"
+    "${CMAKE_BINARY_DIR}/lib/compile_config.h"
     @ONLY
-)
-
-include_directories("${CMAKE_BINARY_DIR}/include")
-
-install(
-    FILES "${CMAKE_BINARY_DIR}/include/numstore/compile_config.h"
-    DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/numstore"
-    COMPONENT development
 )

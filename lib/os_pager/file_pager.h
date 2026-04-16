@@ -30,7 +30,7 @@
 
 #include "numstore.h"
 #include "os_pager/os_pager.h"
-#include "tlclib_dev.h"
+#include "c_specx_dev.h"
 
 struct file_pager;
 

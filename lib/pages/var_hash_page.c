@@ -14,7 +14,7 @@
 
 #include "pages/var_hash_page.h"
 
-#include "tlclib.h"
+#include "c_specx.h"
 
 DEFINE_DBG_ASSERT (page, vh_page, d, { ASSERT (d); })
 

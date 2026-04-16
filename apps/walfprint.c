@@ -12,8 +12,8 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "tlclib/dev/error.h"
-#include "tlclib/intf/logging.h"
+#include "c_specx/dev/error.h"
+#include "c_specx/intf/logging.h"
 #include "wal/wal.h"
 #include "wal/wal_rec_hdr.h"
 

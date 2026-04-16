@@ -16,8 +16,8 @@
 
 #include "pages/inner_node.h"
 #include "pages/page.h"
-#include "tlclib.h"
-#include "tlclib_dev.h"
+#include "c_specx.h"
+#include "c_specx_dev.h"
 
 #define MAX_INNER_NODES_PER_NUPD 6
 #define NUPD_LENGTH (MAX_INNER_NODES_PER_NUPD * IN_MAX_KEYS)

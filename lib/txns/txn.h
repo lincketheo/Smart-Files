@@ -16,7 +16,7 @@
 
 #include "lockt/lt_lock.h"
 #include "numstore.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 /*
  * Transaction State

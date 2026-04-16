@@ -14,7 +14,7 @@
 
 #include "wal/wal_istream.h"
 
-#include "tlclib.h"
+#include "c_specx.h"
 
 DEFINE_DBG_ASSERT (struct wal_istream, wal_istream, w, { ASSERT (w); })
 

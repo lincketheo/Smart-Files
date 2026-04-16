@@ -14,7 +14,7 @@
 
 #include "aries.h"
 #include "pager.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 ////////////////////////////////////////////////////////////
 // RESTART (Figure 9)

@@ -15,7 +15,7 @@
 #pragma once
 
 #include "dpgt/dirty_page_table.h"
-#include "tlclib_dev.h"
+#include "c_specx_dev.h"
 #include "txns/txn_table.h"
 #include "wal/wal_rec_hdr.h"
 

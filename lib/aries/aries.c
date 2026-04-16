@@ -14,7 +14,7 @@
 
 #include "aries.h"
 
-#include "tlclib.h"
+#include "c_specx.h"
 #include "txns/txn.h"
 #include "txns/txn_table.h"
 

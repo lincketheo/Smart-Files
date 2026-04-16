@@ -17,7 +17,7 @@
 #include "pages/data_list.h"
 #include "pages/page.h"
 #include "pages/root_node.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 #ifndef NTEST
 

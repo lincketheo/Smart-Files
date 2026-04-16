@@ -16,8 +16,8 @@
 #include "pager.h"
 #include "pages/page.h"
 #include "pages/root_node.h"
-#include "tlclib/core/math.h"
-#include "tlclib/intf/logging.h"
+#include "c_specx/core/math.h"
+#include "c_specx/intf/logging.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -19,5 +19,5 @@
 #include "numstore.h"
 #include "pager.h"
 #include "pager/page_h.h"
-#include "tlclib.h"
-#include "tlclib_dev.h"
+#include "c_specx.h"
+#include "c_specx_dev.h"

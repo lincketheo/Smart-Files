@@ -1,1 +1,1 @@
-add_subdirectory(tlclib)
+add_subdirectory(c_specx)

@@ -17,8 +17,8 @@
 #include "pager/page_h.h"
 #include "pages/fsm_page.h"
 #include "pages/page.h"
-#include "tlclib.h"
-#include "tlclib_dev.h"
+#include "c_specx.h"
+#include "c_specx_dev.h"
 #include "txns/txn.h"
 
 ////////////////////////////////////////////////////////////

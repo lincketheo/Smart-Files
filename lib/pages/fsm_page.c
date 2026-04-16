@@ -15,7 +15,7 @@
 #include "pages/fsm_page.h"
 
 #include "pages/page.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 void
 fsm_init_empty (page *in)
