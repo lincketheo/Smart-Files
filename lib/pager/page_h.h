@@ -16,7 +16,7 @@
 
 #include "pages/page.h"
 #include "pages/page_delegate.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 #include <string.h>
 

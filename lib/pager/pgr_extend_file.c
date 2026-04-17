@@ -13,7 +13,7 @@
 /// limitations under the License.
 
 #include "pager.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 /*
  * Extend the database file by npages and record it as a Nested Top Action.

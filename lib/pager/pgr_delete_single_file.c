@@ -13,8 +13,8 @@
 /// limitations under the License.
 
 #include "pager.h"
-#include "tlclib.h"
-#include "tlclib_dev.h"
+#include "c_specx.h"
+#include "c_specx_dev.h"
 
 #include <limits.h>
 

@@ -15,7 +15,7 @@
 #pragma once
 
 #include "pages/page.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 #include <string.h>
 

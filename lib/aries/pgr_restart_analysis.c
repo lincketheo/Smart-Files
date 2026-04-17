@@ -15,7 +15,7 @@
 #include "aries/aries.h"
 #include "pager.h"
 #include "pages/fsm_page.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 ////////////////////////////////////////////////////////////
 // ANALYSIS (Figure 10)

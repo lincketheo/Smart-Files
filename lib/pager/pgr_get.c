@@ -17,7 +17,7 @@
 #include "pager/page_h.h"
 #include "pages/data_list.h"
 #include "pages/page.h"
-#include "tlclib_dev.h"
+#include "c_specx_dev.h"
 
 /*
  * Fetch a page in shared (read) mode.

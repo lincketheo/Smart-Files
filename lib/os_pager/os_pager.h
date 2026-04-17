@@ -28,7 +28,7 @@
  */
 
 #include "numstore.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 struct os_pager;
 

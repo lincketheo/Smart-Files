@@ -15,7 +15,7 @@
 #include "pages/var_tail.h"
 
 #include "pages/page.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 DEFINE_DBG_ASSERT (page, vt_page, v, { ASSERT (v); })
 

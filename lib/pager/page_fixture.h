@@ -17,7 +17,7 @@
 #include "pager/page_h.h"
 #include "pages/data_list.h"
 #include "pages/inner_node.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 // numstore
 ////////////////////////////////////////////////////////////

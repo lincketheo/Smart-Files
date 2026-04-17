@@ -15,8 +15,8 @@
 #include "wal/wal.h"
 
 #include "dpgt/dirty_page_table.h"
-#include "tlclib.h"
-#include "tlclib_dev.h"
+#include "c_specx.h"
+#include "c_specx_dev.h"
 #include "txns/txn_table.h"
 #include "wal/wal_istream.h"
 #include "wal/wal_ostream.h"

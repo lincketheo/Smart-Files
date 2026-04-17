@@ -16,8 +16,8 @@
 #include "pager/page_h.h"
 #include "pages/inner_node.h"
 #include "pages/page_delegate.h"
-#include "tlclib.h"
-#include "tlclib_dev.h"
+#include "c_specx.h"
+#include "c_specx_dev.h"
 
 struct frame
 {

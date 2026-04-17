@@ -16,7 +16,7 @@
 
 #include "dpgt/dirty_page_table.h"
 #include "pager.h"
-#include "tlclib.h"
+#include "c_specx.h"
 #include "txns/txn_table.h"
 #include "wal/wal_rec_hdr.h"
 

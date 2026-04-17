@@ -15,7 +15,7 @@
 #include "pager.h"
 
 #include "pager/page_fixture.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 bool
 pgr_isnew (const struct pager *p)

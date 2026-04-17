@@ -14,9 +14,9 @@
 
 // #pragma once - ignore this
 
-/* Expanded: tlclib/dev/assert.h */
-/* Expanded: tlclib/ds/ht_models.h */
-/* Expanded: tlclib/intf/os.h */
+/* Expanded: c_specx/dev/assert.h */
+/* Expanded: c_specx/ds/ht_models.h */
+/* Expanded: c_specx/intf/os.h */
 
 #include <string.h>
 

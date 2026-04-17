@@ -20,7 +20,7 @@
 #include "pages/inner_node.h"
 #include "pages/page.h"
 #include "pages/page_delegate.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 #ifndef NTEST
 DEFINE_DBG_ASSERT (struct pgr_fixture, pgr_fixture, f, {

@@ -18,7 +18,7 @@
 #include "pager/page_h.h"
 #include "pages/fsm_page.h"
 #include "pages/root_node.h"
-#include "tlclib.h"
+#include "c_specx.h"
 #include "wal/wal.h"
 
 #include <limits.h>

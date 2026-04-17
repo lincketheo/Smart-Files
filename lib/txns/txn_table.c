@@ -14,8 +14,8 @@
 
 #include "txns/txn_table.h"
 
-#include "tlclib.h"
-#include "tlclib_dev.h"
+#include "c_specx.h"
+#include "c_specx_dev.h"
 #include "txns/txn.h"
 
 DEFINE_DBG_ASSERT (struct txn_table, txn_table, t, { ASSERT (t); })

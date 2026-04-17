@@ -15,7 +15,7 @@
 #include "dpgt/dirty_page_table.h"
 
 #include "numstore.h"
-#include "tlclib.h"
+#include "c_specx.h"
 
 /*
  * Dirty page table entry.
