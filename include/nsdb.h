@@ -21,15 +21,16 @@
 typedef struct nsdb nsdb_t;
 typedef struct nsvar nsvar_t;
 
-// nsfile
+// open / close from a file
 nsdb_t *nsdb_open (const char *path);
 int nsdb_close (nsdb_t *ns);
+int nsdb_delete_var(nsdb_t* ns, nsvar_t* nv);
 
-// nsvar
+// Opens a variable directly from the file
+nsvar_t nsvar_open(const char* path, const char* vname);
+int nsvar_delete (const char* path, const char *vname);
+int nsvar_close(nsvar_t* ns);
 nsvar_t *nsvar_load (nsdb_t *ns, const char *vname);
-int nsvar_delete (nsdb_t *ns, const char *vname);
-nsvar_t *nsvar_open (const char *path, const char *vname);
-int nsvar_close (nsvar_t *nsp);
 
 // transactions (without them - it just runs auto transactions)
 int nsvar_begin    (nsvar_t *nsp);
@@ -47,3 +48,16 @@ sb_size nsvar_finsert (nsvar_t *nsp, FILE *f, t_size size, b_size bofst, sb_size
 sb_size nsvar_fwrite  (nsvar_t *nsp, FILE *f, t_size size, b_size bofst, sb_size stride, b_size nelem);
 sb_size nsvar_fread   (nsvar_t *nsp, FILE *f, t_size size, b_size bofst, sb_size stride, b_size nelem);
 sb_size nsvar_fremove (nsvar_t *nsp, FILE *f, t_size size, b_size bofst, sb_size stride, b_size nelem);
+
+sb_size nsvar_vinsert (nsvar_t *dst, b_size dst_bofst, sb_size dst_stride,
+                     nsvar_t *src, b_size src_bofst, sb_size src_stride,
+                     t_size size, b_size nelem);
+sb_size nsvar_vwrite  (nsvar_t *dst, b_size dst_bofst, sb_size dst_stride,
+                     nsvar_t *src, b_size src_bofst, sb_size src_stride,
+                     t_size size, b_size nelem);
+sb_size nsvar_vread   (nsvar_t *dst, b_size dst_bofst, sb_size dst_stride,
+                     nsvar_t *src, b_size src_bofst, sb_size src_stride,
+                     t_size size, b_size nelem);
+sb_size nsvar_vremove (nsvar_t *dst, b_size dst_bofst, sb_size dst_stride,
+                     nsvar_t *src, b_size src_bofst, sb_size src_stride,
+                     t_size size, b_size nelem);
