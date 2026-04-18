@@ -14,21 +14,8 @@
 
 #pragma once
 
-/*
- * os_pager — abstract page-I/O interface
- *
- * os_pager is a vtable-based abstraction over the operating-system page layer.
- * Any concrete implementation (e.g. file_pager) must embed struct os_pager as
- * its FIRST member so that a pointer to the concrete type can be safely cast
- * to struct os_pager * and back.
- *
- * Callers go through the ospgr_* inline wrappers rather than reaching into
- * the vtable directly.  This keeps call sites readable and allows the
- * compiler to inline trivial dispatch in optimised builds.
- */
-
-#include "numstore.h"
 #include "c_specx.h"
+#include "nstypes.h"
 
 struct os_pager;
 
@@ -48,43 +35,43 @@ struct os_pager
   const struct os_pager_vtable *vtable;
 };
 
-static inline err_t
+HEADER_FUNC err_t
 ospgr_close (struct os_pager *p, error *e)
 {
   return p->vtable->close (p, e);
 }
 
-static inline err_t
+HEADER_FUNC err_t
 ospgr_reset (struct os_pager *p, error *e)
 {
   return p->vtable->reset (p, e);
 }
 
-static inline p_size
+HEADER_FUNC p_size
 ospgr_get_npages (const struct os_pager *p)
 {
   return p->vtable->get_npages (p);
 }
 
-static inline err_t
+HEADER_FUNC err_t
 ospgr_extend (struct os_pager *p, const pgno dest, error *e)
 {
   return p->vtable->extend (p, dest, e);
 }
 
-static inline err_t
+HEADER_FUNC err_t
 ospgr_read (struct os_pager *p, u8 *dest, const pgno pg, error *e)
 {
   return p->vtable->read (p, dest, pg, e);
 }
 
-static inline err_t
+HEADER_FUNC err_t
 ospgr_write (struct os_pager *p, const u8 *src, const pgno pg, error *e)
 {
   return p->vtable->write (p, src, pg, e);
 }
 
-static inline err_t
+HEADER_FUNC err_t
 ospgr_crash (struct os_pager *p, error *e)
 {
   return p->vtable->crash_fn (p, e);

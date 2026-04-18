@@ -22,7 +22,7 @@ sudo make install
 ```
 
 ```c
-#include "numstore.h"
+#include "nstypes.h"
 
 // your code here
 ```

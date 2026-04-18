@@ -14,9 +14,9 @@
 
 #include "pages/inner_node.h"
 
+#include "c_specx.h"
 #include "inner_node_testing.h"
 #include "pages/page.h"
-#include "c_specx.h"
 
 #define VTYPE int
 #define KTYPE pgno

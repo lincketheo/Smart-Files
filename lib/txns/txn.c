@@ -14,9 +14,9 @@
 
 #include "txns/txn.h"
 
-#include "lockt/lt_lock.h"
 #include "c_specx.h"
 #include "c_specx_dev.h"
+#include "lockt/lt_lock.h"
 
 void txn_key_init (struct txn *dest, txid tid);
 

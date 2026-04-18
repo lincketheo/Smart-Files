@@ -14,9 +14,9 @@
 
 #include "wal/wal_rec_hdr.h"
 
+#include "c_specx.h"
 #include "dpgt/dirty_page_table.h"
 #include "pages/page.h"
-#include "c_specx.h"
 #include "txns/txn_table.h"
 
 err_t

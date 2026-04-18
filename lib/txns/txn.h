@@ -14,9 +14,9 @@
 
 #pragma once
 
-#include "lockt/lt_lock.h"
-#include "numstore.h"
 #include "c_specx.h"
+#include "lockt/lt_lock.h"
+#include "nstypes.h"
 
 /*
  * Transaction State

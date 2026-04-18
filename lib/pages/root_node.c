@@ -14,9 +14,9 @@
 
 #include "pages/root_node.h"
 
-#include "numstore.h"
-#include "pages/page.h"
 #include "c_specx.h"
+#include "nstypes.h"
+#include "pages/page.h"
 
 // numstore
 DEFINE_DBG_ASSERT (page, rn_page, d, { ASSERT (d); })

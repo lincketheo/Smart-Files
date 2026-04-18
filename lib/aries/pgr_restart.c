@@ -13,8 +13,8 @@
 /// limitations under the License.
 
 #include "aries.h"
-#include "pager.h"
 #include "c_specx.h"
+#include "pager.h"
 
 ////////////////////////////////////////////////////////////
 // RESTART (Figure 9)

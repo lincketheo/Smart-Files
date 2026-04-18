@@ -12,12 +12,12 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
+#include "c_specx.h"
 #include "pager.h"
 #include "pager/page_fixture.h"
 #include "pager/page_h.h"
 #include "pages/fsm_page.h"
 #include "pages/page.h"
-#include "c_specx.h"
 
 /*
  * Free a page and release its handle.

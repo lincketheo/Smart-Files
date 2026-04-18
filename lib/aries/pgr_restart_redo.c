@@ -13,9 +13,9 @@
 /// limitations under the License.
 
 #include "aries.h"
+#include "c_specx.h"
 #include "errors.h"
 #include "pager.h"
-#include "c_specx.h"
 
 ////////////////////////////////////////////////////////////
 // REDO (FIGURE 11)

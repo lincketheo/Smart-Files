@@ -14,9 +14,9 @@
 
 #pragma once
 
-#include "numstore.h"
-#include "numstore/compile_config.h"
 #include "c_specx.h"
+#include "compile_config.h"
+#include "nstypes.h"
 
 struct wal_ostream
 {

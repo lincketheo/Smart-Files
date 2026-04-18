@@ -14,9 +14,9 @@
 
 #include "pages/data_list.h"
 
-#include "numstore.h"
-#include "pages/page.h"
 #include "c_specx.h"
+#include "nstypes.h"
+#include "pages/page.h"
 
 // numstore
 // Initialization
@@ -415,8 +415,8 @@ TEST (dl_read_out_from)
 
   TEST_CASE ("Read some from middle")
   {
-    _Static_assert (DL_DATA_SIZE / 2 > 1,
-                    "DL_DATA_SIZE is too small. Increase page size");
+    _Static_assert(DL_DATA_SIZE / 2 > 1,
+                   "DL_DATA_SIZE is too small. Increase page size");
 
     dl_append (&dl, somedata, DL_DATA_SIZE / 2);
     p_size ret = dl_read_out_from (&dl, dest, 1);
@@ -436,8 +436,8 @@ TEST (dl_read_out_from)
 
   TEST_CASE ("Read some later in the middle")
   {
-    _Static_assert (DL_DATA_SIZE / 2 > 10,
-                    "DL_DATA_SIZE is too small. Increase page size");
+    _Static_assert(DL_DATA_SIZE / 2 > 10,
+                   "DL_DATA_SIZE is too small. Increase page size");
 
     dl_append (&dl, somedata, DL_DATA_SIZE / 2);
     p_size ret = dl_read_out_from (&dl, dest, 10);
@@ -457,8 +457,8 @@ TEST (dl_read_out_from)
 
   TEST_CASE ("Read some from the end")
   {
-    _Static_assert (DL_DATA_SIZE / 2 > 10,
-                    "DL_DATA_SIZE is too small. Increase page size");
+    _Static_assert(DL_DATA_SIZE / 2 > 10,
+                   "DL_DATA_SIZE is too small. Increase page size");
 
     dl_append (&dl, somedata, DL_DATA_SIZE / 2);
     p_size ret = dl_read_out_from (&dl, dest, DL_DATA_SIZE / 2);
@@ -474,8 +474,8 @@ TEST (dl_read_out_from)
 
   TEST_CASE ("Read full middle")
   {
-    _Static_assert (DL_DATA_SIZE > 1,
-                    "DL_DATA_SIZE is too small. Increase page size");
+    _Static_assert(DL_DATA_SIZE > 1,
+                   "DL_DATA_SIZE is too small. Increase page size");
 
     dl_append (&dl, alldata, DL_DATA_SIZE);
     p_size ret = dl_read_out_from (&dl, dest, 1);
@@ -495,8 +495,8 @@ TEST (dl_read_out_from)
 
   TEST_CASE ("Read full later middle")
   {
-    _Static_assert (DL_DATA_SIZE > 10,
-                    "DL_DATA_SIZE is too small. Increase page size");
+    _Static_assert(DL_DATA_SIZE > 10,
+                   "DL_DATA_SIZE is too small. Increase page size");
 
     dl_append (&dl, alldata, DL_DATA_SIZE);
     p_size ret = dl_read_out_from (&dl, dest, 10);

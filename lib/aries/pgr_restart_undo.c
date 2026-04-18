@@ -13,9 +13,9 @@
 /// limitations under the License.
 
 #include "aries.h"
+#include "c_specx.h"
 #include "pager.h"
 #include "pages/fsm_page.h"
-#include "c_specx.h"
 
 ////////////////////////////////////////////////////////////
 // UNDO (Figure 12)

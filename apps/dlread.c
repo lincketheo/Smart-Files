@@ -12,11 +12,11 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "numstore.h"
+#include "c_specx/dev/error.h"
+#include "nstypes.h"
 #include "pager.h"
 #include "pager/page_h.h"
 #include "pages/page.h"
-#include "c_specx/dev/error.h"
 
 #include <stdio.h>
 #include <stdlib.h>

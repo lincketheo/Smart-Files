@@ -28,9 +28,9 @@
  * may use fpgr_open() which returns struct file_pager *.
  */
 
-#include "numstore.h"
-#include "os_pager/os_pager.h"
 #include "c_specx_dev.h"
+#include "nstypes.h"
+#include "os_pager/os_pager.h"
 
 struct file_pager;
 

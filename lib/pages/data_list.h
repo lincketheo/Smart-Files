@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "pages/page.h"
 #include "c_specx.h"
+#include "pages/page.h"
 
 #include <string.h>
 
@@ -50,9 +50,9 @@ DEFINE_DBG_ASSERT (page, data_list, d, { ASSERT (d); })
 #define DL_BLEN_OFST ((p_size)(DL_PREV_OFST + sizeof (pgno)))
 #define DL_DATA_OFST ((p_size)(DL_BLEN_OFST + sizeof (p_size)))
 
-_Static_assert (PAGE_SIZE > DL_DATA_OFST + 10,
-                "Data List: PAGE_SIZE must be > DL_DATA_OFST "
-                "plus at least 10 extra bytes of data");
+_Static_assert(PAGE_SIZE > DL_DATA_OFST + 10,
+               "Data List: PAGE_SIZE must be > DL_DATA_OFST "
+               "plus at least 10 extra bytes of data");
 
 #define DL_DATA_SIZE ((p_size)(PAGE_SIZE - DL_DATA_OFST))
 #define DL_REM (DL_DATA_SIZE % 2)

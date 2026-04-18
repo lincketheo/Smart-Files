@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "pages/page.h"
 #include "c_specx.h"
+#include "pages/page.h"
 
 /*
  * PG_ROOT_NODE — the database bootstrap page (always at ROOT_PGNO = 0).

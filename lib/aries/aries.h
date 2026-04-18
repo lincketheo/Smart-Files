@@ -14,9 +14,9 @@
 
 #pragma once
 
+#include "c_specx.h"
 #include "dpgt/dirty_page_table.h"
 #include "pager.h"
-#include "c_specx.h"
 #include "txns/txn_table.h"
 #include "wal/wal_rec_hdr.h"
 
