@@ -18,9 +18,17 @@
 // smfile
 
 int
-smfile_perror (smfile_t *ns)
+smfile_perror (smfile_t *ns, const char *prefix)
 {
-  return fprintf (stderr, "%s\n", smfile_strerror (ns));
+  const char *err = smfile_strerror (ns);
+  if (err)
+    {
+      return fprintf (stderr, "%s: %s\n", prefix, smfile_strerror (ns));
+    }
+  else
+    {
+      return fprintf (stderr, "%s: success\n", prefix);
+    }
 }
 
 const char *
@@ -75,7 +83,7 @@ _smfile_root_release (struct smfile_root *root, struct smfile *sm)
 }
 
 // Core Operations
-sb_size
+int
 smfile_insert (smfile_t *smf, const void *src, b_size bofst, b_size slen)
 {
   return smfile_pinsert (smf, NULL, src, bofst, slen);
