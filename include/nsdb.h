@@ -49,15 +49,42 @@ sb_size nsvar_fwrite  (nsvar_t *nsp, FILE *f, t_size size, b_size bofst, sb_size
 sb_size nsvar_fread   (nsvar_t *nsp, FILE *f, t_size size, b_size bofst, sb_size stride, b_size nelem);
 sb_size nsvar_fremove (nsvar_t *nsp, FILE *f, t_size size, b_size bofst, sb_size stride, b_size nelem);
 
-sb_size nsvar_vinsert (nsvar_t *dst, b_size dst_bofst, sb_size dst_stride,
-                     nsvar_t *src, b_size src_bofst, sb_size src_stride,
-                     t_size size, b_size nelem);
-sb_size nsvar_vwrite  (nsvar_t *dst, b_size dst_bofst, sb_size dst_stride,
-                     nsvar_t *src, b_size src_bofst, sb_size src_stride,
-                     t_size size, b_size nelem);
-sb_size nsvar_vread   (nsvar_t *dst, b_size dst_bofst, sb_size dst_stride,
-                     nsvar_t *src, b_size src_bofst, sb_size src_stride,
-                     t_size size, b_size nelem);
-sb_size nsvar_vremove (nsvar_t *dst, b_size dst_bofst, sb_size dst_stride,
-                     nsvar_t *src, b_size src_bofst, sb_size src_stride,
-                     t_size size, b_size nelem);
+sb_size nsvar_vinsert (
+    nsvar_t *dst, 
+    b_size dst_bofst, 
+    sb_size dst_stride, 
+    nsvar_t *src, 
+    b_size src_bofst, 
+    sb_size src_stride,
+    t_size size, 
+    b_size nelem);
+
+sb_size nsvar_vwrite  (
+    nsvar_t *dst, 
+    b_size dst_bofst, 
+    sb_size dst_stride,
+    nsvar_t *src, 
+    b_size src_bofst, 
+    sb_size src_stride,
+    t_size size, 
+    b_size nelem);
+
+sb_size nsvar_vread   (
+    nsvar_t *dst, 
+    b_size dst_bofst, 
+    sb_size dst_stride,
+    nsvar_t *src, 
+    b_size src_bofst, 
+    sb_size src_stride,
+    t_size size, 
+    b_size nelem);
+
+sb_size nsvar_vremove (
+    nsvar_t *dst, 
+    b_size dst_bofst, 
+    sb_size dst_stride,
+    nsvar_t *src, 
+    b_size src_bofst, 
+    sb_size src_stride,
+    t_size size, 
+    b_size nelem);
