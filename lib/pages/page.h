@@ -16,7 +16,7 @@
 
 #include "c_specx.h"
 #include "compile_config.h"
-#include "nstypes.h"
+#include "smfile.h"
 
 #include <string.h>
 

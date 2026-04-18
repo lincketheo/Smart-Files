@@ -18,7 +18,7 @@
 #include "c_specx/dev/assert.h"
 #include "c_specx/dev/error.h"
 #include "c_specx/ds/string.h"
-#include "nsfile.h"
+#include "smfile.h"
 
 static err_t
 _smfile_delete (struct smfile *db, const char *vname, error *e)

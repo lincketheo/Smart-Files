@@ -13,8 +13,7 @@
 /// limitations under the License.
 
 #include "algorithms/smfile/smfile.h"
-
-#include "nsfile.h"
+#include "smfile.h"
 
 // smfile
 

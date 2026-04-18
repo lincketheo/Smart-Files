@@ -13,10 +13,10 @@
 /// limitations under the License.
 
 #include "c_specx/dev/error.h"
-#include "nstypes.h"
 #include "pager.h"
 #include "pager/page_h.h"
 #include "pages/page.h"
+#include "smfile.h"
 
 #include <stdio.h>
 #include <stdlib.h>

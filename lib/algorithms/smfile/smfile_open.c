@@ -19,9 +19,9 @@
 #include "c_specx/dev/error.h"
 #include "c_specx/intf/os/memory.h"
 #include "c_specx/memory/chunk_alloc.h"
-#include "nsfile.h"
 #include "pager.h"
 #include "pager/page_h.h"
+#include "smfile.h"
 
 static struct smfile *
 _smfile_open (const char *path, error *e)

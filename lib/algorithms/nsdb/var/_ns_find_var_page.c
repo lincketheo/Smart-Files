@@ -14,11 +14,11 @@
 
 #include "algorithms/nsdb/var/algorithms.h"
 #include "c_specx.h"
-#include "nstypes.h"
 #include "pager.h"
 #include "pager/page_h.h"
 #include "pages/var_hash_page.h"
 #include "pages/var_page.h"
+#include "smfile.h"
 
 static err_t
 err_var_doesnt_exist (const struct string vname, error *e)

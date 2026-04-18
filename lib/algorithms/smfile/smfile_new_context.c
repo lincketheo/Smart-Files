@@ -17,7 +17,7 @@
 #include "c_specx/dev/error.h"
 #include "c_specx/memory/chunk_alloc.h"
 #include "errors.h"
-#include "nsfile.h"
+#include "smfile.h"
 
 smfile_t *
 smfile_new_context (smfile_t *ns)
