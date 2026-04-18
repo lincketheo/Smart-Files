@@ -1,0 +1,3 @@
+[submodule "thirdparty/c_specx"]
+	path = thirdparty/c_specx
+	url = git@github.com:lincketheo/c_specx
