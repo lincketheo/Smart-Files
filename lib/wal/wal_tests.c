@@ -12,9 +12,9 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "dpgt/dirty_page_table.h"
 #include "c_specx.h"
 #include "c_specx_dev.h"
+#include "dpgt/dirty_page_table.h"
 #include "txns/txn_table.h"
 #include "wal/wal.h"
 #include "wal/wal_rec_hdr.h"

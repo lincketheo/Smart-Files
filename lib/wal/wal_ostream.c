@@ -14,8 +14,8 @@
 
 #include "wal/wal_ostream.h"
 
-#include "numstore.h"
 #include "c_specx.h"
+#include "nstypes.h"
 
 DEFINE_DBG_ASSERT (struct wal_ostream, wal_ostream, w, { ASSERT (w); })
 

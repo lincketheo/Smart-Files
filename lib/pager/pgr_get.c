@@ -12,12 +12,12 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
+#include "c_specx_dev.h"
 #include "pager.h"
 #include "pager/page_fixture.h"
 #include "pager/page_h.h"
 #include "pages/data_list.h"
 #include "pages/page.h"
-#include "c_specx_dev.h"
 
 /*
  * Fetch a page in shared (read) mode.

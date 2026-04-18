@@ -12,8 +12,8 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "numstore.h"
 #include "c_specx_dev.h"
+#include "nstypes.h"
 
 #include <string.h>
 

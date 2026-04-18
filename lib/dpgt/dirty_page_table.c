@@ -14,8 +14,8 @@
 
 #include "dpgt/dirty_page_table.h"
 
-#include "numstore.h"
 #include "c_specx.h"
+#include "nstypes.h"
 
 /*
  * Dirty page table entry.

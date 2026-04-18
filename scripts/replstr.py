@@ -13,8 +13,8 @@ for path in Path(directory).rglob("*"):
         continue
     try:
         text = path.read_text()
-        if "tlclib" in text:
-            path.write_text(text.replace("tlclib", "c_specx"))
+        if "algorithms/rope/algorithms.h" in text:
+            path.write_text(text.replace("algorithms/rope/algorithms.h", "algorithms/nsdb/rope/algorithms.h"))
             print(f"Updated: {path}")
     except (UnicodeDecodeError, PermissionError):
         pass

@@ -15,8 +15,8 @@
 #pragma once
 
 // numstore
-#include "pages/page.h"
 #include "c_specx.h"
+#include "pages/page.h"
 
 ////////////////////////////////////////////////////////////
 /////// VAR PAGE TAIL

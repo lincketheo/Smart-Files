@@ -14,9 +14,9 @@
 
 #include "pages/var_page.h"
 
-#include "numstore.h"
-#include "pages/page.h"
 #include "c_specx.h"
+#include "nstypes.h"
+#include "pages/page.h"
 
 // numstore
 
@@ -32,7 +32,6 @@ vp_init_empty (page *p)
   vp_set_next (p, PGNO_NULL);
   vp_set_ovnext (p, PGNO_NULL);
   vp_set_vlen (p, 0);
-  vp_set_tlen (p, 0);
   vp_set_root (p, PGNO_NULL);
 }
 
@@ -47,7 +46,6 @@ TEST (vp_init_empty)
   test_assert_equal (vp_get_next (&p), PGNO_NULL);
   test_assert_equal (vp_get_ovnext (&p), PGNO_NULL);
   test_assert_equal (vp_get_vlen (&p), 0);
-  test_assert_equal (vp_get_tlen (&p), 0);
   test_assert_equal (vp_get_root (&p), PGNO_NULL);
   test_assert_equal (vp_calc_tofst (&p), VP_VNME_OFST);
   test_assert_equal (vp_is_overflow (&p), false);
@@ -73,12 +71,6 @@ void
 vp_set_vlen (page *p, const u16 vlen)
 {
   PAGE_SIMPLE_SET_IMPL (p, vlen, VP_VLEN_OFST);
-}
-
-void
-vp_set_tlen (page *p, const u16 tlen)
-{
-  PAGE_SIMPLE_SET_IMPL (p, tlen, VP_TLEN_OFST);
 }
 
 void
@@ -116,12 +108,6 @@ vp_get_vlen (const page *p)
   PAGE_SIMPLE_GET_IMPL (p, u16, VP_VLEN_OFST);
 }
 
-u16
-vp_get_tlen (const page *p)
-{
-  PAGE_SIMPLE_GET_IMPL (p, u16, VP_TLEN_OFST);
-}
-
 pgno
 vp_get_root (const page *p)
 {
@@ -144,8 +130,7 @@ vp_calc_tofst (const page *p)
 bool
 vp_is_overflow (const page *p)
 {
-  const b_size tlen = (b_size)vp_get_tlen (p);
-  return vp_calc_tofst (p) + tlen > PAGE_SIZE;
+  return vp_calc_tofst (p) > PAGE_SIZE;
 }
 
 struct bytes
@@ -180,10 +165,6 @@ vp_validate_for_db (const page *p, error *e)
     {
       return error_causef (e, ERR_CORRUPT, "var length is 0");
     }
-  if (vp_get_tlen (p) == 0)
-    {
-      return error_causef (e, ERR_CORRUPT, "type string length is 0");
-    }
   if (vp_is_overflow (p) && vp_get_ovnext (p) == PGNO_NULL)
     {
       return error_causef (e, ERR_CORRUPT,
@@ -192,10 +173,6 @@ vp_validate_for_db (const page *p, error *e)
   if (vp_get_vlen (p) > MAX_VSTR)
     {
       return error_causef (e, ERR_CORRUPT, "vstring overflow");
-    }
-  if (vp_get_tlen (p) > MAX_TSTR)
-    {
-      return error_causef (e, ERR_CORRUPT, "tstring overflow");
     }
   return SUCCESS;
 }
@@ -210,7 +187,6 @@ TEST (vp_validate)
   {
     page_init_empty (&sut, PG_DATA_LIST);
     vp_set_vlen (&sut, 10);
-    vp_set_tlen (&sut, 5);
     test_err_t_check (vp_validate_for_db (&sut, &e), ERR_CORRUPT, &e);
   }
 
@@ -218,7 +194,6 @@ TEST (vp_validate)
   {
     page_init_empty (&sut, PG_VAR_PAGE);
     vp_set_vlen (&sut, 0);
-    vp_set_tlen (&sut, 10);
     test_err_t_check (vp_validate_for_db (&sut, &e), ERR_CORRUPT, &e);
   }
 
@@ -226,7 +201,6 @@ TEST (vp_validate)
   {
     page_init_empty (&sut, PG_VAR_PAGE);
     vp_set_vlen (&sut, 10);
-    vp_set_tlen (&sut, 0);
     test_err_t_check (vp_validate_for_db (&sut, &e), ERR_CORRUPT, &e);
   }
 
@@ -234,7 +208,6 @@ TEST (vp_validate)
   {
     page_init_empty (&sut, PG_VAR_PAGE);
     vp_set_vlen (&sut, PAGE_SIZE);
-    vp_set_tlen (&sut, 5);
     vp_set_ovnext (&sut, PGNO_NULL);
     test_err_t_check (vp_validate_for_db (&sut, &e), ERR_CORRUPT, &e);
   }
@@ -243,7 +216,6 @@ TEST (vp_validate)
   {
     page_init_empty (&sut, PG_VAR_PAGE);
     vp_set_vlen (&sut, 1);
-    vp_set_tlen (&sut, 1);
     test_err_t_check (vp_validate_for_db (&sut, &e), SUCCESS, &e);
   }
 
@@ -251,7 +223,6 @@ TEST (vp_validate)
   {
     page_init_empty (&sut, PG_VAR_PAGE);
     vp_set_vlen (&sut, 1);
-    vp_set_tlen (&sut, MAX_TSTR + 1);
     test_err_t_check (vp_validate_for_db (&sut, &e), ERR_CORRUPT, &e);
     e.cause_code = SUCCESS;
     e.cmlen = 0;
@@ -261,7 +232,6 @@ TEST (vp_validate)
   {
     page_init_empty (&sut, PG_VAR_PAGE);
     vp_set_vlen (&sut, MAX_VSTR + 1);
-    vp_set_tlen (&sut, 1);
     test_err_t_check (vp_validate_for_db (&sut, &e), ERR_CORRUPT, &e);
     e.cause_code = SUCCESS;
     e.cmlen = 0;
@@ -271,7 +241,6 @@ TEST (vp_validate)
   {
     page_init_empty (&sut, PG_VAR_PAGE);
     vp_set_vlen (&sut, 100);
-    vp_set_tlen (&sut, 10);
     vp_set_next (&sut, 42);
     test_err_t_check (vp_validate_for_db (&sut, &e), SUCCESS, &e);
   }
@@ -288,7 +257,6 @@ i_log_vp (const int level, const page *vp)
 
   i_printf (level, "PGNO:   %" PRpgno "\n", vp->pg);
   i_printf (level, "VLEN:   %u\n", vp_get_vlen (vp));
-  i_printf (level, "TLEN:   %u\n", vp_get_tlen (vp));
   if (vp_get_root (vp) == PGNO_NULL)
     {
       i_printf (level, "ROOT:  NULL\n");

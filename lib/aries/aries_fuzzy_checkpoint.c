@@ -12,12 +12,12 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
+#include "c_specx.h"
 #include "pager.h"
 #include "pager/page_h.h"
 #include "pages/data_list.h"
 #include "pages/page.h"
 #include "pages/root_node.h"
-#include "c_specx.h"
 #include "txns/txn.h"
 
 #ifndef DUMB_PAGER
@@ -44,9 +44,7 @@ TEST (aries_fuzzy_checkpoint_basic_recovery)
       {
         page_h dl_page = page_h_create ();
         test_fail_if (pgr_new (&dl_page, p, &tx, PG_DATA_LIST, &e));
-        dl_set_data (
-            page_h_w (&dl_page),
-            (struct dl_data){ .data = data[i], .blen = DL_DATA_SIZE });
+        dl_set_data (page_h_w (&dl_page), (struct dl_data){ .data = data[i], .blen = DL_DATA_SIZE });
         dl_set_prev (page_h_w (&dl_page), i + 10);
         dl_set_next (page_h_w (&dl_page), i + 20);
         test_fail_if (pgr_release (p, &dl_page, PG_DATA_LIST, &e));

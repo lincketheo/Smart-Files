@@ -14,8 +14,8 @@
 
 #pragma once
 
+#include "compile_config.h"
 #include "dpgt/dirty_page_table.h"
-#include "numstore/compile_config.h"
 #include "txns/txn_table.h"
 
 /*

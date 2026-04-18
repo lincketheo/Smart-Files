@@ -14,8 +14,8 @@
 
 #pragma once
 
-#include "numstore.h"
 #include "c_specx.h"
+#include "nstypes.h"
 
 struct dpg_table
 {

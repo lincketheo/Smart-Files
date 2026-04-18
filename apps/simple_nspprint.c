@@ -12,12 +12,12 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
+#include "c_specx/core/math.h"
+#include "c_specx/intf/logging.h"
 #include "os_pager/file_pager.h"
 #include "pager.h"
 #include "pages/page.h"
 #include "pages/root_node.h"
-#include "c_specx/core/math.h"
-#include "c_specx/intf/logging.h"
 
 #include <stdio.h>
 #include <stdlib.h>

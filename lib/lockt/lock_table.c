@@ -14,9 +14,9 @@
 
 #include "lockt/lock_table.h"
 
+#include "c_specx.h"
 #include "lockt/lt_lock.h"
 #include "pager.h"
-#include "c_specx.h"
 #include "txns/txn.h"
 
 struct lockt_frame

@@ -15,6 +15,8 @@
 // numstore
 #include "pages/page.h"
 
+#include "c_specx.h"
+#include "c_specx_dev.h"
 #include "pages/data_list.h"
 #include "pages/fsm_page.h"
 #include "pages/inner_node.h"
@@ -22,8 +24,6 @@
 #include "pages/var_hash_page.h"
 #include "pages/var_page.h"
 #include "pages/var_tail.h"
-#include "c_specx.h"
-#include "c_specx_dev.h"
 
 ////////////////////////////////////////////////////////////
 // INITIALIZATION
