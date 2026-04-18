@@ -14,8 +14,8 @@
 
 #include "algorithms/smfile/smfile.h"
 #include "c_specx/dev/error.h"
-#include "nsfile.h"
 #include "pager.h"
+#include "smfile.h"
 
 static err_t
 _smfile_rollback (smfile_t *smf, error *e)

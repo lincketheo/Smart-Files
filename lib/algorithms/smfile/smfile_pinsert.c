@@ -17,7 +17,7 @@
 #include "algorithms/smfile/smfile.h"
 #include "c_specx/dev/error.h"
 #include "c_specx/memory/chunk_alloc.h"
-#include "nsfile.h"
+#include "smfile.h"
 #include "txns/txn.h"
 
 static sb_size

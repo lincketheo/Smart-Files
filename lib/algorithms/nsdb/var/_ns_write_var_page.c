@@ -14,9 +14,9 @@
 
 #include "algorithms/nsdb/var/algorithms.h"
 #include "c_specx.h"
-#include "nstypes.h"
 #include "pager.h"
 #include "pages/page_delegate.h"
+#include "smfile.h"
 
 /*
  * Allocate a new PG_VAR_TAIL overflow page and advance params->vp to it.

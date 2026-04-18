@@ -13,7 +13,7 @@
 /// limitations under the License.
 
 #include "c_specx_dev.h"
-#include "nstypes.h"
+#include "smfile.h"
 
 #include <string.h>
 

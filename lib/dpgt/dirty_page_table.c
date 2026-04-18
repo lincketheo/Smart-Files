@@ -15,7 +15,7 @@
 #include "dpgt/dirty_page_table.h"
 
 #include "c_specx.h"
-#include "nstypes.h"
+#include "smfile.h"
 
 /*
  * Dirty page table entry.

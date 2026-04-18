@@ -22,7 +22,7 @@ sudo make install
 ```
 
 ```c
-#include "nstypes.h"
+#include "smfile.h"
 
 // your code here
 ```

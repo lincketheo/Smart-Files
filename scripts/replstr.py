@@ -13,8 +13,8 @@ for path in Path(directory).rglob("*"):
         continue
     try:
         text = path.read_text()
-        if "->root->db" in text:
-            path.write_text(text.replace("->root->db", "->db"))
+        if "nsfile.h" in text:
+            path.write_text(text.replace("nsfile.h", "smfile.h"))
             print(f"Updated: {path}")
     except (UnicodeDecodeError, PermissionError):
         pass

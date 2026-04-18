@@ -14,10 +14,10 @@
 
 #include "algorithms/nsdb/var/algorithms.h"
 #include "c_specx.h"
-#include "nstypes.h"
 #include "pager/page_h.h"
 #include "pages/page_delegate.h"
 #include "pages/var_page.h"
+#include "smfile.h"
 
 /*
  * Advance params->vp from the current PG_VAR_PAGE or PG_VAR_TAIL to the

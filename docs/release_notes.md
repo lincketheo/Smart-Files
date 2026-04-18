@@ -89,7 +89,7 @@ Pair that with `smfile_begin` / `smfile_commit` / `smfile_rollback` and you can 
 
 ```c
 #pragma once
-#include "nstypes.h"
+#include "smfile.h"
 #include <stdint.h>
 #include <stdio.h>
 

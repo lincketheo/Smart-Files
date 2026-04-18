@@ -15,7 +15,7 @@
 #pragma once
 
 #include "c_specx.h"
-#include "nstypes.h"
+#include "smfile.h"
 
 struct wal_istream;
 

@@ -29,8 +29,8 @@
  */
 
 #include "c_specx_dev.h"
-#include "nstypes.h"
 #include "os_pager/os_pager.h"
+#include "smfile.h"
 
 struct file_pager;
 

@@ -16,7 +16,7 @@
 
 #include "c_specx.h"
 #include "lockt/lt_lock.h"
-#include "nstypes.h"
+#include "smfile.h"
 
 /*
  * Transaction State

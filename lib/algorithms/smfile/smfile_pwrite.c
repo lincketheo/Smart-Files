@@ -16,7 +16,7 @@
 #include "algorithms/nsdb/var/algorithms.h"
 #include "algorithms/smfile/smfile.h"
 #include "c_specx/dev/error.h"
-#include "nsfile.h"
+#include "smfile.h"
 #include "txns/txn.h"
 
 static sb_size

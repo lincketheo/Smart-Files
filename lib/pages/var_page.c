@@ -15,8 +15,8 @@
 #include "pages/var_page.h"
 
 #include "c_specx.h"
-#include "nstypes.h"
 #include "pages/page.h"
+#include "smfile.h"
 
 // numstore
 

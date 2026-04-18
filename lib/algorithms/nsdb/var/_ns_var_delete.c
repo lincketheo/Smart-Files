@@ -14,12 +14,12 @@
 
 #include "algorithms/nsdb/var/algorithms.h"
 #include "c_specx.h"
-#include "nstypes.h"
 #include "pager.h"
 #include "pager/page_h.h"
 #include "pages/page.h"
 #include "pages/var_hash_page.h"
 #include "pages/var_page.h"
+#include "smfile.h"
 
 /*
  * Delete a variable and reclaim all its storage.
