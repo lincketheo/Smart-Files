@@ -100,7 +100,7 @@ _smfile_pinsert (
 
   chunk_alloc_free_all (&temp);
 
-  return written;
+  return SUCCESS;
 
 failed_rollback:
 
