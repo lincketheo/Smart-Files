@@ -12,18 +12,17 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
+#include "algorithms/nsdb/var/algorithms.h"
 #include "algorithms/smfile/smfile.h"
+#include "c_specx/dev/error.h"
+#include "c_specx/memory/chunk_alloc.h"
+#include "errors.h"
 #include "nsfile.h"
 
-const char *
-smfile_strerror (smfile_t *ns)
+smfile_t *
+smfile_new_context (smfile_t *ns)
 {
-  if (ns->e.cause_code < 0)
-    {
-      return ns->e.cause_msg;
-    }
-  else
-    {
-      return NULL;
-    }
+  ns->e.cause_code = SUCCESS;
+  ns->e.cmlen = 0;
+  return _smfile_root_load (ns->root, &ns->e);
 }

@@ -20,25 +20,22 @@
 #include "txns/txn.h"
 
 static sb_size
-_smfile_remove (
+_smfile_pwrite (
     struct smfile *db,
-    void *dest,
+    const void *src,
+    const char *name,
     const t_size size,
     const b_size bofst,
     const sb_size stride,
     const b_size nelem,
     error *e)
 {
-  struct txn auto_txn;
-  struct stream _output;
-  struct stream_obuf_ctx ctx;
-  struct stream *output = NULL;
+  struct stream input;
+  struct stream_ibuf_ctx ctx;
+  struct chunk_alloc temp;
 
-  if (dest)
-    {
-      stream_obuf_init (&_output, &ctx, dest, size * nelem);
-      output = &_output;
-    }
+  stream_ibuf_init (&input, &ctx, src, size * nelem);
+  chunk_alloc_create_default (&temp);
 
   // BEGIN TXN
   const int auto_txn_start = _smfile_auto_begin_txn (db, e);
@@ -47,36 +44,45 @@ _smfile_remove (
       goto failed;
     }
 
-  // REMOVE
-  struct _ns_remove_params iparams = {
-    .db = &db->db,
-    .dest = output,
+  struct string vname;
+  if (name != NULL)
+    {
+      vname = strfcstr (name);
+    }
+  else
+    {
+      vname = strfcstr (DEFAULT_VARIABLE);
+    }
+
+  // GET OR CREATE VARIABLE
+  struct _ns_var_get_or_create_params gparams = {
+    .db = &db->root->db,
     .tx = db->atx,
-    .root = db->loaded.rpt_root,
+    .vname = vname,
+    .alloc = &temp,
+  };
+
+  if (_ns_var_get_or_create (&gparams, e))
+    {
+      goto failed;
+    }
+
+  // WRITE
+  const struct _ns_write_params iparams = {
+    .db = &db->root->db,
+    .src = &input,
+    .tx = db->atx,
+    .root = gparams.dest.rpt_root,
     .size = size,
     .bofst = bofst,
     .stride = stride,
     .nelem = nelem,
   };
-  const sb_size nremoved = _ns_remove (&iparams, e);
-  if (nremoved < 0)
+  const sb_size written = _ns_write (iparams, e);
+  if (written < 0)
     {
       goto failed_rollback;
     }
-
-  // Update new root
-  db->loaded.rpt_root = iparams.root;
-  db->loaded.nbytes -= nremoved * size;
-  struct _ns_var_update_params uparams = {
-    .db = &db->db,
-    .tx = db->atx,
-    .retr = (struct var_retrieval){
-        .type = VR_PG,
-        .root = db->loaded.var_root,
-    },
-    .newpg = db->loaded.rpt_root,
-    .nbytes = db->loaded.nbytes,
-  };
 
   // COMMIT
   if (_smfile_auto_commit (db, e))
@@ -84,20 +90,24 @@ _smfile_remove (
       goto failed_rollback;
     }
 
-  return nremoved;
+  chunk_alloc_free_all (&temp);
+
+  return written;
 
 failed_rollback:
 
   _smfile_auto_rollback (db);
 
 failed:
+  chunk_alloc_free_all (&temp);
   return error_trace (e);
 }
 
 sb_size
-smfile_remove (
+smfile_pwrite (
     smfile_t *smf,
-    void *dest,
+    const char *name,
+    const void *src,
     t_size size,
     b_size bofst,
     sb_size stride,
@@ -105,5 +115,5 @@ smfile_remove (
 {
   smf->e.cause_code = SUCCESS;
   smf->e.cmlen = 0;
-  return _smfile_remove (smf, dest, size, bofst, stride, nelem, &smf->e);
+  return _smfile_pwrite (smf, name, src, size, bofst, stride, nelem, &smf->e);
 }

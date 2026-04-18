@@ -13,37 +13,31 @@
 /// limitations under the License.
 
 #include "algorithms/nsdb/var/algorithms.h"
-#include "algorithms/smfile/smfile.h"
 #include "c_specx/dev/error.h"
-#include "c_specx/memory/chunk_alloc.h"
-#include "errors.h"
-#include "nsfile.h"
 
-// Switch contexts
 err_t
-_smfile_load (smfile_t *ns, const char *vname, error *e)
+_ns_var_get_or_create (struct _ns_var_get_or_create_params *params, error *e)
 {
   // Try to get the variable
-  struct _ns_var_get_params params = {
-    .db = &ns->db,
-    .tx = &ns->tx,
-
-    .vname = strfcstr (vname),
-    .alloc = ns->staging,
+  struct _ns_var_get_params gparams = {
+    .db = params->db,
+    .tx = params->tx,
+    .vname = params->vname,
+    .alloc = params->alloc,
   };
 
-  err_t ret = _ns_var_get (&params, &ns->e);
-  if (ret == ERR_VARIABLE_NE)
+  err_t err = _ns_var_get (&gparams, e);
+  if (err == ERR_VARIABLE_NE)
     {
       // Doesn't exist - reset and create it
       e->cause_code = SUCCESS;
       e->cmlen = 0;
 
-      // Create the default variable
+      // Create the variable
       struct _ns_var_create_params cparams = {
-        .db = &ns->db,
-        .tx = &ns->tx,
-        .vname = strfcstr (vname),
+        .db = params->db,
+        .tx = params->tx,
+        .vname = params->vname,
       };
       if (_ns_var_create (cparams, e))
         {
@@ -51,26 +45,18 @@ _smfile_load (smfile_t *ns, const char *vname, error *e)
         }
 
       // Try again
-      if (_ns_var_get (&params, &ns->e))
+      if (_ns_var_get (&gparams, e))
         {
           goto failed;
         }
     }
-  else if (ret < 0)
+  else if (err < 0)
     {
       goto failed;
     }
 
-  // Swap the allocators (to commit)
-  chunk_alloc_free_all (ns->alloc);
-  struct chunk_alloc *alloc = ns->alloc;
-  ns->alloc = ns->staging;
-  ns->staging = alloc;
-
-  // set the loaded variable
-  ns->loaded = params.dest;
+  params->dest = gparams.dest;
 
 failed:
-  chunk_alloc_free_all (ns->staging);
   return error_trace (e);
 }
