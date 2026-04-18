@@ -17,17 +17,16 @@
 #include "algorithms/smfile/smfile.h"
 #include "c_specx.h"
 #include "c_specx/dev/error.h"
+#include "c_specx/intf/os/memory.h"
 #include "c_specx/memory/chunk_alloc.h"
 #include "nsfile.h"
 #include "pager.h"
 #include "pager/page_h.h"
 
-#define DEFAULT_VARIABLE "."
-
 static struct smfile *
 _smfile_open (const char *path, error *e)
 {
-  struct smfile *ret = i_malloc (1, sizeof *ret, e);
+  struct smfile_root *ret = i_malloc (1, sizeof *ret, e);
   page_h hp = page_h_create ();
 
   if (ret == NULL)
@@ -37,16 +36,11 @@ _smfile_open (const char *path, error *e)
 
   // Initialize inner values
   {
-    ret->alloc = &ret->alloc_1;
-    ret->staging = &ret->alloc_2;
-
     ret->e = error_create ();
-    chunk_alloc_create_default (ret->alloc);
-    chunk_alloc_create_default (ret->staging);
 
     // path
     ret->path.len = strlen (path);
-    ret->path.data = chunk_malloc (ret->alloc, ret->path.len, 1, &ret->e);
+    ret->path.data = i_malloc (ret->path.len, 1, e);
     if (ret->path.data == NULL)
       {
         goto failed;
@@ -61,7 +55,8 @@ _smfile_open (const char *path, error *e)
   }
 
   // BEGIN TXN
-  if (pgr_begin_txn (&ret->tx, ret->db.p, e))
+  struct txn tx;
+  if (pgr_begin_txn (&tx, ret->db.p, e))
     {
       goto failed;
     }
@@ -70,7 +65,7 @@ _smfile_open (const char *path, error *e)
   if (pgr_isnew (ret->db.p))
     {
       // Create a new variable hash page
-      if (pgr_new (&hp, ret->db.p, &ret->tx, PG_VAR_HASH_PAGE, e))
+      if (pgr_new (&hp, ret->db.p, &tx, PG_VAR_HASH_PAGE, e))
         {
           goto failed;
         }
@@ -87,7 +82,7 @@ _smfile_open (const char *path, error *e)
       // Create the default variable
       struct _ns_var_create_params params = {
         .db = &ret->db,
-        .tx = &ret->tx,
+        .tx = &tx,
         .vname = strfcstr (DEFAULT_VARIABLE),
       };
       if (_ns_var_create (params, e))
@@ -96,31 +91,19 @@ _smfile_open (const char *path, error *e)
         }
     }
 
-  // Load the default variable
-  struct _ns_var_get_params params = {
-    .db = &ret->db,
-    .tx = &ret->tx,
-
-    .vname = strfcstr (DEFAULT_VARIABLE),
-    .alloc = ret->alloc,
-  };
-  if (_ns_var_get (&params, &ret->e))
-    {
-      goto failed;
-    }
-  ret->loaded = params.dest;
-
   // COMMIT
-  if (pgr_commit (ret->db.p, &ret->tx, e))
+  if (pgr_commit (ret->db.p, &tx, e))
     {
       goto failed;
     }
 
-  return ret;
+  // Load the default context
+  struct smfile *sret = _smfile_root_load (ret, e);
+
+  return sret;
 
 failed:
-  chunk_alloc_free_all (ret->alloc);
-  chunk_alloc_free_all (ret->staging);
+  // TODO just delete the file
   i_free (ret);
   return NULL;
 }

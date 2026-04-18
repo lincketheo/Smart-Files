@@ -33,38 +33,33 @@ _smfile_delete (struct smfile *db, const char *vname, error *e)
     }
 
   struct string vnamestr = strfcstr (vname);
-  if (string_equal (vnamestr, strfcstr (DEFAULT_VARIABLE)))
-    {
-      return error_causef (e, ERR_INVALID_ARGUMENT, "Cannot delete default variable: %s", DEFAULT_VARIABLE);
-    }
-  if (string_equal (vnamestr, db->loaded.vname))
-    {
-      // var is currently loaded - load the default
-      if (_smfile_load (db, DEFAULT_VARIABLE, e))
-        {
-          goto failed;
-        }
-    }
+  {
+    // Cannot delete the default variable
+    if (string_equal (vnamestr, strfcstr (DEFAULT_VARIABLE)))
+      {
+        return error_causef (e, ERR_INVALID_ARGUMENT, "Cannot delete default variable: %s", DEFAULT_VARIABLE);
+      }
 
-  // DELETE
-  struct _ns_var_delete_params iparams = {
-    .db = &db->db,
-    .tx = db->atx,
-    .vname = strfcstr (vname),
-  };
-  err_t result = _ns_var_delete (iparams, e);
-  if (result < 0)
-    {
-      goto failed_rollback;
-    }
+    // DELETE
+    struct _ns_var_delete_params params = {
+      .db = &db->root->db,
+      .tx = db->atx,
+      .vname = strfcstr (vname),
+    };
+    err_t result = _ns_var_delete (params, e);
+    if (result < 0)
+      {
+        goto failed_rollback;
+      }
 
-  // COMMIT
-  if (_smfile_auto_commit (db, e))
-    {
-      goto failed_rollback;
-    }
+    // COMMIT
+    if (_smfile_auto_commit (db, e))
+      {
+        goto failed_rollback;
+      }
+  }
 
-  return result;
+  return SUCCESS;
 
 failed_rollback:
 

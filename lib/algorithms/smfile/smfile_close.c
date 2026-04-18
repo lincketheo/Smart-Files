@@ -20,7 +20,7 @@
 static err_t
 _smfile_close (struct smfile *n, error *e)
 {
-  pgr_close (n->db.p, e);
+  pgr_close (n->root->db.p, e);
   i_free (n);
   return error_trace (e);
 }

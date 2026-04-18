@@ -15,65 +15,37 @@
 #pragma once
 
 #include "algorithms/nsdb.h"
-#include "c_specx/dev/assert.h"
-#include "c_specx/dev/error.h"
-#include "c_specx/dev/signatures.h"
+#include "c_specx.h"
 #include "pager.h"
 #include "variable.h"
 
+struct smfile_root
+{
+  struct nsdb db;     // The database resources
+  struct string path; // Path to the database
+  int count;          // When this reaches 0 - close the root
+  error e;
+};
+
 struct smfile
 {
-  struct nsdb db;         // The database resources
-  int is_auto_txn;        // If atx is an auto transaction
-  struct txn *atx;        // Active transaction
-  struct txn tx;          // Transaction storage
-  struct string path;     // Path to the database
-  struct variable loaded; // The currently loaded variable (always loaded)
+  // Shared root file
+  struct smfile_root *root;
 
-  struct chunk_alloc *alloc;   // Allocator that holds stuff for [loaded]
-  struct chunk_alloc *staging; // Temporary allocator for error handling
-
-  struct chunk_alloc alloc_1;
-  struct chunk_alloc alloc_2;
+  int is_auto_txn; // If atx is an auto transaction
+  struct txn *atx; // Active transaction
+  struct txn tx;   // Transaction storage
 
   error e;
 };
 
 #define DEFAULT_VARIABLE "."
 
-HEADER_FUNC err_t
-_smfile_auto_begin_txn (struct smfile *sm, error *e)
-{
-  if (sm->atx == NULL)
-    {
-      WRAP (pgr_begin_txn (&sm->tx, sm->db.p, e));
-      sm->is_auto_txn = 1;
-      sm->atx = &sm->tx;
-    }
+// Auto Transactions
+err_t _smfile_auto_begin_txn (struct smfile *sm, error *e);
+err_t _smfile_auto_commit (struct smfile *sm, error *e);
+void _smfile_auto_rollback (struct smfile *sm);
 
-  return SUCCESS;
-}
-
-HEADER_FUNC err_t
-_smfile_auto_commit (struct smfile *sm, error *e)
-{
-  if (sm->is_auto_txn)
-    {
-      ASSERT (sm->atx);
-      WRAP (pgr_commit (sm->db.p, sm->atx, e));
-      sm->atx = NULL;
-    }
-  return SUCCESS;
-}
-
-HEADER_FUNC void
-_smfile_auto_rollback (struct smfile *sm)
-{
-  if (pgr_rollback (sm->db.p, sm->atx, 0, &sm->e))
-    {
-      panic ("Failed to rollback");
-    }
-  sm->atx = NULL;
-}
-
-err_t _smfile_load (struct smfile *sm, const char *vname, error *e);
+err_t _smfile_root_close (struct smfile_root *root, error *e);
+struct smfile *_smfile_root_load (struct smfile_root *root, error *e);
+void _smfile_root_release (struct smfile_root *root, struct smfile *sm);

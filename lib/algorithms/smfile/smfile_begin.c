@@ -28,7 +28,7 @@ _smfile_begin (smfile_t *smf, error *e)
                            smf->atx->tid);
     }
 
-  WRAP (pgr_begin_txn (&smf->tx, smf->db.p, &smf->e));
+  WRAP (pgr_begin_txn (&smf->tx, smf->root->db.p, &smf->e));
 
   smf->is_auto_txn = 0;
   smf->atx = &smf->tx;

@@ -74,6 +74,19 @@ struct _ns_read_var_page_params
 
 err_t _ns_read_var_page (struct _ns_read_var_page_params *params, error *e);
 
+struct _ns_var_get_or_create_params
+{
+  struct nsdb *db;
+  struct txn *tx;
+
+  struct string vname;
+  struct chunk_alloc *alloc;
+
+  struct variable dest;
+};
+
+err_t _ns_var_get_or_create (struct _ns_var_get_or_create_params *params, error *e);
+
 ////////////////////////////////////////////////////////////
 // Creating Variables
 
