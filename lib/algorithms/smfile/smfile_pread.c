@@ -18,6 +18,7 @@
 #include "c_specx/dev/error.h"
 #include "smfile.h"
 #include "txns/txn.h"
+#include "variable.h"
 
 static sb_size
 _smfile_pread (
@@ -25,78 +26,104 @@ _smfile_pread (
     const char *name,
     void *dest,
     const t_size size,
-    const b_size bofst,
+    const sb_size bofst,
     const sb_size stride,
-    const b_size nelem,
+    b_size nelem,
     error *e)
 {
-  struct stream output;
-  struct stream_obuf_ctx ctx;
-  struct chunk_alloc temp;
+  sb_size ret;                                   // Return value
+  b_size ofst;                                   // Resolved offset
+  struct stream _output;                         // Output stream if present
+  struct stream_obuf_ctx ctx;                    // Context for output stream
+  struct stream *output = NULL;                  // Pointer to output stream
+  struct chunk_alloc temp;                       // Allocator for get operation
+  struct _ns_var_get_params gparams;             // Get operation
+  struct _ns_read_params rparams;                // Read operation
+  struct string vname = vname_or_default (name); // Variable name
 
-  stream_obuf_init (&output, &ctx, dest, size * nelem);
+  // Parameter validation
+  if (stride < 0)
+    {
+      return error_causef (e, ERR_INVALID_ARGUMENT, "Negative strides aren't supported yet");
+    }
+  if (stride == 0)
+    {
+      return error_causef (e, ERR_INVALID_ARGUMENT, "Cannot read with stride == 0");
+    }
+  if (size == 0)
+    {
+      return error_causef (e, ERR_INVALID_ARGUMENT, "Cannot read with size == 0");
+    }
+  if (nelem == 0)
+    {
+      return 0;
+    }
+
   chunk_alloc_create_default (&temp);
 
   // BEGIN TXN
-  const int auto_txn_start = _smfile_auto_begin_txn (db, e);
-  if (auto_txn_start < 0)
-    {
-      goto failed;
-    }
+  WRAP_GOTO (_smfile_auto_begin_txn (db, e), failed);
 
-  struct string vname;
-  if (name != NULL)
-    {
-      vname = strfcstr (name);
-    }
-  else
-    {
-      vname = strfcstr (DEFAULT_VARIABLE);
-    }
+  // GET VARIABLE
+  {
+    gparams = (struct _ns_var_get_params){
+      .db = &db->root->db,
+      .tx = db->atx,
+      .vname = vname,
+      .alloc = &temp,
+    };
+    err_t err = _ns_var_get (&gparams, e);
+    if (err == ERR_VARIABLE_NE)
+      {
+        ret = 0;
+        e->cause_code = SUCCESS;
+        e->cmlen = 0;
+        goto commit;
+      }
+    WRAP_GOTO (err, failed_rollback);
+  }
 
-  // GET OR CREATE VARIABLE
-  struct _ns_var_get_or_create_params gparams = {
-    .db = &db->root->db,
-    .tx = db->atx,
-    .vname = vname,
-    .alloc = &temp,
-  };
-
-  if (_ns_var_get_or_create (&gparams, e))
-    {
-      goto failed;
-    }
+  // Resolve sizes
+  {
+    ofst = var_resolve_index (&gparams.dest, bofst);
+    nelem = var_resolve_nelem (&gparams.dest, ofst, nelem, size);
+    if (nelem == 0)
+      {
+        ret = 0;
+        goto commit;
+      }
+    if (dest)
+      {
+        stream_obuf_init (&_output, &ctx, dest, size * nelem);
+        output = &_output;
+      }
+  }
 
   // READ
-  const struct _ns_read_params iparams = {
-    .db = &db->root->db,
-    .dest = &output,
-    .tx = db->atx,
-    .root = gparams.dest.rpt_root,
-    .size = size,
-    .bofst = bofst,
-    .stride = stride,
-    .nelem = nelem,
-  };
-  const sb_size nread = _ns_read (iparams, e);
-  if (nread < 0)
-    {
-      goto failed_rollback;
-    }
+  {
+    rparams = (struct _ns_read_params){
+      .db = &db->root->db,
+      .dest = output,
+      .tx = db->atx,
+      .root = gparams.dest.rpt_root,
+      .size = size,
+      .bofst = ofst,
+      .stride = stride,
+      .nelem = nelem,
+    };
+    ret = _ns_read (rparams, e);
+    WRAP_GOTO (ret, failed_rollback);
+  }
+
+commit:
 
   // COMMIT
-  if (_smfile_auto_commit (db, e))
-    {
-      goto failed_rollback;
-    }
-
+  WRAP_GOTO (_smfile_auto_commit (db, e), failed_rollback);
   chunk_alloc_free_all (&temp);
-
-  return nread;
+  return ret;
 
 failed_rollback:
 
-  // ROLLBACK
   _smfile_auto_rollback (db);
 
 failed:
@@ -110,7 +137,7 @@ smfile_pread (
     const char *name,
     void *dest,
     t_size size,
-    b_size bofst,
+    sb_size bofst,
     sb_size stride,
     b_size nelem)
 {

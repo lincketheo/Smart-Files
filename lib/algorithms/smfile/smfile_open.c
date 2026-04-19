@@ -37,6 +37,7 @@ _smfile_open (const char *path, error *e)
   // Initialize inner values
   {
     ret->e = error_create ();
+    ret->count = 0;
 
     // path
     ret->path.len = strlen (path);

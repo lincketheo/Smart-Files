@@ -24,3 +24,38 @@ struct variable
   pgno rpt_root;       // The root of the rptree
   b_size nbytes;       // Size of this variable
 };
+
+HEADER_FUNC b_size
+var_resolve_index (struct variable *v, sb_size bofst)
+{
+  // Translate negative
+  if (bofst < 0)
+    {
+      bofst = v->nbytes + bofst;
+    }
+
+  // was so negative it's still negative after conversion
+  if (bofst < 0)
+    {
+      bofst = 0;
+    }
+
+  // Translate indexes past nybtes
+  if ((b_size)bofst > v->nbytes) // also: > not >=, so nbytes itself is valid (append)
+    {
+      bofst = v->nbytes;
+    }
+
+  return bofst;
+}
+
+HEADER_FUNC b_size
+var_resolve_nelem (struct variable *v, b_size bofst, b_size nelem, t_size size)
+{
+  b_size remainder = (v->nbytes - bofst) / size;
+  if (nelem > remainder)
+    {
+      nelem = remainder;
+    }
+  return nelem;
+}

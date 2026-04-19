@@ -20,9 +20,13 @@
 static err_t
 _smfile_close (struct smfile *n, error *e)
 {
-  pgr_close (n->root->db.p, e);
-  i_free (n);
-  return error_trace (e);
+  struct smfile_root *root = n->root;
+  _smfile_root_release (root, n);
+  if (root->count == 0)
+    {
+      return _smfile_root_close (root, &root->e);
+    }
+  return SUCCESS;
 }
 
 int

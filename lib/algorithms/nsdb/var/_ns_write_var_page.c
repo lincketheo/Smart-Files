@@ -67,7 +67,6 @@ _ns_write_var_page (struct _ns_write_var_page_params *params, error *e)
   ASSERT (params->tx);
 
   pgno start = page_h_pgno (params->vp);
-  u8 *tstr = NULL;
 
   vp_set_next (page_h_w (params->vp), PGNO_NULL);
   vp_set_ovnext (page_h_w (params->vp), PGNO_NULL);
@@ -127,7 +126,6 @@ _ns_write_var_page (struct _ns_write_var_page_params *params, error *e)
     }
 
 theend:
-  i_free (tstr);
   return error_trace (e);
 
 failed:

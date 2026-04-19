@@ -50,10 +50,10 @@ err_t
 _smfile_root_close (struct smfile_root *root, error *e)
 {
   ASSERT (root->count == 0);
-  pgr_close (root->db.p, e);
+  err_t err = pgr_close (root->db.p, e);
   i_free ((void *)root->path.data);
   i_free (root);
-  return error_trace (e);
+  return err;
 }
 
 struct smfile *
@@ -83,8 +83,14 @@ _smfile_root_release (struct smfile_root *root, struct smfile *sm)
 }
 
 // Core Operations
-int
-smfile_insert (smfile_t *smf, const void *src, b_size bofst, b_size slen)
+sb_size
+smfile_size (smfile_t *smf)
+{
+  return smfile_psize (smf, NULL);
+}
+
+sb_size
+smfile_insert (smfile_t *smf, const void *src, sb_size bofst, b_size slen)
 {
   return smfile_pinsert (smf, NULL, src, bofst, slen);
 }
@@ -96,13 +102,13 @@ smfile_write (smfile_t *smf, const void *src, b_size bofst, b_size nelem)
 }
 
 sb_size
-smfile_read (smfile_t *smf, void *dest, b_size bofst, b_size nelem)
+smfile_read (smfile_t *smf, void *dest, sb_size bofst, b_size nelem)
 {
   return smfile_pread (smf, NULL, dest, 1, bofst, 1, nelem);
 }
 
 sb_size
-smfile_remove (smfile_t *smf, void *dest, b_size bofst, b_size nelem)
+smfile_remove (smfile_t *smf, void *dest, sb_size bofst, b_size nelem)
 {
   return smfile_premove (smf, NULL, dest, 1, bofst, 1, nelem);
 }
