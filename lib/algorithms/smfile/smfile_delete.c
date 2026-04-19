@@ -18,6 +18,7 @@
 #include "c_specx/dev/assert.h"
 #include "c_specx/dev/error.h"
 #include "c_specx/ds/string.h"
+#include "errors.h"
 #include "smfile.h"
 
 static err_t
@@ -26,11 +27,7 @@ _smfile_delete (struct smfile *db, const char *vname, error *e)
   struct txn auto_txn;
 
   // BEGIN TXN
-  int auto_txn_start = _smfile_auto_begin_txn (db, e);
-  if (auto_txn_start < 0)
-    {
-      goto failed;
-    }
+  WRAP_GOTO (_smfile_auto_begin_txn (db, e), failed);
 
   struct string vnamestr = strfcstr (vname);
   {
@@ -46,12 +43,17 @@ _smfile_delete (struct smfile *db, const char *vname, error *e)
       .tx = db->atx,
       .vname = strfcstr (vname),
     };
-    err_t result = _ns_var_delete (params, e);
-    if (result < 0)
+    err_t err = _ns_var_delete (params, e);
+    if (err == ERR_VARIABLE_NE)
       {
-        goto failed_rollback;
+        // It's ok if it doesn't exist
+        e->cause_code = 0;
+        e->cmlen = 0;
+        goto commit;
       }
+    WRAP_GOTO (err, failed_rollback);
 
+  commit:
     // COMMIT
     if (_smfile_auto_commit (db, e))
       {

@@ -49,3 +49,16 @@ void _smfile_auto_rollback (struct smfile *sm);
 err_t _smfile_root_close (struct smfile_root *root, error *e);
 struct smfile *_smfile_root_load (struct smfile_root *root, error *e);
 void _smfile_root_release (struct smfile_root *root, struct smfile *sm);
+
+HEADER_FUNC struct string
+vname_or_default (const char *name)
+{
+  if (name != NULL)
+    {
+      return strfcstr (name);
+    }
+  else
+    {
+      return strfcstr (DEFAULT_VARIABLE);
+    }
+}

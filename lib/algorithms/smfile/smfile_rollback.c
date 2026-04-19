@@ -20,14 +20,14 @@
 static err_t
 _smfile_rollback (smfile_t *smf, error *e)
 {
-  if (smf->atx)
+  if (smf->atx == NULL)
     {
       return error_causef (e, ERR_INVALID_ARGUMENT,
                            "Can't rollback transaction, not a part of an existing transaction");
     }
 
   WRAP (pgr_rollback (smf->root->db.p, &smf->tx, 0, &smf->e));
-  smf->atx = &smf->tx;
+  smf->atx = NULL;
 
   return SUCCESS;
 }

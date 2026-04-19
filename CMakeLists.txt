@@ -22,7 +22,7 @@ include(cmake/Packaging.cmake)
 add_subdirectory(thirdparty)
 add_subdirectory(lib)
 add_subdirectory(apps)
-#add_subdirectory(samples)
+add_subdirectory(samples)
 
 # macOS leak check helper 
 if(APPLE AND TARGET test_bin)

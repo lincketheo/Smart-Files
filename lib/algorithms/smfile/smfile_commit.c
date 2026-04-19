@@ -20,14 +20,14 @@
 static err_t
 _smfile_commit (smfile_t *smf, error *e)
 {
-  if (!smf->atx)
+  if (smf->atx == NULL)
     {
       return error_causef (e, ERR_INVALID_ARGUMENT,
                            "Can't commit transaction, not a part of an existing transaction");
     }
 
   WRAP (pgr_commit (smf->root->db.p, &smf->tx, &smf->e));
-  smf->atx = &smf->tx;
+  smf->atx = NULL;
 
   return SUCCESS;
 }

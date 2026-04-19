@@ -41,8 +41,6 @@ typedef uint64_t lsn;    // Wall Index (often called LSN)
 typedef uint8_t pgh;     // Page header
 typedef uint8_t wlh;     // Wal Header
 
-#define SLSN_MAX I64_MAX
-
 #define PGNO_NULL U64_MAX
 #define WLH_NULL U8_MAX
 
@@ -58,6 +56,9 @@ typedef uint8_t wlh;     // Wal Header
 #define PRstxid PRId64
 #define PRlsn PRIu64
 #define PRslsn PRId64
+
+// Magic constants
+#define SMF_END INT64_MAX
 
 typedef struct smfile smfile_t;
 
@@ -126,14 +127,21 @@ int smfile_delete (smfile_t *ns, const char *vname);
 // =============================================================================
 
 /**
+ * @brief The size of a smfile
+ * @return < 0 on error -> size on success
+ */
+sb_size smfile_size (smfile_t *smf);
+
+/**
  * @brief Insert data into the middle of a smart file
  *
  * @param src The byte data to insert
- * @param bofst The byte offset in the file that you want to begin the insert
+ * @param bofst The byte offset in the file that you want to begin the insert.
+ *              If negative, goes from the end.
  * @param slen The length in bytes of [src]
  * @return < 0 on error, 0 on success
  */
-int smfile_insert (smfile_t *smf, const void *src, b_size bofst, b_size slen);
+sb_size smfile_insert (smfile_t *smf, const void *src, sb_size bofst, b_size slen);
 
 /**
  * @brief Write elements into a smart file, overwriting existing data at that location.
@@ -156,7 +164,7 @@ sb_size smfile_write (smfile_t *smf, const void *src, b_size bofst, b_size nelem
  * @param nelem The number of elements to read
  * @return The number of elements read, or < 0 on error
  */
-sb_size smfile_read (smfile_t *smf, void *dest, b_size bofst, b_size nelem);
+sb_size smfile_read (smfile_t *smf, void *dest, sb_size bofst, b_size nelem);
 
 /**
  * @brief Remove elements from the middle of a smart file, closing the gap.
@@ -169,7 +177,12 @@ sb_size smfile_read (smfile_t *smf, void *dest, b_size bofst, b_size nelem);
  * @param nelem The number of elements to remove
  * @return The number of elements removed, or < 0 on error
  */
-sb_size smfile_remove (smfile_t *smf, void *dest, b_size bofst, b_size nelem);
+sb_size smfile_remove (smfile_t *smf, void *dest, sb_size bofst, b_size nelem);
+
+/**
+ * @brief Returns the size of an individual variable
+ */
+sb_size smfile_psize (smfile_t *smf, const char *vname);
 
 /**
  * @brief [Power] Insert data into the middle of a named variable within a smart file.
@@ -186,7 +199,7 @@ sb_size smfile_pinsert (
     smfile_t *smf,
     const char *name,
     const void *src,
-    b_size bofst,
+    sb_size bofst,
     b_size slen);
 
 /**
@@ -231,7 +244,7 @@ sb_size smfile_pread (
     const char *name,
     void *dest,
     t_size size,
-    b_size bofst,
+    sb_size bofst,
     sb_size stride,
     b_size nelem);
 
@@ -255,7 +268,7 @@ sb_size smfile_premove (
     const char *name,
     void *dest,
     t_size size,
-    b_size bofst,
+    sb_size bofst,
     sb_size stride,
     b_size nelem);
 
