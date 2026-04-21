@@ -69,8 +69,8 @@ TEST (pager_fill_ht)
 
     do
       {
-        const err_t __ret = (err_t)pgr_new (&bad, f.p, &tx, PG_DATA_LIST, &f.e);
-        test_assert_int_equal (__ret, ERR_PAGER_FULL);
+        const err_t ret = pgr_new (&bad, f.p, &tx, PG_DATA_LIST, &f.e);
+        test_assert_int_equal (ret, ERR_PAGER_FULL);
         (&f.e)->cause_code = SUCCESS;
       }
     while (0);

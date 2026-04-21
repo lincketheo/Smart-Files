@@ -200,7 +200,7 @@ TEST (vp_validate)
   TEST_CASE ("Empty type string length")
   {
     page_init_empty (&sut, PG_VAR_PAGE);
-    vp_set_vlen (&sut, 10);
+    vp_set_vlen (&sut, 0);
     test_err_t_check (vp_validate_for_db (&sut, &e), ERR_CORRUPT, &e);
   }
 
@@ -217,15 +217,6 @@ TEST (vp_validate)
     page_init_empty (&sut, PG_VAR_PAGE);
     vp_set_vlen (&sut, 1);
     test_err_t_check (vp_validate_for_db (&sut, &e), SUCCESS, &e);
-  }
-
-  TEST_CASE ("t string overflow")
-  {
-    page_init_empty (&sut, PG_VAR_PAGE);
-    vp_set_vlen (&sut, 1);
-    test_err_t_check (vp_validate_for_db (&sut, &e), ERR_CORRUPT, &e);
-    e.cause_code = SUCCESS;
-    e.cmlen = 0;
   }
 
   TEST_CASE ("v string overflow")

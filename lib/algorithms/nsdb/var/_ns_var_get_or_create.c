@@ -26,7 +26,9 @@ _ns_var_get_or_create (struct _ns_var_get_or_create_params *params, error *e)
     .alloc = params->alloc,
   };
 
+  error_silence (e);
   err_t err = _ns_var_get (&gparams, e);
+  error_unsilence (e);
   if (err == ERR_VARIABLE_NE)
     {
       // Doesn't exist - reset and create it

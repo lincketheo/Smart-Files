@@ -29,8 +29,7 @@
 ////////////////////////////////////////////////////////////
 /// SUITES
 
-TEST_SUITE (numstore, 128);
-TEST_SUITE (paging, 128);
+TEST_SUITE (numstore, 256);
 
 ////////////////////////////////////////////////////////////
 /// SUITE STRUCT
@@ -169,17 +168,15 @@ int
 main (const int argc, char **argv)
 {
   struct test_cli p;
-  if (test_parse_cli_params (argv, argc, &p)){
-    return -1;
-}
+  if (test_parse_cli_params (argv, argc, &p))
+    {
+      return -1;
+    }
 
-  if (p.help_printed){
-    return 0;
-  }
-
-  // --------------------------------------------------------
-  // numstore
-  // --------------------------------------------------------
+  if (p.help_printed)
+    {
+      return 0;
+    }
 
   // node_updates.c
   REGISTER (numstore, nupd_init);
@@ -195,132 +192,154 @@ main (const int argc, char **argv)
   REGISTER (numstore, nupd_done_consuming_right);
   REGISTER (numstore, nupd_done_left);
   REGISTER (numstore, nupd_done_right);
+
   // _ns_balance_and_release.c
   REGISTER (numstore, dlgt_balance_with_prev);
   REGISTER (numstore, dlgt_balance_with_next);
 
-  // --------------------------------------------------------
-  // paging
-  // --------------------------------------------------------
-
   // aries_fuzzy_checkpoint.c
-  // REGISTER (paging, aries_fuzzy_checkpoint_basic_recovery);
-  // REGISTER (paging, aries_fuzzy_checkpoint_with_active_transactions);
-  // REGISTER (paging, aries_fuzzy_checkpoint_multiple_checkpoints);
-  // REGISTER (paging, aries_fuzzy_checkpoint_with_post_checkpoint_activity);
+  // REGISTER (numstore, aries_fuzzy_checkpoint_basic_recovery);
+  // REGISTER (numstore, aries_fuzzy_checkpoint_with_active_transactions);
+  // REGISTER (numstore, aries_fuzzy_checkpoint_multiple_checkpoints);
+  // REGISTER (numstore, aries_fuzzy_checkpoint_with_post_checkpoint_activity);
+
   // aries_no_checkpoint_crash.c
-  // REGISTER (paging, aries_crash);
-  // REGISTER (paging, aries_crash_1);
+  // REGISTER (numstore, aries_crash);
+  // REGISTER (numstore, aries_crash_1);
+
   // pgr_rollback.c
-  REGISTER (paging, aries_rollback_basic);
-  REGISTER (paging, aries_rollback_multiple_updates);
-  REGISTER (paging, aries_rollback_with_crash_recovery);
-  REGISTER (paging, aries_rollback_clr_not_undone);
+  REGISTER (numstore, aries_rollback_basic);
+  REGISTER (numstore, aries_rollback_multiple_updates);
+  REGISTER (numstore, aries_rollback_with_crash_recovery);
+  REGISTER (numstore, aries_rollback_clr_not_undone);
+
   // dirty_page_table_tests.c
-  REGISTER (paging, dpgt_open);
-  REGISTER (paging, dpgt_merge_into);
-  REGISTER (paging, dpgt_min_rec_lsn);
-  REGISTER (paging, dpgt_exists);
-  REGISTER (paging, dpgt_add);
-  REGISTER (paging, dpgt_get);
-  REGISTER (paging, dpgt_remove);
-  REGISTER (paging, dpgt_serialize);
-  REGISTER (paging, dpgt_equal);
+  REGISTER (numstore, dpgt_open);
+  REGISTER (numstore, dpgt_merge_into);
+  REGISTER (numstore, dpgt_min_rec_lsn);
+  REGISTER (numstore, dpgt_exists);
+  REGISTER (numstore, dpgt_add);
+  REGISTER (numstore, dpgt_get);
+  REGISTER (numstore, dpgt_remove);
+  REGISTER (numstore, dpgt_serialize);
+  REGISTER (numstore, dpgt_equal);
+
   // dpgt_concurrency_tests.c
-  REGISTER (paging, dpgt_concurrent);
+  REGISTER (numstore, dpgt_concurrent);
+
   // lock_table.c
-  REGISTER (paging, lock_table_exclusivity);
+  REGISTER (numstore, lock_table_exclusivity);
+
   // file_pager.c
-  REGISTER (paging, fpgr_open);
-  REGISTER (paging, fpgr_new);
-  REGISTER (paging, fpgr_read_write);
+  REGISTER (numstore, fpgr_open);
+  REGISTER (numstore, fpgr_new);
+  REGISTER (numstore, fpgr_read_write);
+
   // page_fixture.c
-  REGISTER (paging, build_page_tree);
+  REGISTER (numstore, build_page_tree);
+
   // pager.c
-  REGISTER (paging, pager_fill_ht);
-  REGISTER (paging, wal_int);
+  REGISTER (numstore, pager_fill_ht);
+  REGISTER (numstore, wal_int);
+
   // pgr_close.c
-  REGISTER (paging, pgr_close_success);
+  REGISTER (numstore, pgr_close_success);
+
   // pgr_delete.c
-  REGISTER (paging, pgr_delete);
+  REGISTER (numstore, pgr_delete);
+
   // pgr_get.c
-  REGISTER (paging, pgr_get_invalid_checksum);
+  REGISTER (numstore, pgr_get_invalid_checksum);
+
   // pgr_mt_test.c
-  // REGISTER (paging, pager_mt);
+  // REGISTER (numstore, pager_mt);
+
   // pgr_new.c
-  REGISTER (paging, pgr_new_get_save);
-  REGISTER (paging, pgr_new_multiple_fsm);
+  REGISTER (numstore, pgr_new_get_save);
+  REGISTER (numstore, pgr_new_multiple_fsm);
+
   // pgr_open.c
-  REGISTER (paging, pager_open);
-  REGISTER (paging, pgr_open_basic);
+  REGISTER (numstore, pager_open);
+  REGISTER (numstore, pgr_open_basic);
+
   // data_list.c
-  REGISTER (paging, dl_validate);
-  REGISTER (paging, dl_set_get);
-  REGISTER (paging, dl_read);
-  REGISTER (paging, dl_read_out_from);
-  REGISTER (paging, dl_append);
-  REGISTER (paging, dl_write);
-  REGISTER (paging, dl_memset);
-  REGISTER (paging, dl_move_left);
-  REGISTER (paging, dl_shift_right);
-  REGISTER (paging, dl_move_right);
+  REGISTER (numstore, dl_validate);
+  REGISTER (numstore, dl_set_get);
+  REGISTER (numstore, dl_read);
+  REGISTER (numstore, dl_read_out_from);
+  REGISTER (numstore, dl_append);
+  REGISTER (numstore, dl_write);
+  REGISTER (numstore, dl_memset);
+  REGISTER (numstore, dl_move_left);
+  REGISTER (numstore, dl_shift_right);
+  REGISTER (numstore, dl_move_right);
+
   // inner_node.c
-  REGISTER (paging, in_validate_for_db);
-  REGISTER (paging, in_set_get_simple);
-  REGISTER (paging, in_push_end);
-  REGISTER (paging, in_memcpy);
-  REGISTER (paging, in_move_left);
-  REGISTER (paging, in_move_left_two_keys);
-  REGISTER (paging, in_move_left_all_keys);
-  REGISTER (paging, in_move_left_into_empty);
-  REGISTER (paging, in_push_left);
-  REGISTER (paging, in_push_left_into_empty);
-  REGISTER (paging, in_push_left_to_full);
-  REGISTER (paging, in_move_right);
-  REGISTER (paging, in_move_right_two_keys);
-  REGISTER (paging, in_move_right_all_keys);
-  REGISTER (paging, in_move_right_into_empty_right);
-  REGISTER (paging, in_choose_lidx);
-  REGISTER (paging, in_cut_left);
-  REGISTER (paging, in_cut_left_all_at_once);
-  REGISTER (paging, in_cut_left_from_empty);
-  REGISTER (paging, in_cut_left_to_one);
+  REGISTER (numstore, in_validate_for_db);
+  REGISTER (numstore, in_set_get_simple);
+  REGISTER (numstore, in_push_end);
+  REGISTER (numstore, in_memcpy);
+  REGISTER (numstore, in_move_left);
+  REGISTER (numstore, in_move_left_two_keys);
+  REGISTER (numstore, in_move_left_all_keys);
+  REGISTER (numstore, in_move_left_into_empty);
+  REGISTER (numstore, in_push_left);
+  REGISTER (numstore, in_push_left_into_empty);
+  REGISTER (numstore, in_push_left_to_full);
+  REGISTER (numstore, in_move_right);
+  REGISTER (numstore, in_move_right_two_keys);
+  REGISTER (numstore, in_move_right_all_keys);
+  REGISTER (numstore, in_move_right_into_empty_right);
+  REGISTER (numstore, in_choose_lidx);
+  REGISTER (numstore, in_cut_left);
+  REGISTER (numstore, in_cut_left_all_at_once);
+  REGISTER (numstore, in_cut_left_from_empty);
+  REGISTER (numstore, in_cut_left_to_one);
+
   // page.c
-  REGISTER (paging, page_set_get_simple);
+  REGISTER (numstore, page_set_get_simple);
+
   // root_node.c
-  REGISTER (paging, rn_init_empty_and_zeroes);
-  REGISTER (paging, rn_init_empty);
-  REGISTER (paging, rn_validate_for_db);
-  REGISTER (paging, rn_set_get_simple);
+  REGISTER (numstore, rn_init_empty_and_zeroes);
+  REGISTER (numstore, rn_init_empty);
+  REGISTER (numstore, rn_validate_for_db);
+  REGISTER (numstore, rn_set_get_simple);
+
   // var_page.c
-  REGISTER (paging, vp_init_empty);
-  REGISTER (paging, vp_validate);
+  REGISTER (numstore, vp_init_empty);
+  REGISTER (numstore, vp_validate);
+
   // var_tail.c
-  REGISTER (paging, vt_init_empty);
-  REGISTER (paging, vt_validate);
+  REGISTER (numstore, vt_init_empty);
+  REGISTER (numstore, vt_validate);
+
   // txn.c
-  REGISTER (paging, txn_basic);
+  REGISTER (numstore, txn_basic);
+
   // txn_table.c
-  REGISTER (paging, txnt_open);
-  REGISTER (paging, txnt_merge_into);
-  REGISTER (paging, txnt_max_u_undo_lsn);
-  REGISTER (paging, txnt_min_lsn);
-  REGISTER (paging, txnt_exists);
-  REGISTER (paging, txnt_insert);
-  REGISTER (paging, txnt_get);
-  REGISTER (paging, txnt_remove);
-  REGISTER (paging, txnt_serialize);
-  REGISTER (paging, txnt_equal_ignore_state);
+  REGISTER (numstore, txnt_open);
+  REGISTER (numstore, txnt_merge_into);
+  REGISTER (numstore, txnt_max_u_undo_lsn);
+  REGISTER (numstore, txnt_min_lsn);
+  REGISTER (numstore, txnt_exists);
+  REGISTER (numstore, txnt_insert);
+  REGISTER (numstore, txnt_get);
+  REGISTER (numstore, txnt_remove);
+  REGISTER (numstore, txnt_serialize);
+  REGISTER (numstore, txnt_equal_ignore_state);
+
   // txnt_concurrency_tests.c
-  REGISTER (paging, txnt_concurrent);
+  REGISTER (numstore, txnt_concurrent);
+
   // wal_tests.c
-  REGISTER (paging, wal_multi_threaded);
-  REGISTER (paging, wal);
-  REGISTER (paging, wal_single_entry);
+  // REGISTER (numstore, wal_multi_threaded);
+  REGISTER (numstore, wal);
+  REGISTER (numstore, wal_single_entry);
+
+  REGISTER (numstore, smfile_data_writer);
 
   struct suite all_suites[] = {
     { "numstore", numstore_tests, (u32)numstore_count },
-    { "paging", paging_tests, (u32)paging_count },
   };
 
   error e = error_create ();

@@ -159,6 +159,7 @@ err_t pgr_rollback (struct pager *p, struct txn *tx, lsn save_lsn, error *e);
 
 err_t pgr_checkpoint (struct pager *p, error *e);
 err_t pgr_fuzzy_checkpoint (struct pager *p, error *e);
+err_t pgr_deletion_blocking_checkpoint (struct pager *p, error *e);
 err_t pgr_launch_checkpoint_thread (struct pager *p, u64 msec, error *e);
 
 /**
