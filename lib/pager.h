@@ -257,7 +257,7 @@ err_t pgr_release_if_exists (struct pager *p, page_h *h, int flags, error *e);
  * This is the most explicit release - you can specify your
  * own WAL record. The exception is using this method.
  *
- * Numstore operates on the premise that most WAL updates are
+ * SmartFiles operates on the premise that most WAL updates are
  * physical page updates because data is so tightly packed.
  *
  * Smaller non physical updates must use this function instead

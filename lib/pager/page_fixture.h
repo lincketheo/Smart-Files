@@ -19,7 +19,7 @@
 #include "pages/data_list.h"
 #include "pages/inner_node.h"
 
-// numstore
+// smartfiles
 ////////////////////////////////////////////////////////////
 /// PAGE FIXTURE
 

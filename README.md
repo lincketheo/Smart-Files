@@ -13,7 +13,7 @@ Written in C with no dependencies. Developed in POSIX - Windows builds compile b
 ## Quick Start
 
 ```bash
-git clone https://gitlab.com/lincketheo/numstore.git
+git clone https://gitlab.com/lincketheo/smartfiles.git
 cmake --preset release
 cd build/release
 make

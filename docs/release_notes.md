@@ -2,7 +2,7 @@
 
 For the people in a hurry:
 
-Numstore is a new kind of file. It looks and acts like an ISO-C `FILE`, but under the hood it's a transactional database with a rope-backed storage engine. That means two things:
+SmartFiles is a new kind of file. It looks and acts like an ISO-C `FILE`, but under the hood it's a transactional database with a rope-backed storage engine. That means two things:
 
 1. **Insert and remove in the middle of a file are first class** — `O(log n)` instead of the `O(n)` shuffle you'd write by hand.
 2. **Every operation is atomic** — it either fully completes or it doesn't happen at all. No partial writes, no half-corrupted files, no recovery code on your end.
@@ -53,13 +53,13 @@ Notoriously this is by design — ISO C files are a thin wrapper over `read(2)` 
 
 ---
 
-## Introducing Numstore
+## Introducing SmartFiles
 
-Numstore solves points 1 and 2, and adds two more nice features on top of files:
+SmartFiles solves points 1 and 2, and adds two more nice features on top of files:
 
 ### 1. Insert and remove are first class
 
-Numstore treats `insert` (put data in the middle of a file) and `remove` (take data out of the middle of a file) as first-class operations. It uses a novel rope algorithm — optimized for disk writing — to take these from `O(n)` to `O(log n)`.
+SmartFiles treats `insert` (put data in the middle of a file) and `remove` (take data out of the middle of a file) as first-class operations. It uses a novel rope algorithm — optimized for disk writing — to take these from `O(n)` to `O(log n)`.
 
 You write:
 
@@ -71,7 +71,7 @@ smfile_insert(smf, newdata, offset, length);
 
 ### 2. Fully transactional
 
-Numstore is a fully featured database with transactional support, a write-ahead log, and two-phase locking (all that is under the hood) — meaning modifications either complete or do not complete. There's no in-between state like ISO files.
+SmartFiles is a fully featured database with transactional support, a write-ahead log, and two-phase locking (all that is under the hood) — meaning modifications either complete or do not complete. There's no in-between state like ISO files.
 
 - Yes — read, write, and remove do return sizes, but this is because of data boundaries. There is never a case where read / write / remove / insert fails with a partial mutation to the database. The only "partial" thing that can happen is that we write 4 elements to a 5-element-long file when we requested 10. But that's arguably not a partial write — it's just hitting the end.
 
@@ -79,9 +79,9 @@ Pair that with `smfile_begin` / `smfile_commit` / `smfile_rollback` and you can 
 
 ## Bonus features
 
-**3. Multiple variables per file.** Numstore lets you store as many "variables" as you want in one file. This isn't crucial — the default behavior looks just like a regular file — but if you're a power user, you can keep multiple keys inside a single file and switch between them with `smfile_load`.
+**3. Multiple variables per file.** SmartFiles lets you store as many "variables" as you want in one file. This isn't crucial — the default behavior looks just like a regular file — but if you're a power user, you can keep multiple keys inside a single file and switch between them with `smfile_load`.
 
-**4. Strided operations.** Numstore adds the notion of *stride* on top of reads, writes, and removes (not insert). A strided operation means we touch every nth element (with respect to the size parameter). Useful when you're storing structs on disk and only want to read out one field across all records — no more "read everything, throw most of it away."
+**4. Strided operations.** SmartFiles adds the notion of *stride* on top of reads, writes, and removes (not insert). A strided operation means we touch every nth element (with respect to the size parameter). Useful when you're storing structs on disk and only want to read out one field across all records — no more "read everything, throw most of it away."
 
 ---
 

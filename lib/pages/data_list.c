@@ -18,7 +18,7 @@
 #include "pages/page.h"
 #include "smfile.h"
 
-// numstore
+// smartfiles
 // Initialization
 
 err_t

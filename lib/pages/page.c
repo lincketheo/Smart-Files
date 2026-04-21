@@ -12,7 +12,7 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-// numstore
+// smartfiles
 #include "pages/page.h"
 
 #include "c_specx.h"

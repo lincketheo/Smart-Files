@@ -52,7 +52,7 @@ struct node_updates
   u32 lcons;
 };
 
-// numstore
+// smartfiles
 DEFINE_DBG_ASSERT (struct node_updates, node_updates, n, {
   ASSERT (n);
   ASSERT (!in_pair_is_empty (n->pivot));

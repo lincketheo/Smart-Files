@@ -13,7 +13,7 @@ def find_tests(root):
             continue
         print(f"  // {path.name}")
         for t in matches:
-            print(f"  REGISTER (numstore, {t});")
+            print(f"  REGISTER (smartfiles, {t});")
         print()
 
 if __name__ == "__main__":

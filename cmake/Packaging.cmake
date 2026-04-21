@@ -2,10 +2,10 @@
 include(InstallRequiredSystemLibraries)
 
 # Common Information
-set(CPACK_PACKAGE_NAME                  "numstore")
+set(CPACK_PACKAGE_NAME                  "smartfiles")
 set(CPACK_PACKAGE_VENDOR                "NumStore Project")
 set(CPACK_PACKAGE_CONTACT               "lincketheo@gmail.com")
-set(CPACK_PACKAGE_HOMEPAGE_URL          "https://github.com/lincketheo/numstore")
+set(CPACK_PACKAGE_HOMEPAGE_URL          "https://github.com/lincketheo/smartfiles")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY   "Custom database engine for contiguous byte streams")
 
 set(CPACK_PACKAGE_VERSION               "${PROJECT_VERSION}")

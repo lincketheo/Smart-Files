@@ -2,26 +2,26 @@
 file(GLOB_RECURSE NS_SOURCES  CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.c")
 
 # The main library
-add_library(numstore STATIC ${NS_SOURCES})
-target_link_libraries(numstore PUBLIC c_specx)
-target_include_directories(numstore
+add_library(smartfiles STATIC ${NS_SOURCES})
+target_link_libraries(smartfiles PUBLIC c_specx)
+target_include_directories(smartfiles
     PUBLIC  "${CMAKE_SOURCE_DIR}/include"
-    PUBLIC  "${CMAKE_SOURCE_DIR}/thirdparty/c_specx/include"
+    PRIVATE "${CMAKE_SOURCE_DIR}/thirdparty/c_specx/include"
     PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
 if(WIN32)
-    target_link_libraries(numstore PUBLIC ws2_32)
+    target_link_libraries(smartfiles PUBLIC ws2_32)
 else()
-    target_link_libraries(numstore PUBLIC pthread)
+    target_link_libraries(smartfiles PUBLIC pthread)
 endif()
 
-set_target_properties(numstore PROPERTIES
-    OUTPUT_NAME "numstore"
+set_target_properties(smartfiles PROPERTIES
+    OUTPUT_NAME "smartfiles"
     VERSION     "${PROJECT_VERSION}"
 )
 
-install(TARGETS numstore
+install(TARGETS smartfiles
     ARCHIVE DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}"
     COMPONENT development

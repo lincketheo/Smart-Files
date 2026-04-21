@@ -1,6 +1,6 @@
 .PHONY: all build comprehensive \
         test run-tests run-tests-no-asan \
-        nstypes-tests nspager-tests numstore-tests nsusecase-tests \
+        nstypes-tests nspager-tests smartfiles-tests nsusecase-tests \
         package package-deb package-rpm package-tar package-zip \
         package-python package-java package-all \
         homebrew-formula install clean format tidy
@@ -94,16 +94,16 @@ package-zip:
 	cd build/package-release && cpack -G ZIP
 
 package-python:
-	@mkdir -p build/pynumstore
-	python3 -m build --outdir build/pynumstore
-	@echo "Python wheel ready in build/pynumstore/"
+	@mkdir -p build/pysmartfiles
+	python3 -m build --outdir build/pysmartfiles
+	@echo "Python wheel ready in build/pysmartfiles/"
 
 package-java:
 	$(MAKE) build target=release
-	cmake --build build/release --target jnumstore-jar
-	@mkdir -p build/jnumstore
-	@cp bindings/java/jnumstore/build/libs/jnumstore-*.jar build/jnumstore/
-	@echo "Java jar ready in build/jnumstore/"
+	cmake --build build/release --target jsmartfiles-jar
+	@mkdir -p build/jsmartfiles
+	@cp bindings/java/jsmartfiles/build/libs/jsmartfiles-*.jar build/jsmartfiles/
+	@echo "Java jar ready in build/jsmartfiles/"
 
 package-all: package package-python package-java
 	cd build/package-release && cpack -G DEB

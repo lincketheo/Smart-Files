@@ -15,7 +15,7 @@ foreach(_flag NDEBUG NTEST NLOG)
 endforeach()
 
 # Disable all the warnings for things like strncpy to strncpy_s.
-# Numstore makes a point to make strncpy safe
+# SmartFiles makes a point to make strncpy safe
 if(MSVC)
     add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()

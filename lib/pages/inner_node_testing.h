@@ -15,7 +15,7 @@
 #pragma once
 
 #ifndef NTEST
-// numstore
+// smartfiles
 #include "pages/page.h"
 
 void in_print (const page *in);

@@ -64,6 +64,7 @@ dlgt_balance_with_prev (const page_h *prev, const page_h *cur)
   dlgt_move_left (page_h_w (prev), page_h_w (cur), cur_len);
 }
 
+#ifndef NTEST
 TEST (dlgt_balance_with_prev)
 {
   struct pgr_fixture f;
@@ -195,6 +196,7 @@ TEST (dlgt_balance_with_prev)
 
   pgr_fixture_teardown (&f);
 }
+#endif
 
 /*
  * Rebalance a data-list leaf against its right (next) sibling.
@@ -235,6 +237,7 @@ dlgt_balance_with_next (const page_h *cur, const page_h *next)
   dlgt_move_right (page_h_w (cur), page_h_w (next), cur_len);
 }
 
+#ifndef NTEST
 TEST (dlgt_balance_with_next)
 {
   struct pgr_fixture f;
@@ -366,6 +369,7 @@ TEST (dlgt_balance_with_next)
 
   pgr_fixture_teardown (&f);
 }
+#endif
 
 static struct three_in_pair
 three_in_pair_from (const page_h *prev, const page_h *cur, const page_h *next)

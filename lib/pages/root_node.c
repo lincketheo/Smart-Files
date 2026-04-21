@@ -18,7 +18,7 @@
 #include "pages/page.h"
 #include "smfile.h"
 
-// numstore
+// smartfiles
 DEFINE_DBG_ASSERT (page, rn_page, d, { ASSERT (d); })
 
 ////////////////////////////////////////////////////////////

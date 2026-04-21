@@ -14,7 +14,7 @@
 
 #pragma once
 
-// numstore
+// smartfiles
 #include "c_specx.h"
 #include "pages/page.h"
 
