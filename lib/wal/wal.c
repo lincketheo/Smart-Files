@@ -433,7 +433,6 @@ wal_write_physical_clr (const struct wal *w, const struct wal_rec_hdr_write *r,
                         error *e)
 {
   ASSERT (r->type == WL_CLR);
-  ASSERT (r->clr.undo_next != 0);
 
   ASSERT (w->ostream);
 
@@ -461,7 +460,6 @@ static err_t
 wal_write_fsm_clr (const struct wal *w, const struct wal_rec_hdr_write *r, error *e)
 {
   ASSERT (r->type == WL_CLR);
-  ASSERT (r->clr.undo_next != 0);
 
   ASSERT (w->ostream);
 
