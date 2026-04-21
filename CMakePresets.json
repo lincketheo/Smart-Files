@@ -107,68 +107,6 @@
         "ENABLE_ASAN": "OFF",
         "CMAKE_INSTALL_PREFIX": "/usr"
       }
-    },
-    {
-      "name": "windows-debug",
-      "inherits": "base",
-      "generator": "Ninja",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "ENABLE_NDEBUG": "OFF",
-        "ENABLE_NTEST": "OFF",
-        "ENABLE_NLOG": "OFF",
-        "ENABLE_GPROF": "OFF",
-        "ENABLE_PORTABLE": "OFF",
-        "ENABLE_STRIP": "OFF",
-        "ENABLE_ASAN": "OFF"
-      }
-    },
-    {
-      "name": "windows-release",
-      "inherits": "base",
-      "generator": "Ninja",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "ENABLE_NDEBUG": "ON",
-        "ENABLE_NTEST": "ON",
-        "ENABLE_NLOG": "ON",
-        "ENABLE_GPROF": "OFF",
-        "ENABLE_PORTABLE": "OFF",
-        "ENABLE_STRIP": "OFF",
-        "ENABLE_ASAN": "OFF"
-      }
-    },
-    {
-      "name": "windows-mingw-base",
-      "hidden": true,
-      "inherits": "base",
-      "toolchainFile": "${sourceDir}/cmake/toolchain-mingw64.cmake",
-      "cacheVariables": {
-        "ENABLE_GPROF": "OFF",
-        "ENABLE_PORTABLE": "OFF",
-        "ENABLE_STRIP": "OFF",
-        "ENABLE_ASAN": "OFF"
-      }
-    },
-    {
-      "name": "windows-mingw-debug",
-      "inherits": "windows-mingw-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "ENABLE_NDEBUG": "OFF",
-        "ENABLE_NTEST": "OFF",
-        "ENABLE_NLOG": "OFF"
-      }
-    },
-    {
-      "name": "windows-mingw-release",
-      "inherits": "windows-mingw-base",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "ENABLE_NDEBUG": "ON",
-        "ENABLE_NTEST": "ON",
-        "ENABLE_NLOG": "ON"
-      }
     }
   ],
   "buildPresets": [
@@ -199,22 +137,6 @@
     {
       "name": "package-release",
       "configurePreset": "package-release"
-    },
-    {
-      "name": "windows-debug",
-      "configurePreset": "windows-debug"
-    },
-    {
-      "name": "windows-release",
-      "configurePreset": "windows-release"
-    },
-    {
-      "name": "windows-mingw-debug",
-      "configurePreset": "windows-mingw-debug"
-    },
-    {
-      "name": "windows-mingw-release",
-      "configurePreset": "windows-mingw-release"
     }
   ]
 }
