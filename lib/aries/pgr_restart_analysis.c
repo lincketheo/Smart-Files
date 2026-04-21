@@ -360,7 +360,7 @@ theend:
   //    write end record and remove entry from Trans_Table
   WRAP (pgr_analysis_finish_some_open_txn_ptrs (p, ctx, e));
 
-  ctx->redo_lsn = dpgt_min_rec_lsn (ctx->dpt);
+  ctx->redo_lsn = dpgt_get_size (ctx->dpt) > 0 ? dpgt_min_rec_lsn (ctx->dpt) : 0;
 
   return error_trace (e);
 }
