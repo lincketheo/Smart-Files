@@ -80,7 +80,7 @@ main (void)
     printf ("bytes [68..79] after rollback:\n");
     for (sb_size i = 0; i < n; ++i)
       {
-        printf ("  [%Id] = %d\n", 68 + i, verify[i]);
+        printf ("  [%" PRId64 "] = %d\n", 68 + i, verify[i]);
       }
   }
 
