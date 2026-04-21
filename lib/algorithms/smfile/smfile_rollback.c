@@ -12,18 +12,17 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "algorithms/smfile/smfile.h"
+#include "smfile.h"
+#include "algorithms/smfile/_smfile.h"
 #include "c_specx/dev/error.h"
 #include "pager.h"
-#include "smfile.h"
 
 static err_t
 _smfile_rollback (smfile_t *smf, error *e)
 {
   if (smf->atx == NULL)
     {
-      return error_causef (e, ERR_INVALID_ARGUMENT,
-                           "Can't rollback transaction, not a part of an existing transaction");
+      return error_causef (e, ERR_INVALID_ARGUMENT, "Can't rollback transaction, not a part of an existing transaction");
     }
 
   WRAP (pgr_rollback (smf->root->db.p, smf->atx, 0, &smf->e));

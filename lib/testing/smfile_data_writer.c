@@ -12,12 +12,12 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "algorithms/smfile/smfile.h"
+#include "smfile.h"
+#include "algorithms/smfile/_smfile.h"
 #include "c_specx/dev/testing.h"
 #include "c_specx/ds/data_writer.h"
 #include "c_specx/intf/os/memory.h"
 #include "pager.h"
-#include "smfile.h"
 #include "testing/smfile_test_fixture.h"
 
 static err_t

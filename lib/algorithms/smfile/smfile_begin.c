@@ -12,7 +12,7 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "algorithms/smfile/smfile.h"
+#include "algorithms/smfile/_smfile.h"
 #include "c_specx/dev/error.h"
 #include "pager.h"
 #include "smfile.h"

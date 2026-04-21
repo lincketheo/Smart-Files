@@ -14,7 +14,7 @@
 
 #include "algorithms/nsdb.h"
 #include "algorithms/nsdb/var/algorithms.h"
-#include "algorithms/smfile/smfile.h"
+#include "algorithms/smfile/_smfile.h"
 #include "c_specx.h"
 #include "c_specx/dev/error.h"
 #include "c_specx/intf/os/memory.h"

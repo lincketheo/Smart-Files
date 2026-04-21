@@ -33,6 +33,9 @@ main (void)
 {
   // Open a new data file
   smfile_t *smf = smfile_open ("sample1_crud");
+  if(smf == NULL) {
+    return -1;
+  }
 
   // Remove all data from the file
   smfile_remove (

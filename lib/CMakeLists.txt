@@ -6,8 +6,8 @@ add_library(smartfiles STATIC ${NS_SOURCES})
 target_link_libraries(smartfiles PUBLIC c_specx)
 target_include_directories(smartfiles
     PUBLIC  "${CMAKE_SOURCE_DIR}/include"
+    PRIVATE "${CMAKE_SOURCE_DIR}/lib"
     PRIVATE "${CMAKE_SOURCE_DIR}/thirdparty/c_specx/include"
-    PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
 if(WIN32)

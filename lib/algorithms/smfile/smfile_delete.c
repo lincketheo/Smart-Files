@@ -13,7 +13,7 @@
 /// limitations under the License.
 
 #include "algorithms/nsdb/var/algorithms.h"
-#include "algorithms/smfile/smfile.h"
+#include "algorithms/smfile/_smfile.h"
 #include "c_specx.h"
 #include "c_specx/dev/assert.h"
 #include "c_specx/dev/error.h"

@@ -22,22 +22,22 @@ jobs:
           - { os: ubuntu-latest,  preset: package-release,       run_tests: false }
 
           # macOS 
-          # - { os: macos-latest,   preset: debug,                 run_tests: true  }
-          # - { os: macos-latest,   preset: debug-no-asan,         run_tests: true  }
-          # - { os: macos-latest,   preset: debug-ntests,          run_tests: false }
-          # - { os: macos-latest,   preset: debug-ntests-no-asan,  run_tests: false }
-          # - { os: macos-latest,   preset: release,               run_tests: false }
-          # - { os: macos-latest,   preset: release-tests,         run_tests: true  }
-          # - { os: macos-latest,   preset: package-release,       run_tests: false }
+          - { os: macos-latest,   preset: debug,                 run_tests: true  }
+          - { os: macos-latest,   preset: debug-no-asan,         run_tests: true  }
+          - { os: macos-latest,   preset: debug-ntests,          run_tests: false }
+          - { os: macos-latest,   preset: debug-ntests-no-asan,  run_tests: false }
+          - { os: macos-latest,   preset: release,               run_tests: false }
+          - { os: macos-latest,   preset: release-tests,         run_tests: true  }
+          - { os: macos-latest,   preset: package-release,       run_tests: false }
 
           # Windows native (MSVC + Ninja) 
-          # - { os: windows-latest,   preset: debug,                 run_tests: true  }
-          # - { os: windows-latest,   preset: debug-no-asan,         run_tests: true  }
-          # - { os: windows-latest,   preset: debug-ntests,          run_tests: false }
-          # - { os: windows-latest,   preset: debug-ntests-no-asan,  run_tests: false }
-          # - { os: windows-latest,   preset: release,               run_tests: false }
-          # - { os: windows-latest,   preset: release-tests,         run_tests: true  }
-          # - { os: windows-latest,   preset: package-release,       run_tests: false }
+          - { os: windows-latest,   preset: debug,                 run_tests: true  }
+          - { os: windows-latest,   preset: debug-no-asan,         run_tests: true  }
+          - { os: windows-latest,   preset: debug-ntests,          run_tests: false }
+          - { os: windows-latest,   preset: debug-ntests-no-asan,  run_tests: false }
+          - { os: windows-latest,   preset: release,               run_tests: false }
+          - { os: windows-latest,   preset: release-tests,         run_tests: true  }
+          - { os: windows-latest,   preset: package-release,       run_tests: false }
 
     steps:
       - uses: actions/checkout@v4

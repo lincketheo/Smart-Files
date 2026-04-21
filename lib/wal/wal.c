@@ -218,8 +218,8 @@ wal_open (const char *fname, error *e)
   dest->istream = walis_open (dest->fname, e);
   if (dest->istream == NULL)
     {
-      i_free (dest);
       walos_close (dest->ostream, e);
+      i_free (dest);
       return NULL;
     }
 

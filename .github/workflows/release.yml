@@ -17,8 +17,8 @@ jobs:
       matrix:
         include:
           - { os: ubuntu-latest,  run_tests: false, generators: "TGZ;ZIP;DEB;RPM" }
-          # - { os: macos-latest,   run_tests: false, generators: "TGZ;ZIP" }
-          # - { os: windows-latest, run_tests: false, generators: "ZIP" }
+          - { os: macos-latest,   run_tests: false, generators: "TGZ;ZIP" }
+          - { os: windows-latest, run_tests: false, generators: "ZIP" }
 
     steps:
       - uses: actions/checkout@v4

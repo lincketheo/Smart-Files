@@ -18,8 +18,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/wait.h>
-#include <unistd.h>
 
 /**
  * This example shows how to write data to different named "variables" inside a single file.
