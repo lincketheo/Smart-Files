@@ -61,7 +61,7 @@ jobs:
         shell: bash
         run: |
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            ./build/${{ matrix.preset }}/Debug/apps/test.exe
+            ./build/${{ matrix.preset }}/apps/Debug/test.exe
           else
             ./build/${{ matrix.preset }}/apps/test
           fi
