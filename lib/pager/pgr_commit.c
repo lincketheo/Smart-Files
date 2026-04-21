@@ -70,6 +70,8 @@ pgr_commit (struct pager *p, struct txn *tx, error *e)
     }
   tx->data.state = TX_DONE;
 
+  WRAP (pgr_deletion_blocking_checkpoint (p, e));
+
 theend:
   return error_trace (e);
 }

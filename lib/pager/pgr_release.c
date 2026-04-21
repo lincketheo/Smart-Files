@@ -51,18 +51,19 @@ pgr_release_with_log (
           // physical record
           if (record == NULL)
             {
-              page_lsn = oswal_append_update_log (p->ww,
-                                                  (struct wal_update_write){
-                                                      .tid = h->tx->tid,
-                                                      .type = WUP_PHYSICAL,
-                                                      .prev = h->tx->data.last_lsn,
-                                                      .phys = {
-                                                          .pg = page_h_pgno (h),
-                                                          .undo = h->pgr->page.raw,
-                                                          .redo = h->pgw->page.raw,
-                                                      },
-                                                  },
-                                                  e);
+              page_lsn = oswal_append_update_log (
+                  p->ww,
+                  (struct wal_update_write){
+                      .tid = h->tx->tid,
+                      .type = WUP_PHYSICAL,
+                      .prev = h->tx->data.last_lsn,
+                      .phys = {
+                          .pg = page_h_pgno (h),
+                          .undo = h->pgr->page.raw,
+                          .redo = h->pgw->page.raw,
+                      },
+                  },
+                  e);
             }
           else
             {

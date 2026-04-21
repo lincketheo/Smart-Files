@@ -126,7 +126,7 @@ _smfile_premove (
           .root = gparams.dest.var_root,
       },
       .newpg = rparams.root,
-      .nbytes = gparams.dest.nbytes + ret * size,
+      .nbytes = gparams.dest.nbytes - ret * size,
     };
     WRAP_GOTO (_ns_var_update (uparams, e), failed_rollback);
   }

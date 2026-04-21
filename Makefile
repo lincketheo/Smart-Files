@@ -22,8 +22,8 @@ build: $(DOCKER_DIR)/dockcross-$(platform)
 	./$< bash -c 'make build target=$(target)'
 else
 build:
-	cmake --preset $(target)
-	cmake --build --preset $(target) -j$(NPROC)
+	/usr/bin/cmake --preset $(target)
+	/usr/bin/cmake --build --preset $(target) -j$(NPROC)
 	@if [ "$(target)" = "debug" ]; then cp build/debug/compile_commands.json .; fi
 endif
 

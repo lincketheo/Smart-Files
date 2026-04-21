@@ -72,6 +72,14 @@ typedef struct smfile smfile_t;
 smfile_t *smfile_open (const char *path);
 
 /**
+ * @brief Cleans all resources associated with [path]
+ *
+ * @param path The file to clean up
+ * @return < 0 on error 0 on success
+ */
+int smfile_cleanup (const char *path);
+
+/**
  * @brief Smart files can be attached to only one transaction at a time.
  * In order to allow for concurrent smart file operations at the same time,
  * you can create new contexts from existing smart files. This allows you to

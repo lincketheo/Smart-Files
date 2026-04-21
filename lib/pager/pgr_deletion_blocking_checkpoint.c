@@ -12,31 +12,42 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "algorithms/smfile/smfile.h"
+#include "c_specx.h"
 #include "c_specx/dev/error.h"
 #include "pager.h"
-#include "smfile.h"
 
-static err_t
-_smfile_commit (smfile_t *smf, error *e)
+err_t
+pgr_deletion_blocking_checkpoint (struct pager *p, error *e)
 {
-  if (smf->atx == NULL)
+  ASSERT (p->ww);
+
+  // Flush all pages
+  for (u32 i = 0; i < MEMORY_PAGE_LEN; ++i)
     {
-      return error_causef (e, ERR_INVALID_ARGUMENT,
-                           "Can't commit transaction, not a part of an existing transaction");
+      struct page_frame *mp = &p->pages[i];
+      if (mp->flags & PW_PRESENT && !(mp->flags & PW_X))
+        {
+          pgr_flush (p, mp, e); // Ignore error
+        }
     }
 
-  WRAP (pgr_commit (smf->root->db.p, smf->atx, e));
-  smf->atx = NULL;
+  if (e->cause_code)
+    {
+      goto failed;
+    }
+
+  // Delete the WAL and replace it with a fresh one
+  {
+    struct os_wal *new_ww = oswal_delete_and_reopen (p->ww, e);
+    if (new_ww == NULL)
+      {
+        goto failed;
+      }
+    p->ww = new_ww;
+  }
 
   return SUCCESS;
-}
 
-int
-smfile_commit (smfile_t *smf)
-{
-  smf->e.cause_code = SUCCESS;
-  smf->e.cmlen = 0;
-
-  return _smfile_commit (smf, &smf->e);
+failed:
+  return error_trace (e);
 }

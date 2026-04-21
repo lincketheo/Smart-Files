@@ -198,7 +198,14 @@ wal_open (const char *fname, error *e)
   dest->base.vtable = &wal_vtable;
   dest->ostream = NULL;
   dest->istream = NULL;
-  dest->fname = fname;
+  char *_fname = i_malloc (strlen (fname) + 1, 1, e);
+  if (_fname == NULL)
+    {
+      i_free (dest);
+      return NULL;
+    }
+  memcpy (_fname, fname, strlen (fname) + 1);
+  dest->fname = _fname;
   latch_init (&dest->latch);
 
   dest->ostream = walos_open (dest->fname, e);
@@ -259,6 +266,11 @@ wal_close (struct wal *w, error *e)
   walos_close (w->ostream, e);
   walis_close (w->istream, e);
 
+  if (w->fname)
+    {
+      i_free ((char *)w->fname);
+    }
+
   i_free (w);
 
   return error_trace (e);
@@ -268,6 +280,7 @@ struct wal *
 wal_delete_and_reopen (struct wal *w, error *e)
 {
   const char *fname = w->fname;
+  w->fname = NULL;
   if (wal_close (w, e))
     {
       return NULL;
@@ -278,7 +291,9 @@ wal_delete_and_reopen (struct wal *w, error *e)
       return NULL;
     }
 
-  return wal_open (fname, e);
+  struct wal *ret = wal_open (fname, e);
+  i_free ((char *)fname);
+  return ret;
 }
 
 ////////////////////////////////////////////////////////////
@@ -356,10 +371,8 @@ wal_write_physical_update (const struct wal *w, const struct wal_rec_hdr_write *
                          e));
   WRAP (walos_write_all (w->ostream, &checksum, &r->update.phys.pg,
                          sizeof (pgno), e));
-  WRAP (walos_write_all (w->ostream, &checksum, r->update.phys.undo, PAGE_SIZE,
-                         e));
-  WRAP (walos_write_all (w->ostream, &checksum, r->update.phys.redo, PAGE_SIZE,
-                         e));
+  WRAP (walos_write_all (w->ostream, &checksum, r->update.phys.undo, PAGE_SIZE, e));
+  WRAP (walos_write_all (w->ostream, &checksum, r->update.phys.redo, PAGE_SIZE, e));
   WRAP (walos_write_all (w->ostream, NULL, &checksum, sizeof (u32), e));
 
   return SUCCESS;

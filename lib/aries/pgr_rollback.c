@@ -14,6 +14,7 @@
 
 #include "aries.h"
 #include "c_specx.h"
+#include "c_specx/dev/error.h"
 #include "c_specx_dev.h"
 #include "pager.h"
 #include "pager/page_h.h"
@@ -30,6 +31,11 @@ pgr_rollback (struct pager *p, struct txn *tx, const lsn save_lsn, error *e)
   struct wal_rec_hdr_read *log_rec = NULL;
   struct wal_clr_write clr;
   page_h ph = page_h_create ();
+
+  if (pgr_flush_wall (p, e))
+    {
+      return error_trace (e);
+    }
 
   // UndoNxt := Trans_Table[TransId].UndoNxtLSN
   lsn undo_nxt_lsn = tx->data.undo_next_lsn;
@@ -122,6 +128,8 @@ pgr_rollback (struct pager *p, struct txn *tx, const lsn save_lsn, error *e)
       // Trans_Table[TransID].UndoNxtLSN := UndoNxt
       tx->data.undo_next_lsn = undo_nxt_lsn;
     }
+
+  WRAP (pgr_deletion_blocking_checkpoint (p, e));
 
 theend:
   txnt_remove_txn_expect (p->tnxt, tx);

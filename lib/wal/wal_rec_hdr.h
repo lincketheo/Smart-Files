@@ -18,29 +18,6 @@
 #include "dpgt/dirty_page_table.h"
 #include "txns/txn_table.h"
 
-/*
- * WAL Record Header Types
- *
- * Each record has both a "read" and a "write" variant because the in-memory
- * and on-disk representations differ.  Write variants use pointers for large
- * data (e.g., undo/redo page images); read variants use inline arrays so that
- * a single deserialization pass produces a self-contained record.
- *
- * The three UPDATE subtypes WUP_PHYSICAL / WUP_FSM / WUP_FEXT correspond to:
- *   WUP_PHYSICAL — a full before/after page image; used for all R+Tree and
- *                  variable-page modifications.
- *   WUP_FSM      — a single-bit change in a free-space map page; the pg
- *                  field names the data page being allocated or freed, and
- *                  the owning FSM page is derived by pgtofsm().
- *   WUP_FEXT     — a file extension: undo shrinks the file back to undo pages,
- *                  redo extends it to redo pages.  No page image is needed.
- *
- * CLR records mirror UPDATE subtypes but omit the undo image (CLRs are never
- * themselves undone) and add an undo_next field pointing past the update that
- * was compensated.  A WCLR_DUMMY CLR carries no page data and is used to
- * advance undo_next_lsn past a range of records without touching any page.
- */
-
 ////////////////////////////////////////////////////////////
 /// Update Logs
 
@@ -226,8 +203,7 @@ struct wal_rec_hdr_write
   };
 };
 
-err_t wal_rec_hdr_read_random (struct wal_rec_hdr_read *dest,
-                               struct alloc *alloc, error *e);
+err_t wal_rec_hdr_read_random (struct wal_rec_hdr_read *dest, struct alloc *alloc, error *e);
 const char *wal_rec_hdr_type_tostr (enum wal_rec_hdr_type type);
 struct wal_rec_hdr_write wrhw_from_wrhr (struct wal_rec_hdr_read *src);
 

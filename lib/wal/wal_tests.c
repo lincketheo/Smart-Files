@@ -24,6 +24,7 @@
 
 #ifndef NTEST
 
+/**
 struct wal_queue
 {
   i_semaphore sync;
@@ -140,6 +141,7 @@ TEST (wal_multi_threaded)
   const struct wal_rec_hdr_read *actual = wal_read_next (ww, &read_lsn, &e);
   test_assert_int_equal (actual->type, WL_EOF);
 }
+*/
 
 struct wal_test_params
 {

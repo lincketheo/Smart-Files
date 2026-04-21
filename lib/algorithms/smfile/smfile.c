@@ -15,6 +15,9 @@
 #include "algorithms/smfile/smfile.h"
 #include "smfile.h"
 
+#include "c_specx/dev/error.h"
+#include "pager.h"
+
 // smfile
 
 int
@@ -42,6 +45,14 @@ smfile_strerror (smfile_t *ns)
     {
       return NULL;
     }
+}
+
+int
+smfile_cleanup (const char *path)
+{
+  error e = error_create ();
+  pgr_delete_single_file (path, &e);
+  return error_trace (&e);
 }
 
 // smfile_root

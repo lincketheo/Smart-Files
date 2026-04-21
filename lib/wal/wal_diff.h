@@ -12,31 +12,18 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
-#include "algorithms/smfile/smfile.h"
-#include "c_specx/dev/error.h"
-#include "pager.h"
+#pragma once
+
 #include "smfile.h"
 
-static err_t
-_smfile_commit (smfile_t *smf, error *e)
+struct wal_page_diff
 {
-  if (smf->atx == NULL)
-    {
-      return error_causef (e, ERR_INVALID_ARGUMENT,
-                           "Can't commit transaction, not a part of an existing transaction");
-    }
+  p_size bit_start;
+  void *undo;
+  void *redo;
+  p_size len;
+};
 
-  WRAP (pgr_commit (smf->root->db.p, smf->atx, e));
-  smf->atx = NULL;
-
-  return SUCCESS;
-}
-
-int
-smfile_commit (smfile_t *smf)
-{
-  smf->e.cause_code = SUCCESS;
-  smf->e.cmlen = 0;
-
-  return _smfile_commit (smf, &smf->e);
-}
+struct wal_page_diff wpd_from_pages (const void *before, const void *after);
+void wpd_apply_undo (void *page, struct wal_page_diff *diff);
+void wpd_apply_redo (void *page, struct wal_page_diff *diff);

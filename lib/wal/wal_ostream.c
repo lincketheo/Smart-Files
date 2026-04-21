@@ -15,6 +15,7 @@
 #include "wal/wal_ostream.h"
 
 #include "c_specx.h"
+#include "c_specx/intf/logging.h"
 #include "smfile.h"
 
 DEFINE_DBG_ASSERT (struct wal_ostream, wal_ostream, w, { ASSERT (w); })
@@ -208,15 +209,6 @@ walos_crash (struct wal_ostream *w, error *e)
   return error_trace (e);
 }
 
-/*
- * Core flush implementation: swap buffers and optionally wait for completion.
- *
- * Must be called with write_lock held (or from walos_flush_to which holds
- * the latch).  If l is already below flushed_lsn, the request is a no-op.
- * Otherwise, the active and other buffers are swapped, flush_pending is set,
- * and the flush thread is signalled.  If wait==true, the caller blocks on
- * write_done_cond until flush_pending clears.
- */
 static err_t
 walos_flush_impl (struct wal_ostream *w, const lsn l, bool wait, error *e)
 {
@@ -322,8 +314,7 @@ walos_write_all (struct wal_ostream *w, u32 *checksum, const void *data,
         {
           // Active buffer full; swap to the other buffer and wake
           // the flush thread
-          if (walos_flush_impl (w, w->flushed_lsn + cbuffer_len (w->buffer),
-                                false, e))
+          if (walos_flush_impl (w, w->flushed_lsn + cbuffer_len (w->buffer), false, e))
             {
               latch_unlock (&w->l);
               return error_trace (e);
@@ -332,9 +323,11 @@ walos_write_all (struct wal_ostream *w, u32 *checksum, const void *data,
 
       // Copy as much as the buffer can accept in one shot
       const u32 towrite = MIN (len - written, cbuffer_avail (w->buffer));
-      ASSERT (towrite > 0);
-      cbuffer_write_expect (src + written, 1, towrite, w->buffer);
-      written += towrite;
+      if (towrite > 0)
+        {
+          cbuffer_write_expect (src + written, 1, towrite, w->buffer);
+          written += towrite;
+        }
     }
 
   latch_unlock (&w->l);
