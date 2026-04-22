@@ -46,8 +46,6 @@ main (void)
     }
   smfile_pinsert (smf, "floats", data, 0, sizeof (data));
 
-  printf ("a\n");
-
   // Read just the even numbers (stride = 2)
   float evens[8];
   sb_size n = smfile_pread (smf, "floats", evens, sizeof (float), 0, 2, 8);
@@ -56,7 +54,6 @@ main (void)
     {
       printf ("  [%d] = %.1f\n", i, evens[i]);
     }
-  printf ("b\n");
 
   // Write negative elements starting at byte offset 4 (1 float in) - with stride 2 and 8 total elements
   float neg[8];
@@ -65,7 +62,6 @@ main (void)
       neg[i] = -1.0f;
     }
   smfile_pwrite (smf, "floats", neg, sizeof (float), 4, 2, 8);
-  printf ("c\n");
 
   // Read back 16 elements - stride = 1
   float readback[16];

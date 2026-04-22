@@ -9,6 +9,7 @@ jobs:
     env:
       TEST_BIN: ./build/${{ matrix.preset }}/apps/test
       SAMPLES_DIR: ./build/${{ matrix.preset }}/samples
+      SAMPLES: sample1_basic_crud sample2_transactions sample3_stride sample4_variable_names sample5_rollback_commit
       LEAKS: leaks --atExit --
       VALGRIND: valgrind --tool=memcheck --leak-check=full --leak-resolution=high --show-leak-kinds=all --track-origins=yes --track-fds=yes --error-exitcode=1 --errors-for-leak-kinds=all --undef-value-errors=yes --partial-loads-ok=no --expensive-definedness-checks=yes --show-mismatched-frees=yes --show-reachable=yes --num-callers=40 --
 
@@ -84,38 +85,42 @@ jobs:
         if: '!matrix.extra && matrix.os != ''windows-latest'''
         shell: bash
         run: |
-          ${{ env.SAMPLES_DIR }}/sample1_basic_crud
-          ${{ env.SAMPLES_DIR }}/sample2_transactions
-          ${{ env.SAMPLES_DIR }}/sample3_stride
-          ${{ env.SAMPLES_DIR }}/sample4_variable_names
-          ${{ env.SAMPLES_DIR }}/sample5_rollback_commit
+          for sample in $SAMPLES; do
+            for run in 1 2; do
+              echo "[$run/2] $sample"
+              $SAMPLES_DIR/$sample
+            done
+          done
 
       - name: Samples
         if: '!matrix.extra && matrix.os == ''windows-latest'''
         shell: bash
         run: |
-          ./build/${{ matrix.preset }}/apps/Debug/samples/sample1_basic_crud.exe
-          ./build/${{ matrix.preset }}/apps/Debug/samples/sample2_transactions.exe
-          ./build/${{ matrix.preset }}/apps/Debug/samples/sample3_stride.exe
-          ./build/${{ matrix.preset }}/apps/Debug/samples/sample4_variable_names.exe
-          ./build/${{ matrix.preset }}/apps/Debug/samples/sample5_rollback_commit.exe
+          for sample in $SAMPLES; do
+            for run in 1 2; do
+              echo "[$run/2] $sample"
+              ./build/${{ matrix.preset }}/samples/Debug/$sample.exe
+            done
+          done
 
       - name: Samples (leaks)
         if: matrix.extra && matrix.os == 'macos-latest'
         shell: bash
         run: |
-          ${{ env.LEAKS }} ${{ env.SAMPLES_DIR }}/sample1_basic_crud
-          ${{ env.LEAKS }} ${{ env.SAMPLES_DIR }}/sample2_transactions
-          ${{ env.LEAKS }} ${{ env.SAMPLES_DIR }}/sample3_stride
-          ${{ env.LEAKS }} ${{ env.SAMPLES_DIR }}/sample4_variable_names
-          ${{ env.LEAKS }} ${{ env.SAMPLES_DIR }}/sample5_rollback_commit
+          for sample in $SAMPLES; do
+            for run in 1 2; do
+              echo "[$run/2] $sample"
+              $LEAKS $SAMPLES_DIR/$sample
+            done
+          done
 
       - name: Samples (valgrind)
         if: matrix.extra && matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
-          ${{ env.VALGRIND }} ${{ env.SAMPLES_DIR }}/sample1_basic_crud
-          ${{ env.VALGRIND }} ${{ env.SAMPLES_DIR }}/sample2_transactions
-          ${{ env.VALGRIND }} ${{ env.SAMPLES_DIR }}/sample3_stride
-          ${{ env.VALGRIND }} ${{ env.SAMPLES_DIR }}/sample4_variable_names
-          ${{ env.VALGRIND }} ${{ env.SAMPLES_DIR }}/sample5_rollback_commit
+          for sample in $SAMPLES; do
+            for run in 1 2; do
+              echo "[$run/2] $sample"
+              $VALGRIND $SAMPLES_DIR/$sample
+            done
+          done
