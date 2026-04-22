@@ -70,6 +70,7 @@ TEST (dlgt_balance_with_prev)
   struct pgr_fixture f;
   error *e = &f.e;
   pgr_fixture_create (&f);
+  i_log_info ("D\n");
 
   u8 _prev[DL_DATA_SIZE];
   u8 _cur[DL_DATA_SIZE];
@@ -189,12 +190,18 @@ TEST (dlgt_balance_with_prev)
       }
   }
 
+  i_log_info ("E\n");
+
   pgr_release (f.p, prev, PG_DATA_LIST, e);
   pgr_delete_and_release (f.p, &tx, cur, e);
 
   pgr_commit (f.p, &tx, &f.e);
 
+  i_log_info ("F\n");
+
   pgr_fixture_teardown (&f);
+
+  i_log_info ("G\n");
 }
 #endif
 
