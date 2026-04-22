@@ -46,7 +46,7 @@ jobs:
 
       - name: Install Valgrind
         if: matrix.extra && runner.os == 'Linux'
-        run: sudo apt-get install -y valgrind 
+        run: sudo apt-get install -y valgrind
 
       - name: Configure
         run: cmake --preset ${{ matrix.preset }} ${{ matrix.extra && '-DENABLE_PORTABLE=ON' || '' }}
@@ -55,17 +55,23 @@ jobs:
         run: cmake --build --preset ${{ matrix.preset }}
 
       - name: Test
-        if: matrix.run_tests
-        shell: bash
-        run: |
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            ./build/${{ matrix.preset }}/apps/Debug/test.exe
-          else
-            ./build/${{ matrix.preset }}/apps/test
-          fi
+        if: matrix.run_tests && matrix.os != 'windows-latest'
+        run: ./build/${{ matrix.preset }}/apps/test
+
+      - name: Test
+        if: matrix.run_tests && matrix.os == 'windows-latest'
+        run: ./build/${{ matrix.preset }}/apps/Debug/test.exe
+
+      - name: Install Valgrind
+        if: matrix.extra && matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install -y valgrind
+
+      - name: Set up MSVC
+        if: matrix.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Run tests (leaks)
-        if: matrix.valgrind && runner.os == 'macOS'
+        if: matrix.extra && matrix.os == 'macos-latest'
         shell: bash
         run: |
           set -o pipefail
@@ -74,7 +80,7 @@ jobs:
             || (echo "FAIL: leaks detected in preset '${{ matrix.preset }}'"; exit 1)
 
       - name: Run tests (valgrind)
-        if: matrix.valgrind && runner.os == 'Linux'
+        if: matrix.extra && matrix.os == 'ubuntu-latest'
         run: |
           valgrind \
             --tool=memcheck \
@@ -92,4 +98,3 @@ jobs:
             --show-reachable=yes \
             --num-callers=40 -- \
             build/${{ matrix.preset }}/apps/test
-
