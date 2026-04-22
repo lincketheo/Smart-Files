@@ -18,7 +18,7 @@
         "ENABLE_NTEST": "OFF",
         "ENABLE_NLOG": "OFF",
         "ENABLE_GPROF": "OFF",
-        "ENABLE_PORTABLE": "OFF",
+        "ENABLE_PORTABLE": "ON",
         "ENABLE_STRIP": "OFF",
         "ENABLE_ASAN": "ON"
       }
@@ -32,7 +32,7 @@
         "ENABLE_NTEST": "OFF",
         "ENABLE_NLOG": "OFF",
         "ENABLE_GPROF": "OFF",
-        "ENABLE_PORTABLE": "OFF",
+        "ENABLE_PORTABLE": "ON",
         "ENABLE_STRIP": "OFF",
         "ENABLE_ASAN": "OFF"
       }
@@ -46,7 +46,7 @@
         "ENABLE_NTEST": "ON",
         "ENABLE_NLOG": "OFF",
         "ENABLE_GPROF": "OFF",
-        "ENABLE_PORTABLE": "OFF",
+        "ENABLE_PORTABLE": "ON",
         "ENABLE_STRIP": "OFF",
         "ENABLE_ASAN": "ON"
       }
@@ -60,7 +60,7 @@
         "ENABLE_NTEST": "ON",
         "ENABLE_NLOG": "OFF",
         "ENABLE_GPROF": "OFF",
-        "ENABLE_PORTABLE": "OFF",
+        "ENABLE_PORTABLE": "ON",
         "ENABLE_STRIP": "OFF",
         "ENABLE_ASAN": "OFF"
       }
@@ -74,7 +74,7 @@
         "ENABLE_NTEST": "ON",
         "ENABLE_NLOG": "ON",
         "ENABLE_GPROF": "OFF",
-        "ENABLE_PORTABLE": "OFF",
+        "ENABLE_PORTABLE": "ON",
         "ENABLE_STRIP": "OFF",
         "ENABLE_ASAN": "OFF"
       }

@@ -63,7 +63,7 @@ else
 		--show-mismatched-frees=yes \
 		--show-reachable=yes \
 		--num-callers=40 -- \
-		build/$(target)/apps/test pgr_fill_ht
+		build/$(target)/apps/test 
 endif
 
 comprehensive-tests:

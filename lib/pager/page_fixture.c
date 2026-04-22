@@ -55,20 +55,17 @@ pgr_fixture_create (struct pgr_fixture *dest)
   ASSERT (dest);
   dest->e = error_create ();
 
-  i_log_info ("A\n");
   if (unlikely (pgr_delete_single_file ("testdb", &dest->e) < SUCCESS))
     {
       return error_trace (&dest->e);
     }
 
-  i_log_info ("B\n");
   struct pager *p = pgr_open_single_file ("testdb", &dest->e);
   if (p == NULL)
     {
       return dest->e.cause_code;
     }
 
-  i_log_info ("C\n");
   dest->p = p;
 
   DBG_ASSERT (pgr_fixture, dest);

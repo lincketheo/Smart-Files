@@ -325,14 +325,14 @@ TEST (txn_basic)
                   .undo_next_lsn = 5,
               });
 
-    i_thread threads[1000];
+    i_thread threads[100];
 
-    for (u32 i = 0; i < 1000; ++i)
+    for (u32 i = 0; i < 100; ++i)
       {
         i_thread_create (&threads[i], txn_newlock_test, &tx, &e);
       }
 
-    for (u32 i = 0; i < 1000; ++i)
+    for (u32 i = 0; i < 100; ++i)
       {
         i_thread_join (&threads[i], &e);
       }

@@ -1,9 +1,7 @@
 name: CI
-
 on:
   push:
   pull_request:
-
 jobs:
   build:
     name: ${{ matrix.preset }} / ${{ matrix.os }}
@@ -13,35 +11,31 @@ jobs:
       matrix:
         include:
           # ── Linux ──────────────────────────────────────────────────────────
-          # - { os: ubuntu-latest,  preset: debug,                 run_tests: true  } # This one's failing for a memory leak - need to fix it
-          - { os: ubuntu-latest,  preset: debug-no-asan,         run_tests: true  }
-          - { os: ubuntu-latest,  preset: debug-ntests,          run_tests: false }
-          - { os: ubuntu-latest,  preset: debug-ntests-no-asan,  run_tests: false }
-          - { os: ubuntu-latest,  preset: release,               run_tests: false }
-          - { os: ubuntu-latest,  preset: release-tests,         run_tests: true  }
-          - { os: ubuntu-latest,  preset: package-release,       run_tests: false }
-
-          # macOS 
-          - { os: macos-latest,   preset: debug,                 run_tests: true  }
-          - { os: macos-latest,   preset: debug-no-asan,         run_tests: true  }
-          - { os: macos-latest,   preset: debug-ntests,          run_tests: false }
-          - { os: macos-latest,   preset: debug-ntests-no-asan,  run_tests: false }
-          - { os: macos-latest,   preset: release,               run_tests: false }
-          - { os: macos-latest,   preset: release-tests,         run_tests: true  }
-          - { os: macos-latest,   preset: package-release,       run_tests: false }
-
-          # Windows native (MSVC + Ninja) 
-          - { os: windows-latest,   preset: debug,                 run_tests: true  }
-          - { os: windows-latest,   preset: debug-no-asan,         run_tests: true  }
-          - { os: windows-latest,   preset: debug-ntests,          run_tests: false }
-          - { os: windows-latest,   preset: debug-ntests-no-asan,  run_tests: false }
-          - { os: windows-latest,   preset: release,               run_tests: false }
-          - { os: windows-latest,   preset: release-tests,         run_tests: true  }
-          - { os: windows-latest,   preset: package-release,       run_tests: false }
-
+          - { os: ubuntu-latest,  preset: debug,                 run_tests: true,  extra: false } 
+          - { os: ubuntu-latest,  preset: debug-no-asan,         run_tests: true,  extra: true  }
+          - { os: ubuntu-latest,  preset: debug-ntests,          run_tests: false, extra: false }
+          - { os: ubuntu-latest,  preset: debug-ntests-no-asan,  run_tests: false, extra: true  }
+          - { os: ubuntu-latest,  preset: release,               run_tests: false, extra: false }
+          - { os: ubuntu-latest,  preset: release-tests,         run_tests: true,  extra: false }
+          - { os: ubuntu-latest,  preset: package-release,       run_tests: false, extra: false }
+          # macOS
+          - { os: macos-latest,   preset: debug,                 run_tests: true,  extra: false }
+          - { os: macos-latest,   preset: debug-no-asan,         run_tests: true,  extra: true  }
+          - { os: macos-latest,   preset: debug-ntests,          run_tests: false, extra: false }
+          - { os: macos-latest,   preset: debug-ntests-no-asan,  run_tests: false, extra: true  }
+          - { os: macos-latest,   preset: release,               run_tests: false, extra: false }
+          - { os: macos-latest,   preset: release-tests,         run_tests: true,  extra: false }
+          - { os: macos-latest,   preset: package-release,       run_tests: false, extra: false }
+          # Windows native (MSVC + Ninja)
+          - { os: windows-latest, preset: debug,                 run_tests: true,  extra: false }
+          - { os: windows-latest, preset: debug-no-asan,         run_tests: true,  extra: false }
+          - { os: windows-latest, preset: debug-ntests,          run_tests: false, extra: false }
+          - { os: windows-latest, preset: debug-ntests-no-asan,  run_tests: false, extra: false }
+          - { os: windows-latest, preset: release,               run_tests: false, extra: false }
+          - { os: windows-latest, preset: release-tests,         run_tests: true,  extra: false }
+          - { os: windows-latest, preset: package-release,       run_tests: false, extra: false }
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/checkout@v4
         with:
           submodules: recursive
@@ -50,8 +44,12 @@ jobs:
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
 
+      - name: Install Valgrind
+        if: matrix.extra && runner.os == 'Linux'
+        run: sudo apt-get install -y extra
+
       - name: Configure
-        run: cmake --preset ${{ matrix.preset }}
+        run: cmake --preset ${{ matrix.preset }} ${{ matrix.extra && '-DENABLE_PORTABLE=ON' || '' }}
 
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
@@ -65,3 +63,7 @@ jobs:
           else
             ./build/${{ matrix.preset }}/apps/test
           fi
+
+      - name: Valgrind
+        if: matrix.extra
+        run: make -C build/${{ matrix.preset }} run-tests-no-asan
