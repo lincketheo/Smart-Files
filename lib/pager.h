@@ -31,7 +31,7 @@
  * pages [self, self + FS_BTMP_NPGS)
  *
  * 0                         - FSM [0, FS_BTMP_NPGS)
- * 1                         - Root
+ * 1                         - PAGE
  * 2                         - PAGE
  * 3                         - PAGE
  * 4                         - PAGE

@@ -281,7 +281,7 @@ TEST (pgr_open_basic)
   test_fail_if (i_truncate (&fp, 0, &e));
   p = pgr_open_single_file ("testdb", &e);
   test_assert_int_equal (e.cause_code, SUCCESS);
-  test_assert_int_equal ((int)pgr_get_npages (p), FS_BTMP_NPGS);
+  test_assert_int_equal ((int)pgr_get_npages (p), 0);
   test_fail_if (pgr_close (p, &e));
 
   // Tear down

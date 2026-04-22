@@ -193,10 +193,14 @@ TEST (aries_rollback_basic)
 
     for (p_size i = 0; i < FS_BTMP_NPGS; ++i)
       {
-        if (i < 5)
-          test_assert_int_equal (fsm_get_bit (page_h_ro (&fsm), i), 1);
+        if (i < 4)
+          {
+            test_assert_int_equal (fsm_get_bit (page_h_ro (&fsm), i), 1);
+          }
         else
-          test_assert_int_equal (fsm_get_bit (page_h_ro (&fsm), i), 0);
+          {
+            test_assert_int_equal (fsm_get_bit (page_h_ro (&fsm), i), 0);
+          }
       }
 
     test_fail_if (pgr_release (p, &fsm, PG_FREE_SPACE_MAP, &e));
@@ -209,7 +213,7 @@ TEST (aries_rollback_basic)
 
   // Verify pages are trash after rollback
   {
-    for (int i = 1; i < 4; ++i)
+    for (int i = 1; i < 3; ++i)
       {
         pgr_get (&pg, PG_TRASH, i, p, &e);
         pgr_release (p, &pg, PG_TRASH, &e);
@@ -222,10 +226,14 @@ TEST (aries_rollback_basic)
 
     for (p_size i = 0; i < FS_BTMP_NPGS; ++i)
       {
-        if (i < 2)
-          test_assert_int_equal (fsm_get_bit (page_h_ro (&fsm), i), 1);
+        if (i < 1)
+          {
+            test_assert_int_equal (fsm_get_bit (page_h_ro (&fsm), i), 1);
+          }
         else
-          test_assert_int_equal (fsm_get_bit (page_h_ro (&fsm), i), 0);
+          {
+            test_assert_int_equal (fsm_get_bit (page_h_ro (&fsm), i), 0);
+          }
       }
 
     test_fail_if (pgr_release (p, &fsm, PG_FREE_SPACE_MAP, &e));
