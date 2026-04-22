@@ -20,7 +20,6 @@
 #include "pages/data_list.h"
 #include "pages/fsm_page.h"
 #include "pages/inner_node.h"
-#include "pages/root_node.h"
 #include "pages/var_hash_page.h"
 #include "pages/var_page.h"
 #include "pages/var_tail.h"
@@ -50,11 +49,6 @@ page_init_empty (page *p, const enum page_type type)
     case PG_FREE_SPACE_MAP:
       {
         fsm_init_empty (p);
-        return;
-      }
-    case PG_ROOT_NODE:
-      {
-        rn_init_empty (p);
         return;
       }
     case PG_VAR_PAGE:
@@ -127,10 +121,6 @@ page_validate_for_db (const page *p, const int flags, error *e)
       {
         return fsm_validate_for_db (p, e);
       }
-    case PG_ROOT_NODE:
-      {
-        return rn_validate_for_db (p, e);
-      }
     case PG_VAR_PAGE:
       {
         return vp_validate_for_db (p, e);
@@ -168,9 +158,6 @@ TEST (page_set_get_simple)
 
     page_init_empty (&p, PG_FREE_SPACE_MAP);
     test_assert_int_equal (page_get_type (&p), PG_FREE_SPACE_MAP);
-
-    page_init_empty (&p, PG_ROOT_NODE);
-    test_assert_int_equal (page_get_type (&p), PG_ROOT_NODE);
   }
 
   TEST_CASE ("Setters / Getters: checksum + page_lsn + type")
@@ -214,11 +201,6 @@ i_log_page (const int log_level, const page *p)
     case PG_FREE_SPACE_MAP:
       {
         i_log_fsm (log_level, p);
-        return;
-      }
-    case PG_ROOT_NODE:
-      {
-        i_log_rn (log_level, p);
         return;
       }
     case PG_VAR_PAGE:

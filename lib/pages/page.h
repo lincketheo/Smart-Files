@@ -47,17 +47,15 @@ enum page_type
 {
   // Common page types
   PG_FREE_SPACE_MAP = (1 << 0), // A free space map page
-  PG_ROOT_NODE = (1 << 1),      // The first page with db level meta data
 
   // Rptree page types
   PG_DATA_LIST = (1 << 2),  // r+tree data node
   PG_INNER_NODE = (1 << 3), // r+tree Inner node
 
   // Variable page types
-  PG_VAR_HASH_PAGE
-  = (1 << 4),             // A Hash Table for variable names - links to a linked list
-  PG_VAR_PAGE = (1 << 5), // A Single link in the hash table linked list
-  PG_VAR_TAIL = (1 << 6), // Overflow to a VAR_PAGE
+  PG_VAR_HASH_PAGE = (1 << 4), // A Hash Table for variable names - links to a linked list
+  PG_VAR_PAGE = (1 << 5),      // A Single link in the hash table linked list
+  PG_VAR_TAIL = (1 << 6),      // Overflow to a VAR_PAGE
 };
 
 #define PG_PERMISSIVE (1 << 7)

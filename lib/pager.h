@@ -52,8 +52,7 @@
  */
 
 // Special Page Numbers
-#define ROOT_PGNO ((pgno)1)  // Root page
-#define VHASH_PGNO ((pgno)2) // Free space map start
+#define VHASH_PGNO ((pgno)1) // Free space map start
 
 /**
  * Flags to help the buffer manager know

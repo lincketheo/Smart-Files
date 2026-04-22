@@ -17,7 +17,6 @@
 #include "os_pager/file_pager.h"
 #include "pager.h"
 #include "pages/page.h"
-#include "pages/root_node.h"
 
 #include <stdio.h>
 #include <stdlib.h>

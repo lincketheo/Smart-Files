@@ -22,11 +22,14 @@
 #include "pager.h"
 #include "pager/page_h.h"
 #include "pages/fsm_page.h"
-#include "pages/root_node.h"
 #include "wal/wal.h"
 #include "wal/wal_ostream.h"
 
 #include <limits.h>
+
+#ifndef PATH_MAX
+#define PATH_MAX 260
+#endif
 
 struct pager *
 pgr_open (struct os_pager *fp, struct os_wal *ww, struct lockt *lt, error *e)
@@ -88,45 +91,10 @@ pgr_open (struct os_pager *fp, struct os_wal *ww, struct lockt *lt, error *e)
 
       // Start transactions at 1
       ret->next_tid = 1;
-
-      // Make the initial transactions - create the root page
-      {
-        struct txn tx;
-
-        if (pgr_begin_txn (&tx, ret, e))
-          {
-            goto failed;
-          }
-
-        if (pgr_new (&root, ret, &tx, PG_ROOT_NODE, e))
-          {
-            goto failed;
-          }
-
-        if (pgr_release (ret, &root, PG_ROOT_NODE, e))
-          {
-            goto failed;
-          }
-
-        if (pgr_commit (ret, &tx, e))
-          {
-            goto failed;
-          }
-      }
     }
   else
     {
       ret->flags = 0;
-
-      // Read in the root page to get the last flushed master
-      // lsn (our best guess, maybe we could scan the wal for
-      // this?)
-      page root_raw;
-      if (ospgr_read (ret->fp, root_raw.raw, ROOT_PGNO, e))
-        {
-          goto failed;
-        }
-      root_raw.pg = ROOT_PGNO;
 
       // Open the transaction table
       ret->tnxt = txnt_open (e);

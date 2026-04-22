@@ -299,12 +299,6 @@ main (const int argc, char **argv)
   // page.c
   REGISTER (smartfiles, page_set_get_simple);
 
-  // root_node.c
-  REGISTER (smartfiles, rn_init_empty_and_zeroes);
-  REGISTER (smartfiles, rn_init_empty);
-  REGISTER (smartfiles, rn_validate_for_db);
-  REGISTER (smartfiles, rn_set_get_simple);
-
   // var_page.c
   REGISTER (smartfiles, vp_init_empty);
   REGISTER (smartfiles, vp_validate);

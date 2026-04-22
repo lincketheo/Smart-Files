@@ -16,37 +16,6 @@
 
 #include "pages/page.h"
 
-/*
- * Inner Node Page (R+Tree index node)
- *
- * The inner node is the indexing layer of the R+Tree.  It maps byte ranges
- * to child pages, enabling O(log N) seeks into the data layer.
- *
- * A node holds up to IN_MAX_KEYS (key, leaf) pairs.  Each key is a b_size
- * representing the number of bytes covered by all data-list pages under the
- * corresponding leaf (child subtree).  A subtree's key is the sum of its
- * leaves' keys.  Given a target byte offset, in_choose_lidx() walks the key
- * array to find the child whose subtree contains that offset.
- *
- * MEMORY LAYOUT (after PG_COMMN_END):
- *   [IN_NEXT_OFST]  pgno next   — right sibling at this inner-node level.
- *   [IN_PREV_OFST]  pgno prev   — left sibling at this inner-node level.
- *   [IN_NLEN_OFST]  p_size len  — number of (key, leaf) pairs currently
- * stored. [IN_LEAF_OFST]  pgno[len]   — child page numbers, packed left to
- * right. [PAGE_SIZE - len*sizeof(b_size)]  b_size[len] — keys, packed right to
- *                                    left (backwards).  The rightmost stored
- *                                    byte is the key of index 0.
- *
- * Storing keys backwards from the end of the page and leaves forward from a
- * fixed offset allows both arrays to grow towards each other, ensuring that
- * any partially-filled node has a predictable layout without wasted space.
- *
- * prev/next links connect inner nodes at the same tree level into a doubly-
- * linked list, which the rebalancing algorithm uses to move keys between
- * adjacent nodes without traversing the tree from the root.  A node with
- * PGNO_NULL for both prev and next is the sole node at its level (i.e. the
- * root of a single-level tree).
- */
 struct in_pair
 {
   pgno pg;
