@@ -64,6 +64,32 @@ jobs:
             ./build/${{ matrix.preset }}/apps/test
           fi
 
-      - name: Valgrind
-        if: matrix.extra
-        run: make run-tests-no-asan target=${{ matrix.preset }}
+      - name: Run tests (leaks)
+        if: matrix.valgrind && runner.os == 'macOS'
+        shell: bash
+        run: |
+          set -o pipefail
+          leaks --atExit -- build/${{ matrix.preset }}/apps/test 2>&1 | tee /tmp/leaks-${{ matrix.preset }}.txt
+          grep -q "0 leaks for 0 total leaked bytes" /tmp/leaks-${{ matrix.preset }}.txt \
+            || (echo "FAIL: leaks detected in preset '${{ matrix.preset }}'"; exit 1)
+
+      - name: Run tests (valgrind)
+        if: matrix.valgrind && runner.os == 'Linux'
+        run: |
+          valgrind \
+            --tool=memcheck \
+            --leak-check=full \
+            --leak-resolution=high \
+            --show-leak-kinds=all \
+            --track-origins=yes \
+            --track-fds=yes \
+            --error-exitcode=1 \
+            --errors-for-leak-kinds=all \
+            --undef-value-errors=yes \
+            --partial-loads-ok=no \
+            --expensive-definedness-checks=yes \
+            --show-mismatched-frees=yes \
+            --show-reachable=yes \
+            --num-callers=40 -- \
+            build/${{ matrix.preset }}/apps/test
+
