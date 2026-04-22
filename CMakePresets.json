@@ -86,7 +86,7 @@
         "CMAKE_BUILD_TYPE": "Release",
         "ENABLE_NDEBUG": "ON",
         "ENABLE_NTEST": "OFF",
-        "ENABLE_NLOG": "ON",
+        "ENABLE_NLOG": "OFF",
         "ENABLE_GPROF": "OFF",
         "ENABLE_PORTABLE": "OFF",
         "ENABLE_STRIP": "OFF",
