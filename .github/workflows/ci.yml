@@ -6,6 +6,26 @@ jobs:
   build:
     name: ${{ matrix.preset }} / ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    env:
+      TEST_BIN: ./build/${{ matrix.preset }}/apps/test
+      SAMPLES_DIR: ./build/${{ matrix.preset }}/apps/samples
+      VALGRIND: |
+        valgrind
+          --tool=memcheck
+          --leak-check=full
+          --leak-resolution=high
+          --show-leak-kinds=all
+          --track-origins=yes
+          --track-fds=yes
+          --error-exitcode=1
+          --errors-for-leak-kinds=all
+          --undef-value-errors=yes
+          --partial-loads-ok=no
+          --expensive-definedness-checks=yes
+          --show-mismatched-frees=yes
+          --show-reachable=yes
+          --num-callers=40 --
+
     strategy:
       fail-fast: false
       matrix:
@@ -18,6 +38,7 @@ jobs:
           - { os: ubuntu-latest,  preset: release,               run_tests: false, extra: false }
           - { os: ubuntu-latest,  preset: release-tests,         run_tests: true,  extra: false }
           - { os: ubuntu-latest,  preset: package-release,       run_tests: false, extra: false }
+
           # macOS
           - { os: macos-latest,   preset: debug,                 run_tests: true,  extra: false }
           - { os: macos-latest,   preset: debug-no-asan,         run_tests: true,  extra: true  }
@@ -26,7 +47,8 @@ jobs:
           - { os: macos-latest,   preset: release,               run_tests: false, extra: false }
           - { os: macos-latest,   preset: release-tests,         run_tests: true,  extra: false }
           - { os: macos-latest,   preset: package-release,       run_tests: false, extra: false }
-          # Windows native (MSVC + Ninja)
+
+          # Windows 
           - { os: windows-latest, preset: debug,                 run_tests: true,  extra: false }
           - { os: windows-latest, preset: debug-no-asan,         run_tests: true,  extra: false }
           - { os: windows-latest, preset: debug-ntests,          run_tests: false, extra: false }
@@ -41,11 +63,11 @@ jobs:
           submodules: recursive
 
       - name: Set up MSVC
-        if: runner.os == 'Windows'
+        if: matrix.os == 'windows-latest'
         uses: ilammy/msvc-dev-cmd@v1
 
       - name: Install Valgrind
-        if: matrix.extra && runner.os == 'Linux'
+        if: matrix.extra && matrix.os == 'ubuntu-latest'
         run: sudo apt-get install -y valgrind
 
       - name: Configure
@@ -54,47 +76,68 @@ jobs:
       - name: Build
         run: cmake --build --preset ${{ matrix.preset }}
 
+      # ── Test ───────────────────────────────────────────────────────────────
       - name: Test
         if: matrix.run_tests && !matrix.extra && matrix.os != 'windows-latest'
-        run: ./build/${{ matrix.preset }}/apps/test
+        run: ${{ env.TEST_BIN }}
 
       - name: Test
         if: matrix.run_tests && !matrix.extra && matrix.os == 'windows-latest'
         run: ./build/${{ matrix.preset }}/apps/Debug/test.exe
 
-      - name: Install Valgrind
-        if: matrix.extra && matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install -y valgrind
-
-      - name: Set up MSVC
-        if: matrix.os == 'windows-latest'
-        uses: ilammy/msvc-dev-cmd@v1
-
-      - name: Run tests (leaks)
+      - name: Test (leaks)
         if: matrix.extra && matrix.os == 'macos-latest'
         shell: bash
         run: |
           set -o pipefail
-          leaks --atExit -- build/${{ matrix.preset }}/apps/test 2>&1 | tee /tmp/leaks-${{ matrix.preset }}.txt
+          leaks --atExit -- ${{ env.TEST_BIN }} 2>&1 | tee /tmp/leaks-${{ matrix.preset }}.txt
           grep -q "0 leaks for 0 total leaked bytes" /tmp/leaks-${{ matrix.preset }}.txt \
             || (echo "FAIL: leaks detected in preset '${{ matrix.preset }}'"; exit 1)
 
-      - name: Run tests (valgrind)
+      - name: Test (valgrind)
         if: matrix.extra && matrix.os == 'ubuntu-latest'
+        run: ${{ env.VALGRIND }} ${{ env.TEST_BIN }}
+
+      # ── Samples ────────────────────────────────────────────────────────────
+      - name: Samples
+        if: '!matrix.extra && matrix.os != ''windows-latest'''
+        shell: bash
         run: |
-          valgrind \
-            --tool=memcheck \
-            --leak-check=full \
-            --leak-resolution=high \
-            --show-leak-kinds=all \
-            --track-origins=yes \
-            --track-fds=yes \
-            --error-exitcode=1 \
-            --errors-for-leak-kinds=all \
-            --undef-value-errors=yes \
-            --partial-loads-ok=no \
-            --expensive-definedness-checks=yes \
-            --show-mismatched-frees=yes \
-            --show-reachable=yes \
-            --num-callers=40 -- \
-            build/${{ matrix.preset }}/apps/test
+          for sample in ${{ env.SAMPLES_DIR }}/*; do
+            [ -x "$sample" ] || continue
+            echo "Running $sample"
+            "$sample"
+          done
+
+      - name: Samples
+        if: '!matrix.extra && matrix.os == ''windows-latest'''
+        shell: bash
+        run: |
+          for sample in ./build/${{ matrix.preset }}/apps/Debug/samples/*; do
+            [[ "$sample" == *.exe ]] || continue
+            echo "Running $sample"
+            "$sample"
+          done
+
+      - name: Samples (leaks)
+        if: matrix.extra && matrix.os == 'macos-latest'
+        shell: bash
+        run: |
+          set -o pipefail
+          for sample in ${{ env.SAMPLES_DIR }}/*; do
+            [ -x "$sample" ] || continue
+            echo "Running $sample"
+            leaks --atExit -- "$sample" 2>&1 | tee /tmp/leaks-$(basename $sample).txt
+            grep -q "0 leaks for 0 total leaked bytes" /tmp/leaks-$(basename $sample).txt \
+              || (echo "FAIL: leaks detected in $sample"; exit 1)
+          done
+
+      - name: Samples (valgrind)
+        if: matrix.extra && matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          for sample in ${{ env.SAMPLES_DIR }}/*; do
+            [ -x "$sample" ] || continue
+            echo "Running $sample"
+            ${{ env.VALGRIND }} "$sample"
+          done
