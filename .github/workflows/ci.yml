@@ -8,7 +8,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       TEST_BIN: ./build/${{ matrix.preset }}/apps/test
-      SAMPLES_DIR: ./build/${{ matrix.preset }}/apps/samples
+      SAMPLES_DIR: ./build/${{ matrix.preset }}/samples
       LEAKS: leaks --atExit --
       VALGRIND: valgrind --tool=memcheck --leak-check=full --leak-resolution=high --show-leak-kinds=all --track-origins=yes --track-fds=yes --error-exitcode=1 --errors-for-leak-kinds=all --undef-value-errors=yes --partial-loads-ok=no --expensive-definedness-checks=yes --show-mismatched-frees=yes --show-reachable=yes --num-callers=40 --
 
