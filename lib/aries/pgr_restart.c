@@ -30,8 +30,6 @@
 err_t
 pgr_restart (struct pager *p, struct aries_ctx *ctx, error *e)
 {
-  i_log_info ("restart, master LSN: %" PRlsn "\n", ctx->master_lsn);
-
   err_t ret = SUCCESS;
   p->flags |= PGR_ISRESTARTING;
 

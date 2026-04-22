@@ -12,6 +12,8 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
+#include "c_specx/concurrency/periodic_task.h"
+#include "lockt/lock_table.h"
 #include "pager.h"
 
 /*
@@ -33,19 +35,7 @@ pgr_close (struct pager *p, error *e)
 
   DBG_ASSERT (pager, p);
 
-  // Maybe join checkpoint thread
-  if (p->checkpoint_thread_running)
-    {
-      p->checkpoint_stop = true;
-
-      i_semaphore_post (&p->cp_wake);
-
-      // Unlock temporarily while waiting
-      i_semaphore_wait (&p->cp_done);
-
-      i_semaphore_free (&p->cp_wake);
-      i_semaphore_free (&p->cp_done);
-    }
+  periodic_task_stop (&p->checkpoint_task, e);
 
   // Evict all pages
   for (u32 i = 0; i < MEMORY_PAGE_LEN; ++i)
@@ -61,9 +51,20 @@ pgr_close (struct pager *p, error *e)
     }
 
   // Free resources
-  oswal_close (p->ww, e);
+  if (p->iown_ww)
+    {
+      oswal_close (p->ww, e);
+    }
+  if (p->iown_fp)
+    {
+      ospgr_close (p->fp, e);
+    }
+  if (p->iown_lt)
+    {
+      lockt_destroy (p->lt);
+      i_free (p->lt);
+    }
   txnt_close (p->tnxt);
-  ospgr_close (p->fp, e);
   dpgt_close (p->dpt);
 
   i_free (p);

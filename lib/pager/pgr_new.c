@@ -96,25 +96,6 @@ theend:
   return error_trace (e);
 }
 
-/*
- * Allocate a new page from the free space map (FSM) and return it in write
- * mode.
- *
- * Scans each FSM page (one per FS_BTMP_NPGS-page section) for the first
- * clear bit.  When a free slot is found, the bit is set and the FSM is
- * released with a WUP_FSM log record (more compact than a full physical
- * record).  The target page is then fetched, upgraded to write mode, and
- * initialized with page_init_empty().
- *
- * If all existing FSM sections are full, a new FSM page is created via
- * pgr_new_from_uninitialized_unsafe() and the database file is extended with
- * a WUP_FEXT Nested Top Action record.  A fresh FSM always has bit 0 set
- * (the FSM page itself) and bit 1 as the first available page.
- *
- * On any failure, all held pages (including any partially-allocated pages)
- * are cancelled rather than released, leaving the buffer pool in a clean
- * state.
- */
 err_t
 pgr_new (page_h *dest, struct pager *p, struct txn *tx, const enum page_type type,
          error *e)
@@ -158,7 +139,8 @@ pgr_new (page_h *dest, struct pager *p, struct txn *tx, const enum page_type typ
                       .tid = tx->tid,
                       .prev = tx->data.last_lsn,
                       .fsm = {
-                          .pg = ret,
+                          .pg = page_h_pgno (&fsm),
+                          .bit = pgtoidx (ret),
                           .undo = 0,
                           .redo = 1,
                       },
@@ -217,17 +199,22 @@ pgr_new (page_h *dest, struct pager *p, struct txn *tx, const enum page_type typ
 
   fsm_set_bit (page_h_w (&fsm), pgtoidx (ret));
 
-  if (pgr_release_with_log (p, &fsm, PG_FREE_SPACE_MAP, &(struct wal_update_write){
-                                                            .type = WUP_FSM,
-                                                            .tid = tx->tid,
-                                                            .prev = tx->data.last_lsn,
-                                                            .fsm = {
-                                                                .pg = ret,
-                                                                .undo = 0,
-                                                                .redo = 1,
-                                                            },
-                                                        },
-                            e))
+  if (pgr_release_with_log (
+          p,
+          &fsm,
+          PG_FREE_SPACE_MAP,
+          &(struct wal_update_write){
+              .type = WUP_FSM,
+              .tid = tx->tid,
+              .prev = tx->data.last_lsn,
+              .fsm = {
+                  .pg = page_h_pgno (&fsm),
+                  .bit = pgtoidx (ret),
+                  .undo = 0,
+                  .redo = 1,
+              },
+          },
+          e))
     {
       goto failed;
     }

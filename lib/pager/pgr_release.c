@@ -16,7 +16,7 @@
 #include "pages/page.h"
 
 err_t
-pgr_release_if_exists (struct pager *p, page_h *h, const int flags, error *e)
+pgr_release_if_exists (struct pager *p, page_h *h, int flags, error *e)
 {
   if (h->mode != PHM_NONE)
     {
@@ -25,12 +25,38 @@ pgr_release_if_exists (struct pager *p, page_h *h, const int flags, error *e)
   return SUCCESS;
 }
 
+void
+pgr_unfix (struct pager *p, page_h *h, int flags)
+{
+  ASSERT (h->mode == PHM_X || h->mode == PHM_S);
+  ASSERT (h->pgr->flags & PW_PRESENT);
+
+  // Need to save this page
+  if (h->mode == PHM_X)
+    {
+      spgno page_lsn = 0;
+
+      // Can only save valid pages
+      ASSERT (!page_validate_for_db (&h->pgw->page, flags | PG_SKIP_CHECKSUM, NULL));
+
+      memcpy (&h->pgr->page.raw, h->pgw->page.raw, PAGE_SIZE);
+      h->pgw->flags = 0; // Release pgw
+      h->pgr->wsibling = -1;
+      h->pgw = NULL;
+      h->mode = PHM_S;
+    }
+
+  h->pgr->pin--;
+  h->pgr = NULL;
+  h->mode = PHM_NONE;
+}
+
 err_t
 pgr_release_with_log (
-    const struct pager *p,
+    struct pager *p,
     page_h *h,
-    const int flags,
-    const struct wal_update_write *record,
+    int flags,
+    struct wal_update_write *record,
     error *e)
 {
   ASSERT (h->mode == PHM_X || h->mode == PHM_S);
@@ -90,20 +116,13 @@ pgr_release_with_log (
             {
               return error_trace (e);
             }
+          h->pgr->flags |= PW_DIRTY;
         }
-
-      memcpy (&h->pgr->page.raw, h->pgw->page.raw, PAGE_SIZE);
-      h->pgw->flags = 0; // Release pgw
-      h->pgr->wsibling = -1;
-      h->pgw = NULL;
-      h->mode = PHM_S;
     }
 
-  h->pgr->pin--;
-  h->pgr = NULL;
-  h->mode = PHM_NONE;
+  pgr_unfix (p, h, flags);
 
-  return error_trace (e);
+  return SUCCESS;
 }
 
 err_t

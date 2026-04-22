@@ -19,7 +19,33 @@
 #include "wal/os_wal.h"
 #include "wal/wal_rec_hdr.h"
 
-struct wal;
+/*
+ * Concrete WAL backed by a single append-only OS file.
+ *
+ * The os_wal base must be the first member so that a struct wal * can be
+ * freely cast to struct os_wal * and back, as required by the vtable
+ * dispatch pattern.
+ */
+struct wal
+{
+  struct os_wal base; /* MUST be first */
+
+  // The file that's open
+  struct string fname;
+  bool iown_fname;
+
+  // Input and / or output streams
+  struct wal_ostream *ostream;
+  struct wal_istream *istream;
+
+  // Headers to read and write
+  struct wal_rec_hdr_read rhdr;
+  struct wal_rec_hdr_write whdr;
+
+  latch latch;
+};
+
+DEFINE_DBG_ASSERT (struct wal, wal, w, { ASSERT (w); })
 
 // Lifecycle
 struct wal *wal_open (const char *fname, error *e);
@@ -56,15 +82,11 @@ err_t wal_flush_all (const struct wal *w, error *e);
 struct wal_rec_hdr_read *wal_read_next (struct wal *w, lsn *read_lsn, error *e);
 struct wal_rec_hdr_read *wal_read_entry (struct wal *w, lsn id, error *e);
 
+slsn wal_write_locked (struct wal *w, error *e);
 slsn wal_append_begin_log (struct wal *w, txid tid, error *e);
 slsn wal_append_commit_log (struct wal *w, txid tid, lsn prev, error *e);
 slsn wal_append_end_log (struct wal *w, txid tid, lsn prev, error *e);
 slsn wal_append_ckpt_begin (struct wal *w, error *e);
-slsn wal_append_ckpt_end (
-    struct wal *w,
-    struct txn_table *att,
-    struct dpg_table *dpt,
-    error *e);
 slsn wal_append_update_log (
     struct wal *w,
     struct wal_update_write update,

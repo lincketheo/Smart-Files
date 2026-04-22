@@ -13,19 +13,35 @@
 /// limitations under the License.
 
 #include "c_specx.h"
+#include "c_specx/concurrency/gr_lock.h"
 #include "c_specx/dev/error.h"
+#include "lockt/lock_table.h"
+#include "lockt/lt_lock.h"
 #include "pager.h"
+#include "pager/page_h.h"
 
 err_t
 pgr_deletion_blocking_checkpoint (struct pager *p, error *e)
 {
   ASSERT (p->ww);
 
+  if (lockt_lock (p->lt, lock_db (), LM_X, NULL, e))
+    {
+      return error_trace (e);
+    }
+
   // Flush all pages
   for (u32 i = 0; i < MEMORY_PAGE_LEN; ++i)
     {
       struct page_frame *mp = &p->pages[i];
-      if (mp->flags & PW_PRESENT && !(mp->flags & PW_X))
+      /**
+       * Because we have a global database lock,
+       * there should be no running transactions
+       * so all pages should be finalized
+       */
+      ASSERT (!(mp->flags & PW_X));
+
+      if (mp->flags & PW_PRESENT)
         {
           pgr_flush (p, mp, e); // Ignore error
         }
@@ -43,11 +59,23 @@ pgr_deletion_blocking_checkpoint (struct pager *p, error *e)
       {
         goto failed;
       }
+
     p->ww = new_ww;
   }
+
+  if (lockt_unlock (p->lt, lock_db (), LM_X, e))
+    {
+      goto failed;
+    }
 
   return SUCCESS;
 
 failed:
+
+  if (lockt_unlock (p->lt, lock_db (), LM_X, e))
+    {
+      goto failed;
+    }
+
   return error_trace (e);
 }

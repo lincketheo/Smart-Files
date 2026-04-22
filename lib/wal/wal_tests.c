@@ -173,14 +173,6 @@ wal_test_fill_batch (struct wal_rec_hdr_read *batch, const u32 len, struct alloc
             rand_bytes (r->clr.phys.redo, PAGE_SIZE);
             break;
           }
-        case WL_CKPT_END:
-          {
-            r->ckpt_end.att = txnt_open (e);
-            r->ckpt_end.dpt = dpgt_open (e);
-            txnt_determ_populate (r->ckpt_end.att, a, e);
-            dpgt_rand_populate (r->ckpt_end.dpt, e);
-            break;
-          }
         default:
           {
             break;
@@ -195,12 +187,6 @@ wal_test_free_batch (const struct wal_rec_hdr_read *batch, const u32 len)
   for (u32 i = 0; i < len; i++)
     {
       const struct wal_rec_hdr_read *r = &batch[i];
-
-      if (r->type == WL_CKPT_END)
-        {
-          txnt_close (r->ckpt_end.att);
-          dpgt_close (r->ckpt_end.dpt);
-        }
     }
 }
 
@@ -246,13 +232,6 @@ run_wal_test (const struct wal_test_params *p)
             next = wal_read_next (ww, &read_lsn, &e);
           }
         test_assert (wal_rec_hdr_read_equal (next, &p->batch1[i]));
-
-        if (next->type == WL_CKPT_END)
-          {
-            txnt_close (next->ckpt_end.att);
-            dpgt_close (next->ckpt_end.dpt);
-            i_free (next->ckpt_end.txn_bank);
-          }
       }
   }
 
@@ -286,13 +265,6 @@ run_wal_test (const struct wal_test_params *p)
             next = wal_read_next (ww, &read_lsn, &e);
           }
         test_assert (wal_rec_hdr_read_equal (next, &p->batch1[i]));
-
-        if (next->type == WL_CKPT_END)
-          {
-            txnt_close (next->ckpt_end.att);
-            dpgt_close (next->ckpt_end.dpt);
-            i_free (next->ckpt_end.txn_bank);
-          }
       }
 
     for (u32 i = 0; i < p->batch2_len; i++)
@@ -300,13 +272,6 @@ run_wal_test (const struct wal_test_params *p)
         lsn read_lsn;
         struct wal_rec_hdr_read *next = wal_read_next (ww, &read_lsn, &e);
         test_assert (wal_rec_hdr_read_equal (next, &p->batch2[i]));
-
-        if (next->type == WL_CKPT_END)
-          {
-            txnt_close (next->ckpt_end.att);
-            dpgt_close (next->ckpt_end.dpt);
-            i_free (next->ckpt_end.txn_bank);
-          }
       }
   }
 
@@ -337,9 +302,6 @@ TEST (wal)
                .prev = 50,
                .undo_next = 42,
                .phys = { .pg = 222 } } },
-    { .type = WL_CKPT_BEGIN },
-    { .type = WL_CKPT_END },
-    { .type = WL_CKPT_END },
   };
 
   struct wal_rec_hdr_read batch2_full[] = {
@@ -440,8 +402,6 @@ TEST (wal_single_entry)
                .prev = 40,
                .undo_next = 42,
                .phys = { .pg = 222 } } },
-    { .type = WL_CKPT_BEGIN },
-    { .type = WL_CKPT_END },
   };
 
   for (u32 i = 0; i < arrlen (cases); i++)
@@ -464,13 +424,6 @@ TEST (wal_single_entry)
         // READ
         struct wal_rec_hdr_read *next = wal_read_entry (ww, 0, &e);
         test_assert (wal_rec_hdr_read_equal (next, c));
-
-        if (next->type == WL_CKPT_END)
-          {
-            txnt_close (next->ckpt_end.att);
-            dpgt_close (next->ckpt_end.dpt);
-            i_free (next->ckpt_end.txn_bank);
-          }
 
         wal_close (ww, &e);
 

@@ -282,6 +282,16 @@ theend:
   return error_trace (e);
 }
 
+err_t
+dpgt_add_if_ne (struct dpg_table *t, pgno pg, lsn rec_lsn, error *e)
+{
+  if (!dpgt_exists (t, pg))
+    {
+      return dpgt_add (t, pg, rec_lsn, e);
+    }
+  return SUCCESS;
+}
+
 bool
 dpgt_get (lsn *dest, struct dpg_table *t, const pgno pg)
 {

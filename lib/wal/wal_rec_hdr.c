@@ -15,15 +15,16 @@
 #include "wal/wal_rec_hdr.h"
 
 #include "c_specx.h"
+#include "c_specx/dev/assert.h"
 #include "dpgt/dirty_page_table.h"
+#include "pages/fsm_page.h"
 #include "pages/page.h"
 #include "txns/txn_table.h"
 
-err_t
-wal_rec_hdr_read_random (struct wal_rec_hdr_read *dest, struct alloc *alloc,
-                         error *e)
+void
+wal_rec_hdr_read_random (struct wal_rec_hdr_read *dest, struct alloc *alloc)
 {
-  dest->type = randu32r (WL_BEGIN, WL_CKPT_END);
+  dest->type = randu32r (WL_BEGIN, WL_CLR);
   switch (dest->type)
     {
     case WL_BEGIN:
@@ -100,34 +101,11 @@ wal_rec_hdr_read_random (struct wal_rec_hdr_read *dest, struct alloc *alloc,
           }
         break;
       }
-    case WL_CKPT_BEGIN:
-      {
-        break;
-      }
-    case WL_CKPT_END:
-      {
-        dest->ckpt_end.att = txnt_open (e);
-        dest->ckpt_end.dpt = dpgt_open (e);
-        if (txnt_determ_populate (dest->ckpt_end.att, alloc, e))
-          {
-            goto failed;
-          }
-        if (dpgt_rand_populate (dest->ckpt_end.dpt, e))
-          {
-            txnt_close (dest->ckpt_end.att);
-            goto failed;
-          }
-        break;
-      }
     case WL_EOF:
       {
         ASSERT (false);
       }
     }
-  return SUCCESS;
-
-failed:
-  return e->cause_code;
 }
 
 const char *
@@ -154,14 +132,6 @@ wal_rec_hdr_type_tostr (const enum wal_rec_hdr_type type)
     case WL_END:
       {
         return "WL_END";
-      }
-    case WL_CKPT_BEGIN:
-      {
-        return "WL_CKPT_BEGIN";
-      }
-    case WL_CKPT_END:
-      {
-        return "WL_CKPT_END";
       }
     case WL_EOF:
       {
@@ -293,22 +263,6 @@ wrhw_from_wrhr (struct wal_rec_hdr_read *src)
           }
         break;
       }
-    case WL_CKPT_BEGIN:
-      {
-        return (struct wal_rec_hdr_write){
-          .type = WL_CKPT_BEGIN,
-        };
-      }
-    case WL_CKPT_END:
-      {
-        return (struct wal_rec_hdr_write){
-          .type = WL_CKPT_END,
-          .ckpt_end = {
-              .att = src->ckpt_end.att,
-              .dpt = src->ckpt_end.dpt,
-          },
-        };
-      }
     case WL_EOF:
       {
         UNREACHABLE ();
@@ -341,14 +295,6 @@ wrh_get_tid (const struct wal_rec_hdr_read *h)
     case WL_CLR:
       {
         return h->clr.tid;
-      }
-    case WL_CKPT_BEGIN:
-      {
-        return -1;
-      }
-    case WL_CKPT_END:
-      {
-        return -1;
       }
     case WL_EOF:
       {
@@ -383,13 +329,179 @@ wrh_get_prev_lsn (const struct wal_rec_hdr_read *h)
       {
         return h->clr.prev;
       }
-    case WL_CKPT_BEGIN:
+    case WL_EOF:
       {
-        return -1;
+        UNREACHABLE ();
       }
-    case WL_CKPT_END:
+    }
+  UNREACHABLE ();
+}
+
+bool
+wrh_is_undoable (const struct wal_rec_hdr_read *h)
+{
+  switch (h->type)
+    {
+    case WL_BEGIN:
       {
-        return -1;
+        return false;
+      }
+    case WL_COMMIT:
+      {
+        return false;
+      }
+    case WL_END:
+      {
+        return false;
+      }
+    case WL_UPDATE:
+      {
+        switch (h->update.type)
+          {
+          case WUP_PHYSICAL:
+            {
+              return true;
+            }
+          case WUP_FSM:
+            {
+              return true;
+            }
+          case WUP_FEXT:
+            {
+              return false;
+            }
+          }
+        UNREACHABLE ();
+      }
+    case WL_CLR:
+      {
+        return false;
+      }
+    case WL_EOF:
+      {
+        UNREACHABLE ();
+      }
+    }
+  UNREACHABLE ();
+}
+
+bool
+wrh_is_redoable (const struct wal_rec_hdr_read *h)
+{
+  switch (h->type)
+    {
+    case WL_BEGIN:
+      {
+        return false;
+      }
+    case WL_COMMIT:
+      {
+        return false;
+      }
+    case WL_END:
+      {
+        return false;
+      }
+    case WL_UPDATE:
+      {
+        switch (h->update.type)
+          {
+          case WUP_PHYSICAL:
+            {
+              return true;
+            }
+          case WUP_FSM:
+            {
+              return true;
+            }
+          case WUP_FEXT:
+            {
+              return false;
+            }
+          }
+        UNREACHABLE ();
+      }
+    case WL_CLR:
+      {
+        switch (h->clr.type)
+          {
+          case WCLR_PHYSICAL:
+            {
+              return true;
+            }
+          case WCLR_FSM:
+            {
+              return true;
+            }
+          case WCLR_DUMMY:
+            {
+              return false;
+            }
+          }
+        UNREACHABLE ();
+      }
+    case WL_EOF:
+      {
+        UNREACHABLE ();
+      }
+    }
+  UNREACHABLE ();
+}
+
+pgno
+wrh_get_affected_pg (const struct wal_rec_hdr_read *h)
+{
+  switch (h->type)
+    {
+    case WL_BEGIN:
+      {
+        UNREACHABLE ();
+      }
+    case WL_COMMIT:
+      {
+        UNREACHABLE ();
+      }
+    case WL_END:
+      {
+        UNREACHABLE ();
+      }
+    case WL_UPDATE:
+      {
+        switch (h->update.type)
+          {
+          case WUP_PHYSICAL:
+            {
+              return h->update.phys.pg;
+            }
+          case WUP_FSM:
+            {
+              return h->update.fsm.pg;
+            }
+          case WUP_FEXT:
+            {
+              UNREACHABLE ();
+            }
+          }
+        UNREACHABLE ();
+      }
+    case WL_CLR:
+      {
+        switch (h->clr.type)
+          {
+          case WCLR_PHYSICAL:
+            {
+              return h->clr.phys.pg;
+            }
+          case WCLR_FSM:
+            {
+              return h->clr.fsm.pg;
+            }
+          case WCLR_DUMMY:
+            {
+              UNREACHABLE ();
+            }
+          }
+        UNREACHABLE ();
       }
     case WL_EOF:
       {
@@ -401,8 +513,7 @@ wrh_get_prev_lsn (const struct wal_rec_hdr_read *h)
 
 #ifndef NTEST
 bool
-wal_rec_hdr_read_equal (const struct wal_rec_hdr_read *left,
-                        const struct wal_rec_hdr_read *right)
+wal_rec_hdr_read_equal (const struct wal_rec_hdr_read *left, const struct wal_rec_hdr_read *right)
 {
   if (left->type != right->type)
     {
@@ -511,20 +622,6 @@ wal_rec_hdr_read_equal (const struct wal_rec_hdr_read *left,
       {
         match = match && left->commit.tid == right->commit.tid;
         match = match && left->commit.prev == right->commit.prev;
-        break;
-      }
-
-    case WL_CKPT_BEGIN:
-      {
-        break;
-      }
-
-    case WL_CKPT_END:
-      {
-        match = match
-                && txnt_equal_ignore_state (left->ckpt_end.att,
-                                            right->ckpt_end.att);
-        match = match && dpgt_equal (left->ckpt_end.dpt, right->ckpt_end.dpt);
         break;
       }
 
@@ -684,26 +781,6 @@ i_log_end (const int log_level, const struct wal_rec_hdr_read *r)
   i_log (log_level, "------------------------------------\n");
 }
 
-static void
-i_log_ckpt_begin (const int log_level, const struct wal_rec_hdr_read *r)
-{
-  i_log (log_level, "------------------ %s:\n",
-         wal_rec_hdr_type_tostr (r->type));
-  i_printf (log_level, "HEADER: %d\n", r->type);
-  i_log (log_level, "------------------------------------\n");
-}
-
-static void
-i_log_ckpt_end (const int log_level, const struct wal_rec_hdr_read *r)
-{
-  i_log (log_level, "------------------ %s:\n",
-         wal_rec_hdr_type_tostr (r->type));
-  i_printf (log_level, "HEADER: %d\n", r->type);
-  i_log_txnt (log_level, r->ckpt_end.att);
-  i_log_dpgt (log_level, r->ckpt_end.dpt);
-  i_log (log_level, "------------------------------------\n");
-}
-
 void
 i_log_wal_rec_hdr_read (const int log_level, struct wal_rec_hdr_read *r)
 {
@@ -772,17 +849,6 @@ i_log_wal_rec_hdr_read (const int log_level, struct wal_rec_hdr_read *r)
         break;
       }
 
-    case WL_CKPT_BEGIN:
-      {
-        i_log_ckpt_begin (log_level, r);
-        break;
-      }
-
-    case WL_CKPT_END:
-      {
-        i_log_ckpt_end (log_level, r);
-        break;
-      }
     case WL_EOF:
       {
         i_log (log_level, "WL_EOF\n");
@@ -910,24 +976,6 @@ i_print_wal_rec_hdr_read_light (const int log_level, const struct wal_rec_hdr_re
         break;
       }
 
-    case WL_CKPT_BEGIN:
-      {
-        i_printf (log_level, "%15" PRlsn "  CKPT_BEGIN\n", l);
-        break;
-      }
-
-    case WL_CKPT_END:
-      {
-        i_printf (log_level,
-                  "%15" PRlsn "  CKPT_END     "
-                  "[ natt = %8d, ndpt = %8d"
-                  "                                   "
-                  "      ]\n",
-                  l, txnt_get_size (r->ckpt_end.att),
-                  dpgt_get_size (r->ckpt_end.dpt));
-        break;
-      }
-
     case WL_EOF:
       {
         i_printf (log_level, "%15" PRlsn "  WL_EOF\n", l);
@@ -936,270 +984,155 @@ i_print_wal_rec_hdr_read_light (const int log_level, const struct wal_rec_hdr_re
     }
 }
 
-////////////////////////////////////////////////////////////
-/// DECODE
 void
-walf_decode_physical_update (struct wal_rec_hdr_read *r,
-                             const u8 buf[WL_UPDATE_LEN])
+wrh_undo (struct wal_rec_hdr_read *h, page_h *ph)
 {
-  ASSERT (r->type == WL_UPDATE);
-
-  u32 head = 2 * sizeof (wlh);
-
-  // TID
-  memcpy (&r->update.tid, buf + head, sizeof (r->update.tid));
-  head += sizeof (r->update.tid);
-
-  // PREV
-  memcpy (&r->update.prev, buf + head, sizeof (r->update.prev));
-  head += sizeof (r->update.prev);
-
-  // PG
-  memcpy (&r->update.phys.pg, buf + head, sizeof (r->update.phys.pg));
-  head += sizeof (r->update.phys.pg);
-
-  // UNDO
-  memcpy (r->update.phys.undo, buf + head, PAGE_SIZE);
-  head += PAGE_SIZE;
-
-  // REDO
-  memcpy (r->update.phys.redo, buf + head, PAGE_SIZE);
-}
-
-void
-walf_decode_fsm_update (struct wal_rec_hdr_read *r,
-                        const u8 buf[WL_FSM_UPDATE_LEN])
-{
-  ASSERT (r->type == WL_UPDATE);
-  ASSERT (r->update.type == WUP_FSM);
-
-  u32 head = 2 * sizeof (wlh);
-
-  // TID
-  memcpy (&r->update.tid, buf + head, sizeof (r->update.tid));
-  head += sizeof (r->update.tid);
-
-  // PREV
-  memcpy (&r->update.prev, buf + head, sizeof (r->update.prev));
-  head += sizeof (r->update.prev);
-
-  // PG
-  memcpy (&r->update.fsm.pg, buf + head, sizeof (r->update.fsm.pg));
-  head += sizeof (r->update.fsm.pg);
-
-  // UNDO
-  memcpy (&r->update.fsm.undo, buf + head, sizeof (u8));
-  head += sizeof (u8);
-
-  // REDO
-  memcpy (&r->update.fsm.redo, buf + head, sizeof (u8));
-}
-
-void
-walf_decode_file_extend_update (struct wal_rec_hdr_read *r,
-                                const u8 buf[WL_FILE_EXT_LEN])
-{
-  ASSERT (r->type == WL_UPDATE);
-  ASSERT (r->update.type == WUP_FEXT);
-
-  u32 head = 2 * sizeof (wlh);
-
-  // TID
-  memcpy (&r->update.tid, buf + head, sizeof (r->update.tid));
-  head += sizeof (r->update.tid);
-
-  // PREV
-  memcpy (&r->update.prev, buf + head, sizeof (r->update.prev));
-  head += sizeof (r->update.prev);
-
-  // UNDO
-  memcpy (&r->update.fext.undo, buf + head, sizeof (pgno));
-  head += sizeof (pgno);
-
-  // To
-  memcpy (&r->update.fext.redo, buf + head, sizeof (pgno));
-}
-
-void
-walf_decode_physical_clr (struct wal_rec_hdr_read *r, const u8 buf[WL_CLR_LEN])
-{
-  ASSERT (r->type == WL_CLR);
-  ASSERT (r->clr.type == WCLR_PHYSICAL);
-
-  u32 head = 2 * sizeof (wlh);
-
-  // TID
-  memcpy (&r->clr.tid, buf + head, sizeof (r->clr.tid));
-  head += sizeof (r->clr.tid);
-
-  // PREV
-  memcpy (&r->clr.prev, buf + head, sizeof (r->clr.prev));
-  head += sizeof (r->clr.prev);
-
-  // PG
-  memcpy (&r->clr.phys.pg, buf + head, sizeof (r->clr.phys.pg));
-  head += sizeof (r->clr.phys.pg);
-
-  // UNDO_NEXT (must be != 0 for CLR)
-  memcpy (&r->clr.undo_next, buf + head, sizeof (r->clr.undo_next));
-  head += sizeof (r->clr.undo_next);
-
-  // REDO only
-  memcpy (r->clr.phys.redo, buf + head, PAGE_SIZE);
-}
-
-void
-walf_decode_fsm_clr (struct wal_rec_hdr_read *r, const u8 buf[WL_FSM_CLR_LEN])
-{
-  ASSERT (r->type == WL_CLR);
-  ASSERT (r->clr.type == WCLR_FSM);
-
-  u32 head = 2 * sizeof (wlh);
-
-  // TID
-  memcpy (&r->clr.tid, buf + head, sizeof (r->clr.tid));
-  head += sizeof (r->clr.tid);
-
-  // PREV
-  memcpy (&r->clr.prev, buf + head, sizeof (r->clr.prev));
-  head += sizeof (r->clr.prev);
-
-  // PG
-  memcpy (&r->clr.fsm.pg, buf + head, sizeof (r->clr.fsm.pg));
-  head += sizeof (r->clr.fsm.pg);
-
-  // UNDO_NEXT (must be != 0 for CLR)
-  memcpy (&r->clr.undo_next, buf + head, sizeof (r->clr.undo_next));
-  head += sizeof (r->clr.undo_next);
-
-  // REDO only
-  memcpy (&r->clr.fsm.redo, buf + head, sizeof (r->clr.fsm.redo));
-}
-
-void
-walf_decode_dummy_clr (struct wal_rec_hdr_read *r,
-                       const u8 buf[WL_DUMMY_CLR_LEN])
-{
-  ASSERT (r->type == WL_CLR);
-  ASSERT (r->clr.type == WCLR_DUMMY);
-
-  u32 head = 2 * sizeof (wlh);
-
-  // TID
-  memcpy (&r->clr.tid, buf + head, sizeof (r->clr.tid));
-  head += sizeof (r->clr.tid);
-
-  // PREV
-  memcpy (&r->clr.prev, buf + head, sizeof (r->clr.prev));
-  head += sizeof (r->clr.prev);
-
-  // UNDO_NEXT (must be != 0 for CLR)
-  memcpy (&r->clr.undo_next, buf + head, sizeof (r->clr.undo_next));
-  head += sizeof (r->clr.undo_next);
-}
-
-void
-walf_decode_begin (struct wal_rec_hdr_read *r, const u8 buf[WL_BEGIN_LEN])
-{
-  ASSERT (r->type == WL_BEGIN);
-
-  const u32 head = sizeof (wlh);
-
-  // TID
-  memcpy (&r->begin.tid, buf + head, sizeof (r->begin.tid));
-}
-
-void
-walf_decode_commit (struct wal_rec_hdr_read *r, const u8 buf[WL_COMMIT_LEN])
-{
-  ASSERT (r->type == WL_COMMIT);
-
-  u32 head = sizeof (wlh);
-  txid tid;
-  lsn prev;
-
-  // TID
-  memcpy (&tid, buf + head, sizeof (txid));
-  head += sizeof (txid);
-
-  // PREV
-  memcpy (&prev, buf + head, sizeof (lsn));
-
-  r->commit.tid = tid;
-  r->commit.prev = prev;
-}
-
-void
-walf_decode_end (struct wal_rec_hdr_read *r, const u8 buf[WL_END_LEN])
-{
-  ASSERT (r->type == WL_END);
-
-  u32 head = sizeof (wlh);
-  txid tid;
-  lsn prev;
-
-  // TID
-  memcpy (&tid, buf + head, sizeof (txid));
-  head += sizeof (txid);
-
-  // PREV
-  memcpy (&prev, buf + head, sizeof (lsn));
-
-  r->end.tid = tid;
-  r->end.prev = prev;
-}
-
-void
-walf_decode_ckpt_begin (const struct wal_rec_hdr_read *r,
-                        const u8 buf[WL_CKPT_BEGIN_LEN])
-{
-  ASSERT (r->type == WL_CKPT_BEGIN);
-}
-
-err_t
-walf_decode_ckpt_end (struct wal_rec_hdr_read *r, const u8 *buf, error *e)
-{
-  ASSERT (r->type == WL_CKPT_END);
-  ASSERT (buf);
-
-  u32 head = sizeof (wlh);
-  u32 attsize;
-  u32 dptsize;
-
-  // attsize
-  memcpy (&attsize, buf + head, sizeof (attsize));
-  head += sizeof (attsize);
-
-  // dptsize
-  memcpy (&dptsize, buf + head, sizeof (dptsize));
-  head += sizeof (dptsize);
-
-  // att
-  if (attsize > 0)
+  switch (h->type)
     {
-      r->ckpt_end.txn_bank = i_malloc (txnlen_from_serialized (attsize),
-                                       sizeof *r->ckpt_end.txn_bank, e);
+    case WL_BEGIN:
+      {
+        UNREACHABLE ();
+      }
+    case WL_COMMIT:
+      {
+        UNREACHABLE ();
+      }
+    case WL_END:
+      {
+        UNREACHABLE ();
+      }
+    case WL_UPDATE:
+      {
+        switch (h->update.type)
+          {
+          case WUP_PHYSICAL:
+            {
+              memcpy (page_h_w (ph), h->update.phys.undo, PAGE_SIZE);
+              return;
+            }
+          case WUP_FSM:
+            {
+              if (h->update.fsm.undo)
+                {
+                  fsm_set_bit (page_h_w (ph), h->update.fsm.bit);
+                }
+              else
+                {
+                  fsm_clr_bit (page_h_w (ph), h->update.fsm.bit);
+                }
+              return;
+            }
+          case WUP_FEXT:
+            {
+              UNREACHABLE ();
+            }
+          }
+        UNREACHABLE ();
+      }
+    case WL_CLR:
+      {
+        switch (h->clr.type)
+          {
+          case WCLR_PHYSICAL:
+            {
+              UNREACHABLE ();
+            }
+          case WCLR_FSM:
+            {
+              UNREACHABLE ();
+            }
+          case WCLR_DUMMY:
+            {
+              UNREACHABLE ();
+            }
+          }
+        UNREACHABLE ();
+      }
+    case WL_EOF:
+      {
+        UNREACHABLE ();
+      }
     }
-  else
-    {
-      r->ckpt_end.txn_bank = NULL;
-    }
-  r->ckpt_end.att
-      = txnt_deserialize (buf + head, r->ckpt_end.txn_bank, attsize, e);
-  if (r->ckpt_end.att == NULL)
-    {
-      return error_trace (e);
-    }
-  head += attsize;
+  UNREACHABLE ();
+}
 
-  // dpt
-  r->ckpt_end.dpt = dpgt_deserialize (buf + head, dptsize, e);
-  if (r->ckpt_end.dpt == NULL)
+void
+wrh_redo (struct wal_rec_hdr_read *h, page_h *ph)
+{
+  switch (h->type)
     {
-      txnt_close (r->ckpt_end.att);
-      return error_trace (e);
+    case WL_BEGIN:
+      {
+        UNREACHABLE ();
+      }
+    case WL_COMMIT:
+      {
+        UNREACHABLE ();
+      }
+    case WL_END:
+      {
+        UNREACHABLE ();
+      }
+    case WL_UPDATE:
+      {
+        switch (h->update.type)
+          {
+          case WUP_PHYSICAL:
+            {
+              memcpy (page_h_w (ph), h->update.phys.redo, PAGE_SIZE);
+              return;
+            }
+          case WUP_FSM:
+            {
+              if (h->update.fsm.redo)
+                {
+                  fsm_set_bit (page_h_w (ph), h->update.fsm.bit);
+                }
+              else
+                {
+                  fsm_clr_bit (page_h_w (ph), h->update.fsm.bit);
+                }
+              return;
+            }
+          case WUP_FEXT:
+            {
+              UNREACHABLE ();
+            }
+          }
+        UNREACHABLE ();
+      }
+    case WL_CLR:
+      {
+        switch (h->clr.type)
+          {
+          case WCLR_PHYSICAL:
+            {
+              memcpy (page_h_w (ph), h->clr.phys.redo, PAGE_SIZE);
+              return;
+            }
+          case WCLR_FSM:
+            {
+              if (h->clr.fsm.redo)
+                {
+                  fsm_set_bit (page_h_w (ph), h->clr.fsm.bit);
+                }
+              else
+                {
+                  fsm_clr_bit (page_h_w (ph), h->clr.fsm.bit);
+                }
+              return;
+            }
+          case WCLR_DUMMY:
+            {
+              UNREACHABLE ();
+            }
+          }
+        UNREACHABLE ();
+      }
+    case WL_EOF:
+      {
+        UNREACHABLE ();
+      }
     }
-  head += attsize;
-
-  return SUCCESS;
+  UNREACHABLE ();
 }

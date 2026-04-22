@@ -14,6 +14,7 @@
 
 #pragma once
 
+#include "c_specx/concurrency/periodic_task.h"
 #include "errors.h"
 #include "lockt/lock_table.h"
 #include "os_pager/os_pager.h"
@@ -87,11 +88,16 @@ enum
 struct pager
 {
   // Resources
-  struct os_pager *fp;    // OS pager abstraction (e.g. file_pager)
-  struct os_wal *ww;      // Write-ahead log abstraction
+  struct os_pager *fp; // OS pager abstraction (e.g. file_pager)
+  struct os_wal *ww;   // Write-ahead log abstraction
+  struct lockt *lt;    // Lock table
+
+  bool iown_fp;
+  bool iown_ww;
+  bool iown_lt;
+
   struct dpg_table *dpt;  // Dirty Page Table
   struct txn_table *tnxt; // Transaction Table
-  struct lockt *lt;       // Lock table
 
   /**
    * A hash table of pgno -> index within the buffer pool
@@ -121,18 +127,10 @@ struct pager
 
   // Transaction control
   txid next_tid;
-  lsn master_lsn;
 
   int flags;
 
-  // Checkpoint thread stuff
-  struct
-  {
-    bool checkpoint_thread_running; // true if we launched the thread
-    i_semaphore cp_wake;            // pager signals this saying it's done
-    i_semaphore cp_done;            // Checkpoint signals this saying it's done
-    _Atomic (bool) checkpoint_stop; // Stop checkpoint thread
-  };
+  struct periodic_task checkpoint_task;
 };
 
 DEFINE_DBG_ASSERT (struct pager, pager, p, {
@@ -142,7 +140,7 @@ DEFINE_DBG_ASSERT (struct pager, pager, p, {
 
 struct pager *pgr_open_single_file (const char *dbname, error *e);
 err_t pgr_delete_single_file (const char *dbname, error *e);
-struct pager *pgr_open (struct os_pager *fp, struct os_wal *ww, error *e);
+struct pager *pgr_open (struct os_pager *fp, struct os_wal *ww, struct lockt *lt, error *e);
 err_t pgr_close (struct pager *p, error *e);
 bool pgr_isnew (const struct pager *p);
 void pgr_attach_lock_table (struct pager *p, struct lockt *lt);
@@ -158,7 +156,6 @@ err_t pgr_commit (struct pager *p, struct txn *tx, error *e);
 err_t pgr_rollback (struct pager *p, struct txn *tx, lsn save_lsn, error *e);
 
 err_t pgr_checkpoint (struct pager *p, error *e);
-err_t pgr_fuzzy_checkpoint (struct pager *p, error *e);
 err_t pgr_deletion_blocking_checkpoint (struct pager *p, error *e);
 err_t pgr_launch_checkpoint_thread (struct pager *p, u64 msec, error *e);
 
@@ -263,11 +260,15 @@ err_t pgr_release_if_exists (struct pager *p, page_h *h, int flags, error *e);
  * Smaller non physical updates must use this function instead
  */
 err_t pgr_release_with_log (
-    const struct pager *p,
+    struct pager *p,
     page_h *h,
     int flags,
-    const struct wal_update_write *record, // if NULL, appends a physical page update
+    struct wal_update_write *record, // if NULL, appends a physical page update
     error *e);
+
+err_t pgr_release_without_log (struct pager *p, page_h *h, int flags, error *e);
+
+void pgr_unfix (struct pager *p, page_h *h, int flags);
 
 /**
  * When error handling, use this instead of pgr_release, if you want

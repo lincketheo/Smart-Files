@@ -64,13 +64,8 @@ pgr_commit (struct pager *p, struct txn *tx, error *e)
   // Remove the transaction from the txn table
   txnt_remove_txn_expect (p->tnxt, tx);
 
-  if (p->lt)
-    {
-      lockt_unlock_tx (p->lt, tx);
-    }
+  lockt_unlock_tx (p->lt, tx);
   tx->data.state = TX_DONE;
-
-  WRAP (pgr_deletion_blocking_checkpoint (p, e));
 
 theend:
   return error_trace (e);

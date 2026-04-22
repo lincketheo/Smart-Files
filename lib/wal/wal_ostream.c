@@ -20,19 +20,6 @@
 
 DEFINE_DBG_ASSERT (struct wal_ostream, wal_ostream, w, { ASSERT (w); })
 
-/*
- * Background flush thread for the WAL output stream.
- *
- * Waits on write_cond while flush_pending is false and shutdown is false.
- * When signalled, it drains the "other" buffer (the full buffer swapped in
- * by walos_flush_impl) to disk with a single write + fsync, then advances
- * flushed_lsn and broadcasts write_done_cond so waiters in walos_flush_to
- * can unblock.
- *
- * I/O is done outside the write_lock to avoid holding it during disk
- * operations; write_lock is re-acquired after I/O to update state.
- * Panics on write or fsync failure — WAL write errors are unrecoverable.
- */
 static void *
 walos_flush_thread (void *ctx)
 {
@@ -80,18 +67,6 @@ walos_flush_thread (void *ctx)
 ////////////////////////////////////////////////////////////
 /// Lifecycle
 
-/*
- * Open the WAL output stream, initializing a double-buffered async writer.
- *
- * The ostream maintains two circular buffers (buffer1, buffer2).  Callers
- * write into the active buffer (w->buffer) under a latch.  When a flush is
- * requested, the active and other buffers are swapped and the background
- * thread drains the "other" buffer to disk.  This allows new records to be
- * buffered into the fresh active buffer while the disk write is in flight.
- *
- * flushed_lsn is initialised to the current file length so that LSN values
- * (byte offsets into the WAL file) are correct from the first append.
- */
 struct wal_ostream *
 walos_open (const char *fname, error *e)
 {
@@ -284,17 +259,8 @@ walos_flush_all (struct wal_ostream *w, error *e)
 ////////////////////////////////////////////////////////////
 /// Write
 
-/*
- * Append len bytes to the WAL active buffer, updating a running checksum.
- *
- * If the active buffer fills mid-write, walos_flush_impl is called in
- * non-waiting mode to swap buffers and allow new data in; this may be called
- * multiple times for very large records.  The function holds the latch for
- * the entire write so records from concurrent callers never interleave.
- */
 err_t
-walos_write_all (struct wal_ostream *w, u32 *checksum, const void *data,
-                 const u32 len, error *e)
+walos_write_all (struct wal_ostream *w, u32 *checksum, const void *data, const u32 len, error *e)
 {
   DBG_ASSERT (wal_ostream, w);
 

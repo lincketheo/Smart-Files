@@ -12,6 +12,9 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
+#include "c_specx/dev/error.h"
+#include "lockt/lock_table.h"
+#include "lockt/lt_lock.h"
 #include "pager.h"
 
 /*
@@ -54,6 +57,11 @@ pgr_begin_txn (struct txn *tx, struct pager *p, error *e)
 
   // Create a new transaction entry
   txnt_insert_txn (p->tnxt, tx);
+
+  if (lockt_lock (p->lt, lock_db (), LM_X, tx, e))
+    {
+      return error_trace (e);
+    }
 
   return SUCCESS;
 }

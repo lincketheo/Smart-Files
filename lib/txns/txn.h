@@ -133,8 +133,7 @@ void txn_update_data (struct txn *t, struct txn_data data);
 void txn_update (struct txn *t, enum tx_state state, lsn last, lsn undo_next);
 void txn_update_state (struct txn *t, enum tx_state new_state);
 void txn_update_last_undo (struct txn *t, lsn last_lsn, lsn undo_next_lsn);
-void txn_update_last_state (struct txn *t, lsn last_lsn,
-                            enum tx_state new_state);
+void txn_update_last_state (struct txn *t, lsn last_lsn, enum tx_state new_state);
 void txn_update_last (struct txn *t, lsn last_lsn);
 void txn_update_undo_next (struct txn *t, lsn undo_next);
 

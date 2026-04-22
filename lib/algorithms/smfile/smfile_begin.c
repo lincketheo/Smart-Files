@@ -13,7 +13,10 @@
 /// limitations under the License.
 
 #include "algorithms/smfile/_smfile.h"
+#include "c_specx/concurrency/gr_lock.h"
 #include "c_specx/dev/error.h"
+#include "lockt/lock_table.h"
+#include "lockt/lt_lock.h"
 #include "pager.h"
 #include "smfile.h"
 

@@ -15,6 +15,7 @@
 #include "pager.h"
 
 #include "c_specx.h"
+#include "lockt/lock_table.h"
 #include "pager/page_fixture.h"
 
 bool
@@ -165,6 +166,8 @@ pgr_crash (struct pager *p, error *e)
 
   txnt_crash (p->tnxt);
   dpgt_crash (p->dpt);
+  lockt_destroy (p->lt);
+  i_free (p->lt);
 
   i_free (p);
 

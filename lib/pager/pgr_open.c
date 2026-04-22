@@ -14,39 +14,22 @@
 
 #include "aries/aries.h"
 #include "c_specx.h"
+#include "c_specx/concurrency/periodic_task.h"
+#include "c_specx/intf/os/memory.h"
+#include "lockt/lock_table.h"
 #include "os_pager/file_pager.h"
+#include "os_pager/os_pager.h"
 #include "pager.h"
 #include "pager/page_h.h"
 #include "pages/fsm_page.h"
 #include "pages/root_node.h"
 #include "wal/wal.h"
+#include "wal/wal_ostream.h"
 
 #include <limits.h>
 
-#ifndef PATH_MAX
-#define PATH_MAX 260
-#endif
-
-/*
- * pgr_open — open or create a database using caller-supplied I/O abstractions.
- *
- * Takes ownership of [fp] and [ww].  On success they live inside the returned
- * pager.  On failure both are closed/freed before returning NULL.
- *
- * NEW DATABASE (ospgr_get_npages(fp) == 0):
- *   Resets the page store and WAL, commits an initial transaction that writes
- *   the root page, and sets PGR_ISNEW so the caller can distinguish a fresh
- *   database from an existing one.
- *
- * EXISTING DATABASE:
- *   Reads the root page to recover master_lsn.  If oswal_is_recoverable(ww)
- *   is true, runs the three-phase ARIES restart (analysis, redo, undo).
- *   If false the database file is trusted to be consistent and recovery is
- *   skipped; next_tid is initialised to 1 in that case since there is no WAL
- *   to scan for the highest TID.
- */
 struct pager *
-pgr_open (struct os_pager *fp, struct os_wal *ww, error *e)
+pgr_open (struct os_pager *fp, struct os_wal *ww, struct lockt *lt, error *e)
 {
   page_h root = page_h_create ();
   struct pager *ret = NULL;
@@ -58,6 +41,7 @@ pgr_open (struct os_pager *fp, struct os_wal *ww, error *e)
 
   ret->fp = fp;
   ret->ww = ww;
+  ret->lt = lt;
 
   // Initialize the dirty page table
   ret->dpt = dpgt_open (e);
@@ -72,11 +56,15 @@ pgr_open (struct os_pager *fp, struct os_wal *ww, error *e)
   // Simple variables
   ret->clock = 0;
   ret->next_tid = 1;
+  if (periodic_task_init (&ret->checkpoint_task, e))
+    {
+      goto failed;
+    }
 
   // Check if we need to create a new database or not
   if (ospgr_get_npages (ret->fp) == 0)
     {
-      i_log_info ("new database\n");
+      i_log_info ("Creating a new database\n");
       ret->flags = PGR_ISNEW;
 
       // Reset any data in the file pager
@@ -128,8 +116,6 @@ pgr_open (struct os_pager *fp, struct os_wal *ww, error *e)
     }
   else
     {
-      i_log_info ("open database\n");
-
       ret->flags = 0;
 
       // Read in the root page to get the last flushed master
@@ -141,7 +127,6 @@ pgr_open (struct os_pager *fp, struct os_wal *ww, error *e)
           goto failed;
         }
       root_raw.pg = ROOT_PGNO;
-      ret->master_lsn = rn_get_master_lsn (&root_raw);
 
       // Open the transaction table
       ret->tnxt = txnt_open (e);
@@ -153,21 +138,8 @@ pgr_open (struct os_pager *fp, struct os_wal *ww, error *e)
       if (oswal_is_recoverable (ret->ww))
         {
           // Run ARIES recovery
-          i_log_info ("ARIES recovery (analysis/redo/undo)\n");
-          i_log_info ("master LSN: %" PRlsn "\n", ret->master_lsn);
-
-          if (ret->master_lsn == 0)
-            {
-              i_log_info ("no checkpoint, recovering from beginning\n");
-            }
-          else
-            {
-              i_log_info ("recovering from checkpoint at LSN %" PRlsn "\n",
-                          ret->master_lsn);
-            }
-
           struct aries_ctx ctx;
-          if (aries_ctx_create (&ctx, ret->master_lsn, e))
+          if (aries_ctx_create (&ctx, e))
             {
               goto failed;
             }
@@ -177,7 +149,7 @@ pgr_open (struct os_pager *fp, struct os_wal *ww, error *e)
               goto failed;
             }
 
-          i_log_info ("ARIES recovery complete\n");
+          i_log_info ("recovery complete\n");
 
           // Advance next_tid past the highest TID seen during recovery so
           // we never reuse a TID from a previous run.
@@ -257,13 +229,28 @@ pgr_open_single_file (const char *dbname, error *e)
       return NULL;
     }
 
+  struct lockt *lt = i_malloc (1, sizeof *lt, e);
+  if (lt == NULL)
+    {
+      ospgr_close (fp, e);
+      oswal_close (ww, e);
+      return NULL;
+    }
+  if (lockt_init (lt, e))
+    {
+      ospgr_close (fp, e);
+      oswal_close (ww, e);
+      i_free (lt);
+      lockt_destroy (lt);
+    }
+
   /*
    * Capture whether this is a new database before handing off to pgr_open,
    * so that we can clean up the directory on failure.
    */
   bool is_new = (ospgr_get_npages (fp) == 0);
 
-  struct pager *p = pgr_open (fp, ww, e);
+  struct pager *p = pgr_open (fp, ww, lt, e);
   if (p == NULL)
     {
       /* fp and ww already closed by pgr_open on failure. */
@@ -273,6 +260,10 @@ pgr_open_single_file (const char *dbname, error *e)
         }
       return NULL;
     }
+
+  p->iown_ww = true;
+  p->iown_fp = true;
+  p->iown_lt = true;
 
   return p;
 }

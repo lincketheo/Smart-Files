@@ -14,8 +14,11 @@
 
 #include "aries.h"
 #include "c_specx.h"
+#include "c_specx/dev/assert.h"
 #include "pager.h"
 #include "pages/fsm_page.h"
+#include "txns/txn_table.h"
+#include "wal/wal_rec_hdr.h"
 
 ////////////////////////////////////////////////////////////
 // UNDO (Figure 12)
@@ -23,33 +26,81 @@
 err_t
 pgr_restart_undo (struct pager *p, struct aries_ctx *ctx, error *e)
 {
-  i_log_info ("restart undo\n");
+  i_log_info ("Starting Undo phase.\n");
 
-  // WHILE EXISTS Trans_Table entry with Status=U DO
   while (true)
     {
-      // UndoLsn = maximum(UndoNxtLSN) from Trans_Table
-      // entries with State = 'U'
-      const slsn undo_lsn = txnt_max_u_undo_lsn (ctx->txt);
-
-      // !EXISTS Trans_Table entry with Status=U
+      slsn undo_lsn = txnt_max_u_undo_lsn (ctx->txt);
       if (undo_lsn < 0)
         {
           break;
         }
 
-      // LogRec = LogRead(UndoNxtLSN)
       struct wal_rec_hdr_read *log_rec = oswal_read_entry (p->ww, undo_lsn, e);
       if (log_rec == NULL)
         {
-          return error_trace (e);
+          goto failed;
         }
 
       switch (log_rec->type)
         {
         case WL_UPDATE:
           {
-            pgr_apply_undo_update (p, log_rec, ctx, e);
+            struct txn *tx;
+            txnt_get_expect (&tx, ctx->txt, log_rec->update.tid);
+
+            if (wrh_is_undoable (log_rec))
+              {
+                page_h ph = page_h_create ();
+                if (pgr_get_writable (&ph, NULL, PG_PERMISSIVE, log_rec->update.phys.pg, p, e))
+                  {
+                    goto failed;
+                  }
+
+                wrh_undo (log_rec, &ph);
+
+                // Append a clr log
+                slsn l = oswal_append_clr_log (
+                    p->ww,
+                    (struct wal_clr_write){
+                        .type = WCLR_PHYSICAL,
+                        .tid = log_rec->update.tid,
+                        .prev = tx->data.last_lsn,
+                        .undo_next = log_rec->update.prev,
+                        .phys = {
+                            .pg = log_rec->update.phys.pg,
+                            .redo = log_rec->update.phys.undo,
+                        },
+                    },
+                    e);
+                if (l < 0)
+                  {
+                    goto failed;
+                  }
+
+                // Set the page lsn
+                page_set_page_lsn (page_h_w (&ph), l);
+
+                // Update the last lsn of the transaction
+                tx->data.last_lsn = l;
+
+                // Release this page
+                pgr_unfix (p, &ph, PG_PERMISSIVE);
+              }
+
+            // Update undo next page
+            tx->data.undo_next_lsn = log_rec->update.prev;
+
+            if (log_rec->update.prev == 0)
+              {
+                slsn l = oswal_append_end_log (p->ww, tx->tid, tx->data.last_lsn, e);
+                if (l < 0)
+                  {
+                    goto failed;
+                  }
+                txnt_remove_txn_expect (ctx->txt, tx);
+                txn_update_state (tx, TX_DONE);
+              }
             break;
           }
 
@@ -57,30 +108,25 @@ pgr_restart_undo (struct pager *p, struct aries_ctx *ctx, error *e)
           {
             struct txn *tx;
             txnt_get_expect (&tx, ctx->txt, log_rec->clr.tid);
-            txn_update_undo_next (tx, log_rec->clr.undo_next);
+            tx->data.undo_next_lsn = log_rec->clr.undo_next;
             break;
           }
 
-          // If LogRec.PrevLSN == 0 THEN
         case WL_BEGIN:
           {
-            // Log_Write('end',
-            // LogRec.TransID,
-            // Trans_Table[LogRec[LogRec.TransId].LastLSN,
-            // ...);
-            WRAP (oswal_append_end_log (p->ww, log_rec->begin.tid, undo_lsn, e));
-
-            // delete Trans_Table entry
-            // where TransID =
-            // LogRec.TransID
             struct txn *tx;
             txnt_get_expect (&tx, ctx->txt, log_rec->begin.tid);
+
+            slsn l = oswal_append_end_log (p->ww, tx->tid, tx->data.last_lsn, e);
+            if (l < 0)
+              {
+                goto failed;
+              }
             txnt_remove_txn_expect (ctx->txt, tx);
+            txn_update_state (tx, TX_DONE);
             break;
           }
         case WL_COMMIT:
-        case WL_CKPT_BEGIN:
-        case WL_CKPT_END:
         case WL_EOF:
         case WL_END:
           {
@@ -89,5 +135,10 @@ pgr_restart_undo (struct pager *p, struct aries_ctx *ctx, error *e)
         }
     }
 
+  i_log_info ("Undo phase done.\n");
+
   return SUCCESS;
+
+failed:
+  return error_trace (e);
 }

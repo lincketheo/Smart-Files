@@ -12,66 +12,24 @@
 /// See the License for the specific language governing permissions and
 /// limitations under the License.
 
+#include "c_specx/intf/logging.h"
+#include "c_specx/intf/os/threading.h"
 #include "pager.h"
 
-/**
 static void
-pgr_checkpoint_thread (void *_ctx)
+pgr_do_checkpoint (void *ctx)
 {
-  struct pager *p = _ctx;
+  struct pager *p = ctx;
   error e = error_create ();
-
-  while (!p->checkpoint_stop)
+  i_log_info ("Executing checkpoint\n");
+  if (pgr_deletion_blocking_checkpoint (p, &e))
     {
-      // Wait for cp_wake
-      i_semaphore_timed_wait (&p->cp_wake, 1);
-
-      if (p->checkpoint_stop)
-        {
-          break;
-        }
-
-      if (pgr_deletion_blocking_checkpoint (p, &e))
-        {
-          error_log_consume (&e);
-        }
+      error_log_consume (&e);
     }
-
-  i_semaphore_post (&p->cp_done);
 }
-*/
 
 err_t
 pgr_launch_checkpoint_thread (struct pager *p, u64 msec, error *e)
 {
-  p->checkpoint_stop = false;
-
-  if (i_semaphore_create (&p->cp_wake, 0, e))
-    {
-      goto theend;
-    }
-
-  if (i_semaphore_create (&p->cp_done, 0, e))
-    {
-      goto fail_wake;
-    }
-
-  /**
-  if (tp_add_task (p->tp, pgr_checkpoint_thread, p, e))
-  {
-  goto fail_done;
-  }
-  */
-
-  p->checkpoint_thread_running = true;
-
-  goto theend;
-
-  // fail_done:
-  i_semaphore_free (&p->cp_done);
-fail_wake:
-  i_semaphore_free (&p->cp_wake);
-
-theend:
-  return error_trace (e);
+  return periodic_task_start (&p->checkpoint_task, msec, pgr_do_checkpoint, p, e);
 }

@@ -49,8 +49,6 @@ struct os_wal_vtable
   slsn (*append_begin_log) (struct os_wal *self, txid tid, error *e);
   slsn (*append_commit_log) (struct os_wal *self, txid tid, lsn prev, error *e);
   slsn (*append_end_log) (struct os_wal *self, txid tid, lsn prev, error *e);
-  slsn (*append_ckpt_begin) (struct os_wal *self, error *e);
-  slsn (*append_ckpt_end) (struct os_wal *self, struct txn_table *att, struct dpg_table *dpt, error *e);
   slsn (*append_update_log) (struct os_wal *self, struct wal_update_write update, error *e);
   slsn (*append_clr_log) (struct os_wal *self, struct wal_clr_write clr, error *e);
   slsn (*append_log) (struct os_wal *self, struct wal_rec_hdr_write *hdr, error *e);
@@ -128,18 +126,6 @@ HEADER_FUNC slsn
 oswal_append_end_log (struct os_wal *w, const txid tid, const lsn prev, error *e)
 {
   return w->vtable->append_end_log (w, tid, prev, e);
-}
-
-HEADER_FUNC slsn
-oswal_append_ckpt_begin (struct os_wal *w, error *e)
-{
-  return w->vtable->append_ckpt_begin (w, e);
-}
-
-HEADER_FUNC slsn
-oswal_append_ckpt_end (struct os_wal *w, struct txn_table *att, struct dpg_table *dpt, error *e)
-{
-  return w->vtable->append_ckpt_end (w, att, dpt, e);
 }
 
 HEADER_FUNC slsn

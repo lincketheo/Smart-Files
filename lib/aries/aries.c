@@ -15,13 +15,13 @@
 #include "aries.h"
 
 #include "c_specx.h"
+#include "c_specx/memory/slab_alloc.h"
 #include "txns/txn.h"
 #include "txns/txn_table.h"
 
 err_t
-aries_ctx_create (struct aries_ctx *dest, const lsn master_lsn, error *e)
+aries_ctx_create (struct aries_ctx *dest, error *e)
 {
-  dest->master_lsn = master_lsn;
   dest->max_tid = 0;
   slab_alloc_init (&dest->alloc, sizeof (struct txn), 1000);
 
@@ -62,4 +62,22 @@ aries_ctx_free (struct aries_ctx *ctx)
   txnt_close (ctx->txt);
   dpgt_close (ctx->dpt);
   dblb_free (&ctx->txn_ptrs);
+}
+
+struct txn *
+aries_ctx_txn_alloc (struct aries_ctx *ctx, error *e)
+{
+  struct txn *tx = slab_alloc_alloc (&ctx->alloc, e);
+  if (tx == NULL)
+    {
+      return NULL;
+    }
+
+  if (dblb_append (&ctx->txn_ptrs, &tx, 1, e))
+    {
+      slab_alloc_free (&ctx->alloc, tx);
+      return NULL;
+    }
+
+  return tx;
 }

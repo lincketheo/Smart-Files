@@ -37,7 +37,6 @@ pgr_make_writable (struct pager *p, struct txn *tx, page_h *h, error *e)
   pgw->page.pg = h->pgr->page.pg;
 
   // Modify pgr
-  h->pgr->flags |= PW_DIRTY;
   h->pgr->wsibling = clock;
 
   // Set h
