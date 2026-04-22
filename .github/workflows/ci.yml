@@ -9,6 +9,7 @@ jobs:
     env:
       TEST_BIN: ./build/${{ matrix.preset }}/apps/test
       SAMPLES_DIR: ./build/${{ matrix.preset }}/apps/samples
+      LEAKS: leaks --atExit --exitcode --
       VALGRIND: |
         valgrind
           --tool=memcheck
@@ -36,16 +37,16 @@ jobs:
           - { os: ubuntu-latest,  preset: debug-ntests,          run_tests: false, extra: false }
           - { os: ubuntu-latest,  preset: debug-ntests-no-asan,  run_tests: false, extra: false }
           - { os: ubuntu-latest,  preset: release,               run_tests: false, extra: false }
-          - { os: ubuntu-latest,  preset: release-tests,         run_tests: true,  extra: false }
+          - { os: ubuntu-latest,  preset: release-tests,         run_tests: true,  extra: true  }
           - { os: ubuntu-latest,  preset: package-release,       run_tests: false, extra: false }
 
           # macOS
           - { os: macos-latest,   preset: debug,                 run_tests: true,  extra: false }
           - { os: macos-latest,   preset: debug-no-asan,         run_tests: true,  extra: true  }
           - { os: macos-latest,   preset: debug-ntests,          run_tests: false, extra: false }
-          - { os: macos-latest,   preset: debug-ntests-no-asan,  run_tests: false, extra: true  }
+          - { os: macos-latest,   preset: debug-ntests-no-asan,  run_tests: false, extra: false }
           - { os: macos-latest,   preset: release,               run_tests: false, extra: false }
-          - { os: macos-latest,   preset: release-tests,         run_tests: true,  extra: false }
+          - { os: macos-latest,   preset: release-tests,         run_tests: true,  extra: true  }
           - { os: macos-latest,   preset: package-release,       run_tests: false, extra: false }
 
           # Windows 
@@ -87,12 +88,7 @@ jobs:
 
       - name: Test (leaks)
         if: matrix.extra && matrix.os == 'macos-latest'
-        shell: bash
-        run: |
-          set -o pipefail
-          leaks --atExit -- ${{ env.TEST_BIN }} 2>&1 | tee /tmp/leaks-${{ matrix.preset }}.txt
-          grep -q "0 leaks for 0 total leaked bytes" /tmp/leaks-${{ matrix.preset }}.txt \
-            || (echo "FAIL: leaks detected in preset '${{ matrix.preset }}'"; exit 1)
+        run: ${{ env.LEAKS }} ${{ env.TEST_BIN }}
 
       - name: Test (valgrind)
         if: matrix.extra && matrix.os == 'ubuntu-latest'
@@ -123,13 +119,10 @@ jobs:
         if: matrix.extra && matrix.os == 'macos-latest'
         shell: bash
         run: |
-          set -o pipefail
           for sample in ${{ env.SAMPLES_DIR }}/*; do
             [ -x "$sample" ] || continue
             echo "Running $sample"
-            leaks --atExit -- "$sample" 2>&1 | tee /tmp/leaks-$(basename $sample).txt
-            grep -q "0 leaks for 0 total leaked bytes" /tmp/leaks-$(basename $sample).txt \
-              || (echo "FAIL: leaks detected in $sample"; exit 1)
+            ${{ env.LEAKS }} "$sample"
           done
 
       - name: Samples (valgrind)
