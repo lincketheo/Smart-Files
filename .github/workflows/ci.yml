@@ -84,38 +84,38 @@ jobs:
         if: '!matrix.extra && matrix.os != ''windows-latest'''
         shell: bash
         run: |
-          for sample in ${{ env.SAMPLES_DIR }}/*; do
-            [ -x "$sample" ] || continue
-            echo "Running $sample"
-            "$sample"
-          done
+          ${{ env.SAMPLES_DIR }}/sample1_basic_crud
+          ${{ env.SAMPLES_DIR }}/sample2_transactions
+          ${{ env.SAMPLES_DIR }}/sample3_stride
+          ${{ env.SAMPLES_DIR }}/sample4_variable_names
+          ${{ env.SAMPLES_DIR }}/sample5_rollback_commit
 
       - name: Samples
         if: '!matrix.extra && matrix.os == ''windows-latest'''
         shell: bash
         run: |
-          for sample in ./build/${{ matrix.preset }}/apps/Debug/samples/*; do
-            [[ "$sample" == *.exe ]] || continue
-            echo "Running $sample"
-            "$sample"
-          done
+          ./build/${{ matrix.preset }}/apps/Debug/samples/sample1_basic_crud.exe
+          ./build/${{ matrix.preset }}/apps/Debug/samples/sample2_transactions.exe
+          ./build/${{ matrix.preset }}/apps/Debug/samples/sample3_stride.exe
+          ./build/${{ matrix.preset }}/apps/Debug/samples/sample4_variable_names.exe
+          ./build/${{ matrix.preset }}/apps/Debug/samples/sample5_rollback_commit.exe
 
       - name: Samples (leaks)
         if: matrix.extra && matrix.os == 'macos-latest'
         shell: bash
         run: |
-          for sample in ${{ env.SAMPLES_DIR }}/*; do
-            [ -x "$sample" ] || continue
-            echo "Running $sample"
-            ${{ env.LEAKS }} "$sample"
-          done
+          ${{ env.LEAKS }} ${{ env.SAMPLES_DIR }}/sample1_basic_crud
+          ${{ env.LEAKS }} ${{ env.SAMPLES_DIR }}/sample2_transactions
+          ${{ env.LEAKS }} ${{ env.SAMPLES_DIR }}/sample3_stride
+          ${{ env.LEAKS }} ${{ env.SAMPLES_DIR }}/sample4_variable_names
+          ${{ env.LEAKS }} ${{ env.SAMPLES_DIR }}/sample5_rollback_commit
 
       - name: Samples (valgrind)
         if: matrix.extra && matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
-          for sample in ${{ env.SAMPLES_DIR }}/*; do
-            [ -x "$sample" ] || continue
-            echo "Running $sample"
-            ${{ env.VALGRIND }} "$sample"
-          done
+          ${{ env.VALGRIND }} ${{ env.SAMPLES_DIR }}/sample1_basic_crud
+          ${{ env.VALGRIND }} ${{ env.SAMPLES_DIR }}/sample2_transactions
+          ${{ env.VALGRIND }} ${{ env.SAMPLES_DIR }}/sample3_stride
+          ${{ env.VALGRIND }} ${{ env.SAMPLES_DIR }}/sample4_variable_names
+          ${{ env.VALGRIND }} ${{ env.SAMPLES_DIR }}/sample5_rollback_commit
