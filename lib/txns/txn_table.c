@@ -87,6 +87,7 @@ TEST (txnt_open)
 }
 #endif
 
+#ifndef NLOG
 static const char *
 txn_state_to_str (const int state)
 {
@@ -100,6 +101,7 @@ txn_state_to_str (const int state)
 
   UNREACHABLE ();
 }
+#endif
 
 static void
 i_log_txn_in_txnt (struct hnode *node, void *_log_level)
