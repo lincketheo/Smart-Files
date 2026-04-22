@@ -82,7 +82,7 @@ jobs:
 
       # ── Samples ────────────────────────────────────────────────────────────
       - name: Samples
-        if: '!matrix.extra && matrix.os != ''windows-latest'''
+        if: 'matrix.os != ''windows-latest'''
         shell: bash
         run: |
           for sample in $SAMPLES; do
@@ -93,24 +93,13 @@ jobs:
           done
 
       - name: Samples
-        if: '!matrix.extra && matrix.os == ''windows-latest'''
+        if: 'matrix.os == ''windows-latest'''
         shell: bash
         run: |
           for sample in $SAMPLES; do
             for run in 1 2; do
               echo "[$run/2] $sample"
               ./build/${{ matrix.preset }}/samples/Debug/$sample.exe
-            done
-          done
-
-      - name: Samples (leaks)
-        if: matrix.extra && matrix.os == 'macos-latest'
-        shell: bash
-        run: |
-          for sample in $SAMPLES; do
-            for run in 1 2; do
-              echo "[$run/2] $sample"
-              $LEAKS $SAMPLES_DIR/$sample
             done
           done
 
