@@ -14,7 +14,7 @@ jobs:
           - { os: ubuntu-latest,  preset: debug,                 run_tests: true,  extra: false } 
           - { os: ubuntu-latest,  preset: debug-no-asan,         run_tests: true,  extra: true  }
           - { os: ubuntu-latest,  preset: debug-ntests,          run_tests: false, extra: false }
-          - { os: ubuntu-latest,  preset: debug-ntests-no-asan,  run_tests: false, extra: true  }
+          - { os: ubuntu-latest,  preset: debug-ntests-no-asan,  run_tests: false, extra: false }
           - { os: ubuntu-latest,  preset: release,               run_tests: false, extra: false }
           - { os: ubuntu-latest,  preset: release-tests,         run_tests: true,  extra: false }
           - { os: ubuntu-latest,  preset: package-release,       run_tests: false, extra: false }
@@ -55,11 +55,11 @@ jobs:
         run: cmake --build --preset ${{ matrix.preset }}
 
       - name: Test
-        if: matrix.run_tests && matrix.os != 'windows-latest'
+        if: matrix.run_tests && !matrix.extra && matrix.os != 'windows-latest'
         run: ./build/${{ matrix.preset }}/apps/test
 
       - name: Test
-        if: matrix.run_tests && matrix.os == 'windows-latest'
+        if: matrix.run_tests && !matrix.extra && matrix.os == 'windows-latest'
         run: ./build/${{ matrix.preset }}/apps/Debug/test.exe
 
       - name: Install Valgrind
