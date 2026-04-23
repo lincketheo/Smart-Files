@@ -22,6 +22,11 @@ Lots of programming has been built on top of the standard file. All programming 
 
 Written in C with no dependencies. Developed in POSIX - Windows builds compile but are not integrated into CI/CD yet (good first contribution).
 
+## A note on CLAUDE 
+
+Yes, I use ai to write code. But you fundamentally cannot write a database engine from scratch using AI. It's impossible. Try it. If you're skeptical, fine. I get it,
+but read through my code, make up your own mind if you think I AI generated my code.
+
 ## Quick Start
 
 ### Build the release mode:
