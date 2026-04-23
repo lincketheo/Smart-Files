@@ -24,8 +24,8 @@ Written in C with no dependencies. Developed in POSIX - Windows builds compile b
 
 ## A note on CLAUDE 
 
-Yes, I use ai to write code. But you fundamentally cannot write a database engine from scratch using AI. It's impossible. Try it. If you're skeptical, fine. I get it,
-but read through my code, make up your own mind if you think I AI generated my code.
+Yes, I use ai to write some code. But you fundamentally cannot write a database engine from scratch using AI. It's impossible. Try it. If you're skeptical, fine. I get it,
+but read through my code, make up your own mind if you think I AI generated my code. 
 
 ## Quick Start
 
