@@ -63,31 +63,6 @@ _ns_read_next_amount (
 
 // TODO - (4) tighten up the while loop to loop inside a page - rather than one
 // read per loop
-/*
- * Read elements from the R+Tree with an optional stride, scanning forward.
- *
- * After seeking to the starting byte offset, the reader alternates between
- * two states:
- *
- *   ACTIVE   — bytes are copied into params->dest.  After reading [size]
- *              bytes (one element), bnext is reset to (stride-1)*size and
- *              state switches to SKIPPING.
- *   SKIPPING — bytes are advanced past without copying (consumed from the
- *              page without writing to dest).  After skipping (stride-1)*size
- *              bytes, bnext is reset to [size] and state switches to ACTIVE.
- *
- * When stride == 1 the SKIPPING phase has zero bytes and is optimized out:
- * the reader stays ACTIVE for the entire pass.
- *
- * The loop exits when:
- *   - total bytes read reaches max_bread (nelem elements requested, all read),
- *   - params->dest signals it is done (DEST_DONE_READING), or
- *   - the end of the data-list chain is reached (DATA_EXHAUSTED).
- *
- * The return value is the number of complete elements read, not bytes.  If
- * the total bytes transferred is not a multiple of [size], the data is
- * considered corrupt and an error is returned.
- */
 static sb_size
 _ns_read_forward (const struct _ns_read_params params, error *e)
 {

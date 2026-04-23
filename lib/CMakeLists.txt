@@ -3,7 +3,8 @@ file(GLOB_RECURSE NS_SOURCES  CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/*.c
 
 # The main library
 add_library(smartfiles STATIC ${NS_SOURCES})
-target_link_libraries(smartfiles PRIVATE c_specx)
+target_sources(smartfiles PRIVATE $<TARGET_OBJECTS:c_specx>)
+target_include_directories(smartfiles PRIVATE $<TARGET_PROPERTY:c_specx,INTERFACE_INCLUDE_DIRECTORIES>)
 target_include_directories(smartfiles
     PUBLIC  "${CMAKE_SOURCE_DIR}/include"
     PRIVATE "${CMAKE_SOURCE_DIR}/lib"

@@ -52,7 +52,7 @@ pgr_restart (struct pager *p, struct aries_ctx *ctx, error *e)
     }
 
   // This is a good time to do a checkpoint
-  // pgr_deletion_blocking_checkpoint (p, e);
+  pgr_deletion_blocking_checkpoint (p, e);
 
 theend:
   aries_ctx_free (ctx);
