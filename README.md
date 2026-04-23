@@ -8,12 +8,12 @@ The concept of a file has had the same definition for the past 50 years. Today I
 
 Lots of programming has been built on top of the standard file. All programming languages use files. Files are arrays of bytes. They grow, they shrink, and they seek. But the standard file has two fundamental problems:
 
-**THE SHORT COMINGS OF STANDARD FILES**
+**The short comings of standard files:**
 
 1. **Not transactional.** A call to `fwrite` does not guarantee that many bytes actually landed on disk. A crash mid-write leaves your file in an unknown state with no way to recover.
 2. **No first-class inner mutations.** There is no standard way to insert or remove a chunk of bytes in the middle of a file without rewriting everything after it.
 
-**SMART FILES FIXES BOTH, AND ADDS TWO MORE THINGS:**
+**Smart files fixes both, and adds two more features:**
 
 1. **Transactions.** Smart files log modifications in a write ahead log so that every mutation commits fully or rolls back - a crash mid-write leaves nothing corrupt.
 2. **Inner mutations.** Insert or remove bytes anywhere in the stream in O(log N) time.
