@@ -4,7 +4,7 @@
 
 # Smart Files
 
-The concept of a file has had the same definition for the past 50 years. Today I'm announcing the launch of Smart Files, a new API that gets past the hurdles of old school linear, non-transactional system files.
+The concept of a file has had the same definition for the past 50 years. Smart Files is a new API that gets past the hurdles of old school linear, non-transactional system files.
 
 Lots of programming has been built on top of the standard file. All programming languages use files. Files are arrays of bytes. They grow, they shrink, and they seek. But the standard file has two fundamental problems:
 
