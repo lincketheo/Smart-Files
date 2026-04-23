@@ -18,38 +18,6 @@
 #include "lockt/lt_lock.h"
 #include "smfile.h"
 
-/*
- * Transaction State
- *
- * A transaction goes through the following states during normal operation:
- *
- *   TX_RUNNING          — active; has been started but not yet committed or
- *                         aborted.
- *   TX_DONE             — committed and END record written; removed from ATT.
- *
- * During ARIES recovery two additional states arise:
- *
- *   TX_CANDIDATE_FOR_UNDO — transaction was active at crash time (no COMMIT
- *                           seen during analysis); must be rolled back in the
- *                           undo phase.  Corresponds to state 'U' (unprepared)
- *                           in the original ARIES paper.
- *   TX_COMMITTED          — COMMIT record seen but no END record; the undo
- *                           phase will skip this transaction; the analysis
- *                           phase will append its END record.  Corresponds to
- *                           state 'P' (prepared/committed) in the paper.
- *
- * The three LSN fields in txn_data serve distinct roles:
- *
- *   min_lsn         — LSN of the BEGIN record; used to bound how far back a
- *                     checkpoint must retain WAL records.
- *   last_lsn        — LSN of the most recent log record written by this
- *                     transaction; updated on every pgr_release() and
- *                     appended to COMMIT/END records so the next record in
- *                     this transaction's chain can be found.
- *   undo_next_lsn   — during normal operation equals last_lsn; during undo
- *                     decrements as each update is reversed, pointing to the
- *                     predecessor update that still needs to be undone.
- */
 struct txn_data
 {
   // In the ARIES paper:

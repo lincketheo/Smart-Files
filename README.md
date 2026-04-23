@@ -145,6 +145,22 @@ The same read as step 3, but the stream has changed shape after the removal. Ele
 
 The last strided read returns `[0, 1, 2, 3, ...]` — the overwrite in step 6 restored a clean sequence at every even position.
 
+## Project Structure:
+
+All the public headers are in `include` all the source code is in `lib`. I pulled off c_specx as core software that I could reuse for other c applications inside thirdparty/c_specx, but that's all my own code - no dependencies.
+
+`lib` is roughly ordered by function
+- `algorithms` contains the rope algorithms and database traversal algorithms
+- `aries` contains all the logic for rollback, and crash recovery 
+- `dpgt` is the dirty page table logic 
+- `lockt` is the lock table 
+- `os_pager` is a single file pager which simply reads pages from a file
+- `pager` is a really important module - it contains all the pager logic for initializing a buffer pool, and reading pages and writing WAL entries 
+- `pages` contains all the different  types of pages that Smart Files uses 
+- `testing` has some test specific code 
+- `txns` has the transaction table, and anything that revolves around transactions 
+- `wal` contains write ahead log code
+
 ## Contributing
 
 File a ticket on GitHub for bugs, feature requests, or questions. Pull requests welcome - see [CONTRIBUTING.md](CONTRIBUTING.md).
